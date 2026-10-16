@@ -52,41 +52,20 @@ import {
   duplicateNodeInTree 
 } from '../utils/treeOperations';
 
-const DEFAULT_PROJECT_EXAMPLE = `TreeForgeApp/
+const DEFAULT_PROJECT_EXAMPLE = `MyProject/
 ├── main.py
-├── config.py
 ├── requirements.txt
-├── Dockerfile
 ├── README.md
-├── .env.example
-├── assets/
-│   ├── icons/ (logo.svg, app.ico)
-│   └── styles/ (theme.qss, dark.tokens.json)
-├── ui/
-│   ├── __init__.py
-│   ├── main_window.py
-│   ├── components/ (sidebar.py, header.py, toast.py)
-│   └── views/ (dashboard_view.py, editor_view.py, settings_view.py)
-├── core/
-│   ├── __init__.py
-│   ├── engine.py
-│   ├── parser.py
+├── app/
+│   ├── server.py
 │   └── models.py
-├── services/
-│   ├── __init__.py
-│   ├── api_service.py
-│   ├── storage_service.py
-│   └── telemetry.py
 └── tests/
-    ├── __init__.py
-    ├── conftest.py
-    ├── test_engine.py
-    └── test_views.py`;
+    └── test_server.py`;
 
 const PRESET_TEMPLATES: Record<string, { nameAr: string; nameEn: string; tree: string }> = {
   default_app: {
-    nameAr: 'النموذج الافتراضي (TreeForgeApp)',
-    nameEn: 'Default App (TreeForgeApp)',
+    nameAr: 'النموذج الافتراضي (MyProject)',
+    nameEn: 'Default App (MyProject)',
     tree: DEFAULT_PROJECT_EXAMPLE,
   },
   fastapi: {

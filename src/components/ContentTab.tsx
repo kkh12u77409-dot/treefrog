@@ -109,24 +109,14 @@ export const ContentTab: React.FC<ContentTabProps> = ({
   const isAr = language === 'ar';
   const [subTab, setSubTab] = useState<'batch' | 'single' | 'queue'>('batch');
 
-  // Candidate file list (if none passed from builder, supply default TreeForgeApp list)
+  // Candidate file list (if none passed from builder, supply default MyProject list)
   const filesList = candidateFiles.length > 0 ? candidateFiles : [
-    'TreeForgeApp/main.py',
-    'TreeForgeApp/config.py',
-    'TreeForgeApp/requirements.txt',
-    'TreeForgeApp/Dockerfile',
-    'TreeForgeApp/README.md',
-    'TreeForgeApp/.env.example',
-    'TreeForgeApp/assets/styles/theme.qss',
-    'TreeForgeApp/ui/main_window.py',
-    'TreeForgeApp/ui/components/sidebar.py',
-    'TreeForgeApp/ui/components/header.py',
-    'TreeForgeApp/ui/views/dashboard_view.py',
-    'TreeForgeApp/core/engine.py',
-    'TreeForgeApp/core/parser.py',
-    'TreeForgeApp/services/api_service.py',
-    'TreeForgeApp/services/storage_service.py',
-    'TreeForgeApp/tests/test_engine.py',
+    'MyProject/main.py',
+    'MyProject/requirements.txt',
+    'MyProject/README.md',
+    'MyProject/app/server.py',
+    'MyProject/app/models.py',
+    'MyProject/tests/test_server.py',
   ];
 
   // In-memory file storage

@@ -25,36 +25,15 @@ from .widgets.themed_combo import ThemedComboBox, PathComboBox
 from .context_menus import create_tree_input_context_menu, create_structure_tree_context_menu
 
 
-EXAMPLE_TREE = """TreeForgeApp/
+EXAMPLE_TREE = """MyProject/
 ├── main.py
-├── config.py
 ├── requirements.txt
-├── Dockerfile
 ├── README.md
-├── .env.example
-├── assets/
-│   ├── icons/ (logo.svg, app.ico)
-│   └── styles/ (theme.qss, dark.tokens.json)
-├── ui/
-│   ├── __init__.py
-│   ├── main_window.py
-│   ├── components/ (sidebar.py, header.py, toast.py)
-│   └── views/ (dashboard_view.py, editor_view.py, settings_view.py)
-├── core/
-│   ├── __init__.py
-│   ├── engine.py
-│   ├── parser.py
+├── app/
+│   ├── server.py
 │   └── models.py
-├── services/
-│   ├── __init__.py
-│   ├── api_service.py
-│   ├── storage_service.py
-│   └── telemetry.py
 └── tests/
-    ├── __init__.py
-    ├── conftest.py
-    ├── test_engine.py
-    └── test_views.py"""
+    └── test_server.py"""
 
 
 class BuilderPage(QWidget):
