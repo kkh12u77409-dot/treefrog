@@ -1,0 +1,5 @@
+# TreeForge Desktop Application Dependencies
+PyQt6>=6.6.1
+PyQt6-Qt6>=6.6.1
+pytest>=7.4.4
+pyinstaller>=6.3.0

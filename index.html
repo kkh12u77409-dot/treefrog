@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TreeForge - Python PyQt6 Project & Code Scaffolder</title>
+    <meta name="description" content="تطبيق متكامل لتحويل هياكل المجلدات النصية إلى مشاريع برمجية حقيقية وحقن الأكواد في ملفات متعددة دفعة واحدة، مع حزمة بايثون المكتبية الكاملة PyQt6." />
+    <meta property="og:title" content="TreeForge - Python PyQt6 Project & Code Scaffolder" />
+    <meta property="og:description" content="تطبيق متكامل لتحويل هياكل المجلدات النصية إلى مشاريع برمجية حقيقية وحقن الأكواد في ملفات متعددة دفعة واحدة، مع حزمة بايثون المكتبية الكاملة PyQt6." />
+    <meta property="og:type" content="website" />
+    <link rel="icon" type="image/jpeg" href="/src/assets/images/treeforge_logo_1792138921289.jpg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      vite-error-overlay {
+        display: none !important;
+      }
+    </style>
+    <script>
+      // Suppress harmless Vite dev WebSocket errors in AI Studio iframe environment
+      (function() {
+        var origConsoleError = console.error;
+        console.error = function() {
+          var args = Array.prototype.slice.call(arguments);
+          var msg = args.map(function(a) { 
+            return (a && (a.message || a.stack || (typeof a === 'object' ? JSON.stringify(a) : String(a)))) || ''; 
+          }).join(' ').toLowerCase();
+
+          if (
+            msg.indexOf('websocket') !== -1 || 
+            msg.indexOf('failed to connect') !== -1 ||
+            msg.indexOf('closed without opened') !== -1 || 
+            msg.indexOf('@vite/client') !== -1 ||
+            msg.indexOf('failed to connect to websocket') !== -1
+          ) {
+            return;
+          }
+          return origConsoleError.apply(console, arguments);
+        };
+
+        function isWsError(err) {
+          if (!err) return false;
+          var msg = (err.message || err.stack || String(err) || '').toLowerCase();
+          return msg.indexOf('websocket') !== -1 || msg.indexOf('closed without opened') !== -1 || msg.indexOf('@vite/client') !== -1 || msg.indexOf('failed to connect') !== -1;
+        }
+
+        window.addEventListener('unhandledrejection', function (event) {
+          if (isWsError(event.reason)) {
+            event.preventDefault();
+            if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+            return true;
+          }
+        }, true);
+
+        window.addEventListener('error', function (event) {
+          if (isWsError(event.error) || isWsError(event.message)) {
+            event.preventDefault();
+            if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+            return true;
+          }
+        }, true);
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

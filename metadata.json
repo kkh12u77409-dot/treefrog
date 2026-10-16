@@ -1,0 +1,6 @@
+{
+  "name": "TreeForge - Python PyQt6 Project & Code Scaffolder",
+  "description": "تطبيق متكامل لتحويل هياكل المجلدات النصية إلى مشاريع برمجية حقيقية وحقن الأكواد في ملفات متعددة دفعة واحدة، مع حزمة بايثون المكتبية الكاملة PyQt6.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
