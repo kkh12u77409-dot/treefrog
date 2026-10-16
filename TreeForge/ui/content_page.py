@@ -417,7 +417,7 @@ class ContentPage(QWidget):
         if hasattr(self, "combo_newline") and self.combo_newline.currentData():
             self.file_writer.newline_mode = self.combo_newline.currentData()
 
-        success, msg, _ = self.file_writer.write_file(target_path, content)
+        success, msg, _ = self.file_writer.write_file(target_path, content, policy=ItemPolicy.OVERWRITE)
         if success:
             show_toast(self, i18n.t("saved_success"), "success")
         else:
@@ -458,7 +458,7 @@ class ContentPage(QWidget):
         errors = []
         for path, content in self.queue:
             target = self.current_root_dir / path
-            success, msg, _ = self.file_writer.write_file(target, content)
+            success, msg, _ = self.file_writer.write_file(target, content, policy=ItemPolicy.OVERWRITE)
             if success:
                 saved_count += 1
             else:

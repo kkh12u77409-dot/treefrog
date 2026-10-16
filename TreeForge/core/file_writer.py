@@ -46,7 +46,12 @@ class FileWriter:
         self.newline_mode = newline_mode
         self._last_backups: List[Tuple[Path, Path]] = []  # (original_path, backup_path)
 
-    def write_file(self, target_path: Path, content: str) -> Tuple[bool, str, Optional[Path]]:
+    def write_file(
+        self,
+        target_path: Path,
+        content: str,
+        policy: Optional[ItemPolicy] = None
+    ) -> Tuple[bool, str, Optional[Path]]:
         """Write content to target_path with atomic replacement.
         
         Returns (success, message, final_path_used).
@@ -56,14 +61,21 @@ class FileWriter:
             parent = target_path.parent
             parent.mkdir(parents=True, exist_ok=True)
 
+            effective_policy = policy if policy is not None else self.policy
+            if isinstance(effective_policy, str):
+                try:
+                    effective_policy = ItemPolicy(effective_policy.lower())
+                except ValueError:
+                    effective_policy = ItemPolicy.OVERWRITE
+
             final_target = target_path
 
             if target_path.exists():
-                if self.policy == ItemPolicy.SKIP:
+                if effective_policy == ItemPolicy.SKIP:
                     return False, "File exists (skipped by policy)", target_path
-                elif self.policy == ItemPolicy.AUTO_RENAME:
+                elif effective_policy == ItemPolicy.AUTO_RENAME:
                     final_target = get_unique_filename(target_path)
-                elif self.policy == ItemPolicy.OVERWRITE:
+                elif effective_policy == ItemPolicy.OVERWRITE:
                     if self.create_backups:
                         bak_path = target_path.with_suffix(target_path.suffix + ".bak")
                         try:

@@ -71,6 +71,26 @@ class TestFileWriter(unittest.TestCase):
         self.assertTrue(success)
         self.assertEqual(target.read_text(encoding="utf-8"), "new saved text")
 
+    def test_policy_override_in_write_file(self):
+        # Even if writer is initialized with SKIP, calling write_file with OVERWRITE succeeds
+        writer = FileWriter(policy=ItemPolicy.SKIP)
+        target = self.test_dir / "requirements.txt"
+        target.write_text("# old content", encoding="utf-8")
+
+        success, msg, _ = writer.write_file(target, "# new content", policy=ItemPolicy.OVERWRITE)
+        self.assertTrue(success)
+        self.assertEqual(target.read_text(encoding="utf-8"), "# new content")
+
+    def test_string_policy_normalization(self):
+        writer = FileWriter(policy=ItemPolicy.SKIP)
+        target = self.test_dir / "config.json"
+        target.write_text("{}", encoding="utf-8")
+
+        success, msg, _ = writer.write_file(target, '{"updated": true}', policy="overwrite")
+        self.assertTrue(success)
+        self.assertEqual(target.read_text(encoding="utf-8"), '{"updated": true}')
+
 
 if __name__ == "__main__":
     unittest.main()
+
