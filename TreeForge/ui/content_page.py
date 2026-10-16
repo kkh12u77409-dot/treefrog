@@ -38,7 +38,7 @@ class ContentPage(QWidget):
         self.tree_files: List[str] = []
         self.chunks: List[FileChunk] = []
         self.queue: List[Tuple[str, str]] = []  # (rel_path, content)
-        self.file_writer = FileWriter()
+        self.file_writer = FileWriter(policy=ItemPolicy.OVERWRITE, create_backups=True)
         self.worker: Optional[BatchWriterWorker] = None
 
         self._setup_ui()
@@ -407,6 +407,16 @@ class ContentPage(QWidget):
 
         target_path = self.current_root_dir / rel
         content = self.editor.toPlainText()
+
+        # Enforce OVERWRITE policy for the active file editor
+        self.file_writer.policy = ItemPolicy.OVERWRITE
+        if hasattr(self, "chk_backups"):
+            self.file_writer.create_backups = self.chk_backups.isChecked()
+        if hasattr(self, "chk_bom"):
+            self.file_writer.use_bom = self.chk_bom.isChecked()
+        if hasattr(self, "combo_newline") and self.combo_newline.currentData():
+            self.file_writer.newline_mode = self.combo_newline.currentData()
+
         success, msg, _ = self.file_writer.write_file(target_path, content)
         if success:
             show_toast(self, i18n.t("saved_success"), "success")
@@ -434,11 +444,31 @@ class ContentPage(QWidget):
     def _save_queue(self) -> None:
         if not self.current_root_dir or not self.queue:
             return
+
+        # Enforce OVERWRITE policy when flushing queue to target files
+        self.file_writer.policy = ItemPolicy.OVERWRITE
+        if hasattr(self, "chk_backups"):
+            self.file_writer.create_backups = self.chk_backups.isChecked()
+        if hasattr(self, "chk_bom"):
+            self.file_writer.use_bom = self.chk_bom.isChecked()
+        if hasattr(self, "combo_newline") and self.combo_newline.currentData():
+            self.file_writer.newline_mode = self.combo_newline.currentData()
+
+        saved_count = 0
+        errors = []
         for path, content in self.queue:
             target = self.current_root_dir / path
-            self.file_writer.write_file(target, content)
-        show_toast(self, i18n.t("toast_saved_queue", count=len(self.queue)), "success")
-        self._clear_queue()
+            success, msg, _ = self.file_writer.write_file(target, content)
+            if success:
+                saved_count += 1
+            else:
+                errors.append(f"{path}: {msg}")
+
+        if errors:
+            show_toast(self, i18n.t("toast_save_failed", error=", ".join(errors[:2])), "error")
+        else:
+            show_toast(self, i18n.t("toast_saved_queue", count=saved_count), "success")
+            self._clear_queue()
 
     def _clear_queue(self) -> None:
         self.queue.clear()

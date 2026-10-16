@@ -61,5 +61,16 @@ class TestFileWriter(unittest.TestCase):
         self.assertEqual(target.read_text(encoding="utf-8"), "v1")
 
 
+    def test_default_policy_is_overwrite(self):
+        writer = FileWriter()
+        self.assertEqual(writer.policy, ItemPolicy.OVERWRITE)
+        target = self.test_dir / "existing_editor_file.txt"
+        target.write_text("old text", encoding="utf-8")
+
+        success, msg, _ = writer.write_file(target, "new saved text")
+        self.assertTrue(success)
+        self.assertEqual(target.read_text(encoding="utf-8"), "new saved text")
+
+
 if __name__ == "__main__":
     unittest.main()

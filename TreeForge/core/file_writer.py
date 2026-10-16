@@ -35,7 +35,7 @@ class FileWriter:
 
     def __init__(
         self,
-        policy: ItemPolicy = ItemPolicy.SKIP,
+        policy: ItemPolicy = ItemPolicy.OVERWRITE,
         create_backups: bool = True,
         use_bom: bool = False,
         newline_mode: NewlineMode = NewlineMode.KEEP
