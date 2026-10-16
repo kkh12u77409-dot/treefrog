@@ -11,7 +11,7 @@ from PyQt6.QtGui import (
 )
 from PyQt6.QtWidgets import (
     QComboBox, QStyledItemDelegate, QStyleOptionViewItem, QWidget,
-    QLineEdit, QApplication, QListView
+    QLineEdit, QApplication, QListView, QStyle
 )
 
 from ...services.theme_service import theme
@@ -37,8 +37,8 @@ class ComboItemDelegate(QStyledItemDelegate):
 
         p = theme.palette
         rect = option.rect.adjusted(4, 2, -4, -2)
-        is_hover = bool(option.state & QStyleOptionViewItem.StateFlag.State_MouseOver)
-        is_selected = bool(option.state & QStyleOptionViewItem.StateFlag.State_Selected)
+        is_hover = bool(option.state & QStyle.StateFlag.State_MouseOver)
+        is_selected = bool(option.state & QStyle.StateFlag.State_Selected)
         is_rtl = (option.direction == Qt.LayoutDirection.RightToLeft)
 
         # 1. Background

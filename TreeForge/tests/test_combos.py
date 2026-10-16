@@ -51,6 +51,34 @@ class TestCombos(unittest.TestCase):
         self.assertEqual(deduped[1], "/projects/app2")
         self.assertEqual(deduped[2], "/projects/app3")  # dup was skipped
 
+    def test_no_qstyleoptionviewitem_stateflag_bug(self):
+        """Ensure QStyleOptionViewItem.StateFlag is never used (must use QStyle.StateFlag)."""
+        import re
+        from pathlib import Path
+        themed_combo_py = Path(__file__).resolve().parent.parent / "ui" / "widgets" / "themed_combo.py"
+        with open(themed_combo_py, "r", encoding="utf-8") as f:
+            content = f.read()
+        self.assertNotIn("QStyleOptionViewItem.StateFlag", content)
+        self.assertIn("QStyle.StateFlag.State_MouseOver", content)
+        self.assertIn("QStyle.StateFlag.State_Selected", content)
+
+    def test_all_lucide_svg_paths_are_valid(self):
+        """Ensure all Lucide SVGs in icon_service.py have valid commands and no truncated paths."""
+        import re
+        from pathlib import Path
+        icon_service_py = Path(__file__).resolve().parent.parent / "services" / "icon_service.py"
+        with open(icon_service_py, "r", encoding="utf-8") as f:
+            content = f.read()
+        paths = re.findall(r'd="([^"]+)"', content)
+        for p in paths:
+            first_char = p.strip()[0] if p.strip() else ""
+            self.assertIn(
+                first_char,
+                "mMlLhHvVcCzZqQtTaAsS",
+                f"Invalid SVG path command '{p[:20]}' found in icon_service.py"
+            )
+
 
 if __name__ == "__main__":
     unittest.main()
+
