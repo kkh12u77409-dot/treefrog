@@ -275,20 +275,24 @@ class ThemeService(QObject):
 
         QPushButton[variant="primary"] {{
             background-color: {tokens["accent_solid"]};
-            color: {tokens["on_accent"]};
+            color: #ffffff;
             border: 1px solid {tokens["accent_solid"]};
+            border-radius: {m["radius_control"]}px;
+            padding: 8px 18px;
             font-weight: 600;
+            font-size: 13px;
         }}
 
         QPushButton[variant="primary"]:hover {{
             background-color: {tokens["accent_hover"]};
             border-color: {tokens["accent_hover"]};
-            color: {tokens["on_accent"]};
+            color: #ffffff;
         }}
 
         QPushButton[variant="primary"]:pressed {{
             background-color: {tokens["accent_pressed"]};
             border-color: {tokens["accent_pressed"]};
+            color: #ffffff;
         }}
 
         QPushButton[variant="primary"]:disabled {{

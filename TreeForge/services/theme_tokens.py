@@ -26,12 +26,12 @@ DARK_TOKENS: Dict[str, str] = {
     "text_muted": "#8494ab",
     
     # Accents
-    "accent_solid": "#10b981",
-    "on_accent": "#04261b",
-    "accent_hover": "#34d399",
-    "accent_pressed": "#059669",
+    "accent_solid": "#047857",
+    "on_accent": "#ffffff",
+    "accent_hover": "#059669",
+    "accent_pressed": "#064e3b",
     "accent_text": "#34d399",
-    "accent_soft": "rgba(16,185,129,0.16)",
+    "accent_soft": "rgba(4,120,87,0.20)",
     
     # Status
     "success": "#34d399",

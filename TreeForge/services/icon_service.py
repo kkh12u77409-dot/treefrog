@@ -139,7 +139,8 @@ class IconService(QObject):
             "hover": tokens["text_primary"],
             "active": tokens["accent_text"],
             "disabled": tokens["text_muted"],
-            "on_accent": tokens["on_accent"],
+            "on_accent": "#ffffff",
+            "white": "#ffffff",
             "danger": tokens["error"],
             "success": tokens["success"],
             "warning": tokens["warning"],
@@ -169,7 +170,7 @@ class IconService(QObject):
             icon.addPixmap(pixmap, QIcon.Mode.Normal)
 
         # Also add Hover and Disabled states
-        hover_color = tokens["text_primary"] if role == "default" else base_color
+        hover_color = "#ffffff" if role in ("on_accent", "white") else (tokens["text_primary"] if role == "default" else base_color)
         hover_svg = svg_text.replace("{color}", hover_color)
         hover_renderer = QSvgRenderer(QByteArray(hover_svg.encode("utf-8")))
         hover_pix = QPixmap(size * 2, size * 2)

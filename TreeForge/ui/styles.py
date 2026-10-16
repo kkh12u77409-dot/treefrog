@@ -60,3 +60,13 @@ def create_badge(text: str, badge_type: str = "success") -> QLabel:
     lbl.setObjectName("statLabel" if badge_type == "success" else "caption")
     lbl.setProperty("badge", badge_type)
     return lbl
+
+
+def set_button_text(btn, text: str) -> None:
+    """Sets button text with guaranteed spacing away from the icon so it is never glued."""
+    if not text:
+        btn.setText("")
+        return
+    clean = text.strip()
+    btn.setText(f"   {clean}   ")
+
