@@ -70,7 +70,7 @@ class MainWindow(QMainWindow):
         brand_box.addStretch()
         sidebar_layout.addLayout(brand_box)
 
-        self.brand_sub = QLabel("Desktop Suite")
+        self.brand_sub = QLabel(i18n.t("brand_sub"))
         self.brand_sub.setObjectName("brandSub")
         sidebar_layout.addWidget(self.brand_sub)
         sidebar_layout.addSpacing(12)
@@ -165,16 +165,16 @@ class MainWindow(QMainWindow):
             if file_path.is_dir():
                 self.builder_page.dest_combo.setEditText(str(file_path))
                 self.content_page.load_tree_from_disk(str(file_path))
-                show_toast(self, f"Loaded directory: {file_path.name}", "info")
+                show_toast(self, i18n.t("toast_loaded_dir", name=file_path.name), "info")
                 break
             elif file_path.is_file() and file_path.suffix.lower() in (".txt", ".md", ".tree"):
                 try:
                     content = file_path.read_text(encoding="utf-8", errors="replace")
                     self.builder_page.tree_input.setPlainText(content)
                     self._switch_page(0)
-                    show_toast(self, f"Loaded tree file: {file_path.name}", "info")
+                    show_toast(self, i18n.t("toast_loaded_tree", name=file_path.name), "info")
                 except Exception as e:
-                    show_toast(self, f"Error reading dropped file: {e}", "error")
+                    show_toast(self, i18n.t("toast_read_error", error=str(e)), "error")
                 break
 
     def _on_theme_changed(self, theme_name: str = "") -> None:
@@ -187,9 +187,24 @@ class MainWindow(QMainWindow):
             self.content_page._on_theme_changed(theme_name)
 
     def retranslate_ui(self) -> None:
-        """Live updates for localized texts and escaping ampersands."""
+        """Live updates for localized texts, brand subtitle, and B7 RTL nav indicator."""
+        is_rtl = i18n.is_rtl()
+        rtl_str = "true" if is_rtl else "false"
+        self.sidebar.setProperty("rtl", rtl_str)
+        style = self.sidebar.style()
+        if style:
+            style.unpolish(self.sidebar)
+            style.polish(self.sidebar)
+
+        for btn in (self.btn_nav_builder, self.btn_nav_content, self.btn_nav_settings):
+            btn.setProperty("rtl", rtl_str)
+            btn_style = btn.style()
+            if btn_style:
+                btn_style.unpolish(btn)
+                btn_style.polish(btn)
+
+        self.brand_sub.setText(i18n.t("brand_sub"))
         set_button_text(self.btn_nav_builder, i18n.t("nav_builder"))
-        # Escaping '&' so it is not consumed as mnemonic
         set_button_text(self.btn_nav_content, i18n.t("nav_content"))
         set_button_text(self.btn_nav_settings, i18n.t("nav_settings"))
         self.lbl_version.setText(i18n.t("version_caption"))

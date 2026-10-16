@@ -1,12 +1,13 @@
 """Settings and preferences view for TreeForge with self-labelled language selector
-and System / Light / Dark theme preview tiles.
+and System / Light / Dark theme options.
 """
 
 from typing import Optional
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel,
-    QPushButton, QFrame, QApplication
+    QPushButton, QApplication
 )
 
 from ..services.i18n_service import i18n
@@ -39,22 +40,31 @@ class SettingsPage(QWidget):
         )
         layout.addWidget(self.header)
 
-        # CARD 1: Appearance & Language
+        # CARD 1: Appearance & Language (B8: Max width 760px)
         card1 = create_card_frame(self)
+        card1.setMaximumWidth(760)
         c1_layout = QVBoxLayout(card1)
-        c1_layout.setContentsMargins(18, 18, 18, 18)
+        c1_layout.setContentsMargins(20, 20, 20, 20)
         c1_layout.setSpacing(16)
 
         self.lbl_sec_appearance = QLabel()
         self.lbl_sec_appearance.setObjectName("sectionTitle")
         c1_layout.addWidget(self.lbl_sec_appearance)
 
-        # Theme Selector (System, Dark, Light)
-        theme_row = QHBoxLayout()
+        # B8: Theme Selector with label above input
+        theme_block = QVBoxLayout()
+        theme_block.setSpacing(6)
+
         self.lbl_theme = QLabel()
-        self.lbl_theme.setObjectName("caption")
+        lbl_font = QFont()
+        lbl_font.setPointSize(10)
+        lbl_font.setWeight(QFont.Weight.DemiBold)
+        self.lbl_theme.setFont(lbl_font)
+        self.lbl_theme.setObjectName("sectionTitle")
+        theme_block.addWidget(self.lbl_theme)
 
         self.combo_theme = ThemedComboBox()
+        self.combo_theme.setFixedHeight(36)
         self.combo_theme.add_themed_item("system", "theme_system", "monitor")
         self.combo_theme.add_themed_item("dark", "theme_dark", "moon")
         self.combo_theme.add_themed_item("light", "theme_light", "sun")
@@ -64,18 +74,20 @@ class SettingsPage(QWidget):
         if idx >= 0:
             self.combo_theme.setCurrentIndex(idx)
         self.combo_theme.activated.connect(self._on_theme_activated)
+        theme_block.addWidget(self.combo_theme)
+        c1_layout.addLayout(theme_block)
 
-        theme_row.addWidget(self.lbl_theme)
-        theme_row.addWidget(self.combo_theme, 1)
-        c1_layout.addLayout(theme_row)
+        # B8: Language Selector with label above input
+        lang_block = QVBoxLayout()
+        lang_block.setSpacing(6)
 
-        # Language Selector (Self-labelled: English & العربية with badges)
-        lang_row = QHBoxLayout()
         self.lbl_lang = QLabel()
-        self.lbl_lang.setObjectName("caption")
+        self.lbl_lang.setFont(lbl_font)
+        self.lbl_lang.setObjectName("sectionTitle")
+        lang_block.addWidget(self.lbl_lang)
 
         self.combo_lang = ThemedComboBox()
-        # Self-labelled: English with EN badge, العربية with ع badge
+        self.combo_lang.setFixedHeight(36)
         self.combo_lang.add_themed_item("en", "English", "languages", badge_text="EN")
         self.combo_lang.add_themed_item("ar", "العربية", "languages", badge_text="ع")
 
@@ -84,18 +96,17 @@ class SettingsPage(QWidget):
         if idx_lang >= 0:
             self.combo_lang.setCurrentIndex(idx_lang)
         self.combo_lang.activated.connect(self._on_language_activated)
-
-        lang_row.addWidget(self.lbl_lang)
-        lang_row.addWidget(self.combo_lang, 1)
-        c1_layout.addLayout(lang_row)
+        lang_block.addWidget(self.combo_lang)
+        c1_layout.addLayout(lang_block)
 
         layout.addWidget(card1)
 
-        # CARD 2: About TreeForge
+        # CARD 2: About TreeForge (B8: Max width 760px)
         card2 = create_card_frame(self)
+        card2.setMaximumWidth(760)
         c2_layout = QVBoxLayout(card2)
-        c2_layout.setContentsMargins(18, 18, 18, 18)
-        c2_layout.setSpacing(12)
+        c2_layout.setContentsMargins(20, 20, 20, 20)
+        c2_layout.setSpacing(14)
 
         about_head = QHBoxLayout()
         self.logo_about = QLabel()
@@ -107,15 +118,18 @@ class SettingsPage(QWidget):
         about_head.addStretch()
         c2_layout.addLayout(about_head)
 
+        # B8: RLM-safe About description
         self.lbl_about_text = QLabel()
         self.lbl_about_text.setObjectName("caption")
         self.lbl_about_text.setWordWrap(True)
         c2_layout.addWidget(self.lbl_about_text)
 
+        # B8: Clear secondary button with borders instead of transparent ghost
         btn_row = QHBoxLayout()
         self.btn_reset = QPushButton()
         self.btn_reset.setIcon(icon_service.icon("refresh-cw", size=14))
-        set_variant(self.btn_reset, "ghost")
+        self.btn_reset.setFixedHeight(36)
+        set_variant(self.btn_reset, "secondary")
         self.btn_reset.clicked.connect(self._reset_defaults)
         btn_row.addWidget(self.btn_reset)
         btn_row.addStretch()
@@ -129,21 +143,20 @@ class SettingsPage(QWidget):
         if selected_theme:
             settings.set_theme(selected_theme)
             theme.set_theme(selected_theme)
-            show_toast(self, f"Theme set to {selected_theme}", "info")
+            show_toast(self, i18n.t("toast_theme_changed", name=selected_theme), "info")
 
     def _on_language_activated(self) -> None:
         selected_lang = self.combo_lang.currentData()
         if selected_lang:
             settings.set_language(selected_lang)
             i18n.set_language(selected_lang)
-            # RTL layout application
             app = QApplication.instance()
             if app:
                 if selected_lang == "ar":
                     app.setLayoutDirection(Qt.LayoutDirection.RightToLeft)
                 else:
                     app.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
-            show_toast(self, "Language changed successfully", "success")
+            show_toast(self, i18n.t("toast_lang_changed"), "success")
 
     def _reset_defaults(self) -> None:
         settings.set_theme("dark")
@@ -156,15 +169,25 @@ class SettingsPage(QWidget):
             app.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
         self.combo_theme.setCurrentIndex(self.combo_theme.findData("dark"))
         self.combo_lang.setCurrentIndex(self.combo_lang.findData("en"))
-        show_toast(self, "Preferences reset to defaults", "info")
+        show_toast(self, i18n.t("toast_reset_done"), "info")
 
     def retranslate_ui(self) -> None:
-        """Live updates for localized texts."""
+        """Live updates for localized texts and proper RTL bidirectional alignment."""
         self.header.set_texts(i18n.t("settings_title"), i18n.t("settings_desc"))
         self.lbl_sec_appearance.setText(i18n.t("section_appearance"))
         self.lbl_theme.setText(i18n.t("theme_label"))
         self.combo_theme.retranslate()
         self.lbl_lang.setText(i18n.t("language_label"))
+        self.combo_lang.retranslate()
         self.lbl_about_title.setText(i18n.t("about_title"))
-        self.lbl_about_text.setText(i18n.t("about_text"))
+
+        is_rtl = i18n.is_rtl()
+        about_text = i18n.t("about_text")
+        if is_rtl:
+            self.lbl_about_text.setAlignment(Qt.AlignmentFlag.AlignRight)
+            self.lbl_about_text.setText(f"\u200F{about_text}")
+        else:
+            self.lbl_about_text.setAlignment(Qt.AlignmentFlag.AlignLeft)
+            self.lbl_about_text.setText(about_text)
+
         set_button_text(self.btn_reset, i18n.t("reset_defaults"))

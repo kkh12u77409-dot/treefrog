@@ -138,9 +138,9 @@ class IconService(QObject):
             "default": tokens["text_secondary"],
             "hover": tokens["text_primary"],
             "active": tokens["accent_text"],
-            "disabled": tokens["text_muted"],
-            "on_accent": "#ffffff",
-            "white": "#ffffff",
+            "disabled": tokens["disabled_text"],
+            "on_accent": tokens["on_accent"],
+            "white": tokens["on_accent"],
             "danger": tokens["error"],
             "success": tokens["success"],
             "warning": tokens["warning"],
@@ -186,7 +186,7 @@ class IconService(QObject):
             icon.addPixmap(pixmap, QIcon.Mode.Selected)
 
         # Also add Hover and Disabled states
-        hover_color = "#ffffff" if role in ("on_accent", "white") else (tokens["text_primary"] if role == "default" else base_color)
+        hover_color = tokens["on_accent"] if role in ("on_accent", "white") else (tokens["text_primary"] if role == "default" else base_color)
         hover_svg = _build_svg_string(svg_text, hover_color)
         hover_renderer = QSvgRenderer(QByteArray(hover_svg.encode("utf-8")))
         hover_pix = QPixmap(size * 2, size * 2)
@@ -203,6 +203,35 @@ class IconService(QObject):
 
         self._cache[cache_key] = icon
         return icon
+
+    def get_indicator_svg_urls(self, theme_name: str) -> Dict[str, str]:
+        """Generate indicator check and indeterminate SVG files for QSS image: url(...)."""
+        import tempfile
+        from pathlib import Path
+        cache_dir = Path(tempfile.gettempdir()) / "treeforge_indicators" / theme_name
+        cache_dir.mkdir(parents=True, exist_ok=True)
+
+        tokens = get_theme_tokens(theme_name)
+        on_accent = tokens["on_accent"]
+        disabled_text = tokens["disabled_text"]
+
+        check_svg = f'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="{on_accent}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+        minus_svg = f'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="{on_accent}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" x2="19" y1="12" y2="12"/></svg>'
+        check_dis_svg = f'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="{disabled_text}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+        minus_dis_svg = f'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="{disabled_text}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" x2="19" y1="12" y2="12"/></svg>'
+
+        files = {
+            "check": cache_dir / "check.svg",
+            "minus": cache_dir / "minus.svg",
+            "check_disabled": cache_dir / "check_disabled.svg",
+            "minus_disabled": cache_dir / "minus_disabled.svg",
+        }
+        files["check"].write_text(check_svg, encoding="utf-8")
+        files["minus"].write_text(minus_svg, encoding="utf-8")
+        files["check_disabled"].write_text(check_dis_svg, encoding="utf-8")
+        files["minus_disabled"].write_text(minus_dis_svg, encoding="utf-8")
+
+        return {k: v.as_posix() for k, v in files.items()}
 
     def file_icon_for(self, path_or_name: str, is_dir: bool = False, expanded: bool = False) -> QIcon:
         """Map extension or folder name to a semantic Lucide file icon."""

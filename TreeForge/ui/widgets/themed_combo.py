@@ -27,8 +27,8 @@ class ComboItemDelegate(QStyledItemDelegate):
 
     def sizeHint(self, option: QStyleOptionViewItem, index) -> QSize:
         desc = index.data(Qt.ItemDataRole.UserRole + 1)
-        # Height is 52px with secondary description, 36px otherwise
-        h = 52 if desc else 36
+        # B1: Height is 56px with secondary description, 36px otherwise
+        h = 56 if desc else 36
         return QSize(option.rect.width(), h)
 
     def paint(self, painter: QPainter, option: QStyleOptionViewItem, index) -> None:
@@ -41,9 +41,10 @@ class ComboItemDelegate(QStyledItemDelegate):
         is_selected = bool(option.state & QStyle.StateFlag.State_Selected)
         is_rtl = (option.direction == Qt.LayoutDirection.RightToLeft)
 
-        # 1. Background
+        # 1. Background (using theme tokens with alpha)
         if is_selected:
-            bg_color = QColor(16, 185, 129, 35)  # accent_soft
+            bg_color = QColor(p["accent_solid"])
+            bg_color.setAlpha(35)
         elif is_hover:
             bg_color = QColor(p["bg_elevated"])
         else:
@@ -53,7 +54,7 @@ class ComboItemDelegate(QStyledItemDelegate):
         bg_path.addRoundedRect(rect.x(), rect.y(), rect.width(), rect.height(), 6, 6)
         painter.fillPath(bg_path, bg_color)
 
-        # 2. Icon (on the start edge)
+        # 2. Leading Icon (on the start edge)
         icon_val = index.data(Qt.ItemDataRole.DecorationRole)
         icon_size = 18
         if icon_val:
@@ -62,73 +63,108 @@ class ComboItemDelegate(QStyledItemDelegate):
             if isinstance(icon_val, QIcon):
                 icon_val.paint(painter, ix, iy, icon_size, icon_size)
 
-        # 3. Texts (Title & Secondary description)
-        title = index.data(Qt.ItemDataRole.DisplayRole) or ""
-        desc = index.data(Qt.ItemDataRole.UserRole + 1)
-        badge = index.data(Qt.ItemDataRole.UserRole + 2)
-
         start_offset = 34 if icon_val else 10
-        end_offset = 36 if is_selected else 10
 
+        # 3. Calculate End Edge dimensions (Checkmark + Badge)
+        badge = index.data(Qt.ItemDataRole.UserRole + 2)
+        badge_w = 0
+        bh = 18
+        b_font = QFont(painter.font())
+        b_font.setPointSize(8)
+        b_font.setBold(True)
+
+        if badge:
+            painter.setFont(b_font)
+            badge_text = f" {badge} "
+            badge_w = painter.fontMetrics().horizontalAdvance(badge_text) + 8
+
+        # Positioning on the end edge (left in RTL, right in LTR)
         if is_rtl:
-            text_rect = QRect(
-                rect.left() + end_offset, rect.top() + 4,
-                rect.width() - start_offset - end_offset, rect.height() - 8
-            )
+            # End edge is at rect.left()
+            cx = rect.left() + 8
+            if is_selected and badge:
+                bx = cx + 16 + 8
+                end_offset = 8 + 16 + 8 + badge_w + 8
+            elif is_selected:
+                bx = rect.left() + 8
+                end_offset = 8 + 16 + 8
+            elif badge:
+                bx = rect.left() + 8
+                end_offset = 8 + badge_w + 8
+            else:
+                bx = rect.left() + 8
+                end_offset = 10
+        else:
+            # End edge is at rect.right()
+            cx = rect.right() - 24
+            if is_selected and badge:
+                bx = cx - 8 - badge_w
+                end_offset = 8 + 16 + 8 + badge_w + 8
+            elif is_selected:
+                bx = rect.right() - 8 - badge_w
+                end_offset = 8 + 16 + 8
+            elif badge:
+                bx = rect.right() - 8 - badge_w
+                end_offset = 8 + badge_w + 8
+            else:
+                bx = rect.right()
+                end_offset = 10
+
+        # Available width for text
+        available_text_w = max(10, rect.width() - start_offset - end_offset)
+        if is_rtl:
+            text_x = rect.left() + end_offset
+            text_rect = QRect(text_x, rect.top() + 4, available_text_w, rect.height() - 8)
             align = Qt.AlignmentFlag.AlignRight
         else:
-            text_rect = QRect(
-                rect.left() + start_offset, rect.top() + 4,
-                rect.width() - start_offset - end_offset, rect.height() - 8
-            )
+            text_x = rect.left() + start_offset
+            text_rect = QRect(text_x, rect.top() + 4, available_text_w, rect.height() - 8)
             align = Qt.AlignmentFlag.AlignLeft
 
-        # Draw Title
-        font = painter.font()
+        # 4. Draw Texts with QFontMetrics.elidedText
+        title = index.data(Qt.ItemDataRole.DisplayRole) or ""
+        desc = index.data(Qt.ItemDataRole.UserRole + 1)
+
+        font = QFont(painter.font())
         font.setPointSize(10)
         font.setBold(is_selected or is_hover)
         painter.setFont(font)
         painter.setPen(QColor(p["accent_text"] if is_selected else p["text_primary"]))
+        fm = painter.fontMetrics()
+        elided_title = fm.elidedText(title, Qt.TextElideMode.ElideRight, available_text_w)
 
         if desc:
-            title_rect = QRect(text_rect.x(), text_rect.y(), text_rect.width(), 20)
-            painter.drawText(title_rect, align | Qt.AlignmentFlag.AlignVCenter, title)
+            title_rect = QRect(text_rect.x(), text_rect.y() + 2, text_rect.width(), 20)
+            painter.drawText(title_rect, align | Qt.AlignmentFlag.AlignVCenter, elided_title)
 
-            # Draw Description
             desc_font = QFont(font)
             desc_font.setPointSize(9)
             desc_font.setBold(False)
             painter.setFont(desc_font)
             painter.setPen(QColor(p["text_muted"]))
-            desc_rect = QRect(text_rect.x(), text_rect.y() + 20, text_rect.width(), 18)
-            painter.drawText(desc_rect, align | Qt.AlignmentFlag.AlignVCenter, desc)
+            desc_fm = painter.fontMetrics()
+            elided_desc = desc_fm.elidedText(desc, Qt.TextElideMode.ElideRight, available_text_w)
+            desc_rect = QRect(text_rect.x(), text_rect.y() + 24, text_rect.width(), 20)
+            painter.drawText(desc_rect, align | Qt.AlignmentFlag.AlignVCenter, elided_desc)
         else:
-            painter.drawText(text_rect, align | Qt.AlignmentFlag.AlignVCenter, title)
+            painter.drawText(text_rect, align | Qt.AlignmentFlag.AlignVCenter, elided_title)
 
-        # 4. Badge (if any, e.g. "EN", "ع", "Default", "Recommended")
+        # 5. Draw Badge Chip (if present, using tokens with alpha)
         if badge:
-            badge_font = QFont(font)
-            badge_font.setPointSize(8)
-            badge_font.setBold(True)
-            painter.setFont(badge_font)
-
-            badge_text = f" {badge} "
-            bw = painter.fontMetrics().horizontalAdvance(badge_text) + 6
-            bh = 18
-            bx = rect.left() + 30 if is_rtl else rect.right() - bw - (28 if is_selected else 8)
+            painter.setFont(b_font)
             by = rect.center().y() - (bh // 2)
-
             badge_path = QPainterPath()
-            badge_path.addRoundedRect(bx, by, bw, bh, 9, 9)
-            painter.fillPath(badge_path, QColor(16, 185, 129, 45))
+            badge_path.addRoundedRect(bx, by, badge_w, bh, 9, 9)
+            badge_bg = QColor(p["accent_solid"])
+            badge_bg.setAlpha(40)
+            painter.fillPath(badge_path, badge_bg)
             painter.setPen(QPen(QColor(p["accent_text"]), 1))
             painter.drawPath(badge_path)
-            painter.drawText(QRect(bx, by, bw, bh), Qt.AlignmentFlag.AlignCenter, badge_text)
+            painter.drawText(QRect(bx, by, badge_w, bh), Qt.AlignmentFlag.AlignCenter, f" {badge} ")
 
-        # 5. Checkmark on the end side for selected item
+        # 6. Draw Checkmark on the end side for selected item
         if is_selected:
             check_ic = icon_service.icon("check", size=16, role="accent")
-            cx = rect.left() + 8 if is_rtl else rect.right() - 22
             cy = rect.center().y() - 8
             check_ic.paint(painter, cx, cy, 16, 16)
 

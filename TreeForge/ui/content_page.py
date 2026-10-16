@@ -62,7 +62,7 @@ class ContentPage(QWidget):
         self.tabs = QTabWidget()
         self.tabs.setDocumentMode(True)
 
-        # TAB 1: Single File Editor
+        # TAB 1: Single File Editor (B9: Unified matching cards and empty states)
         tab_single = QWidget()
         single_layout = QHBoxLayout(tab_single)
         single_layout.setContentsMargins(12, 12, 12, 12)
@@ -70,13 +70,14 @@ class ContentPage(QWidget):
         single_splitter = QSplitter(Qt.Orientation.Horizontal)
         single_splitter.setHandleWidth(12)
 
-        # Left: Project Files Tree
-        left_box = QWidget()
-        left_l = QVBoxLayout(left_box)
-        left_l.setContentsMargins(0, 0, 8, 0)
-        left_l.setSpacing(8)
+        # Left Panel: Project Files Tree inside card
+        left_card = create_card_frame(tab_single)
+        left_card_l = QVBoxLayout(left_card)
+        left_card_l.setContentsMargins(14, 12, 14, 14)
+        left_card_l.setSpacing(8)
 
         tree_bar = QHBoxLayout()
+        tree_bar.setFixedHeight(36)
         self.lbl_tree = QLabel(i18n.t("project_files"))
         self.lbl_tree.setObjectName("sectionTitle")
         tree_bar.addWidget(self.lbl_tree)
@@ -85,13 +86,21 @@ class ContentPage(QWidget):
         self.btn_refresh_tree = QPushButton()
         self.btn_refresh_tree.setIcon(icon_service.icon("refresh-cw", size=14))
         self.btn_refresh_tree.setFixedSize(28, 28)
+        self.btn_refresh_tree.setToolTip(i18n.t("refresh"))
         set_variant(self.btn_refresh_tree, "ghost")
         self.btn_refresh_tree.clicked.connect(self._on_refresh_clicked)
         tree_bar.addWidget(self.btn_refresh_tree)
-        left_l.addLayout(tree_bar)
+        left_card_l.addLayout(tree_bar)
+
+        # B9: Left Tree Empty State
+        self.left_empty_state = self._create_empty_state_widget(
+            "folder-open", "empty_files_title", "empty_files_desc"
+        )
+        left_card_l.addWidget(self.left_empty_state, 1)
 
         self.single_tree = QTreeWidget()
         self.single_tree.setHeaderHidden(True)
+        self.single_tree.setVisible(False)
         self.single_tree.itemClicked.connect(self._on_single_file_selected)
         self.single_tree.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.single_tree.customContextMenuRequested.connect(
@@ -101,17 +110,18 @@ class ContentPage(QWidget):
                 on_refresh=self._on_refresh_clicked
             )
         )
-        left_l.addWidget(self.single_tree, 1)
-        single_splitter.addWidget(left_box)
+        left_card_l.addWidget(self.single_tree, 1)
+        single_splitter.addWidget(left_card)
 
-        # Right: Editor Workspace
-        editor_box = QWidget()
-        ed_layout = QVBoxLayout(editor_box)
-        ed_layout.setContentsMargins(8, 0, 0, 0)
-        ed_layout.setSpacing(10)
+        # Right Panel: Editor Workspace inside matching card
+        ed_card = create_card_frame(tab_single)
+        ed_card_l = QVBoxLayout(ed_card)
+        ed_card_l.setContentsMargins(14, 12, 14, 14)
+        ed_card_l.setSpacing(8)
 
-        # Action toolbar above editor with file breadcrumb
+        # Action toolbar above editor
         ed_bar = QHBoxLayout()
+        ed_bar.setFixedHeight(36)
         self.lbl_current_file = QLabel(i18n.t("no_file_selected"))
         self.lbl_current_file.setObjectName("statLabel")
         ed_bar.addWidget(self.lbl_current_file)
@@ -123,22 +133,34 @@ class ContentPage(QWidget):
         self.btn_save_single.setIcon(icon_service.icon("save", size=16, role="on_accent"))
         set_variant(self.btn_save_single, "primary")
         set_button_text(self.btn_save_single, i18n.t("save_file"))
+        self.btn_save_single.setEnabled(False)
         self.btn_save_single.clicked.connect(self._save_single_file)
         ed_bar.addWidget(self.btn_save_single)
 
         self.btn_add_queue = QPushButton()
+        self.btn_add_queue.setFixedHeight(36)
         self.btn_add_queue.setIcon(icon_service.icon("list-plus", size=16))
+        set_variant(self.btn_add_queue, "secondary")
+        set_button_text(self.btn_add_queue, i18n.t("add_to_queue"))
+        self.btn_add_queue.setEnabled(False)
         self.btn_add_queue.clicked.connect(self._add_current_to_queue)
         ed_bar.addWidget(self.btn_add_queue)
-        ed_layout.addLayout(ed_bar)
+        ed_card_l.addLayout(ed_bar)
+
+        # B9: Editor Empty State
+        self.editor_empty_state = self._create_empty_state_widget(
+            "file-code", "empty_editor_title", "empty_editor_desc"
+        )
+        ed_card_l.addWidget(self.editor_empty_state, 1)
 
         # Themed Code Editor (Strictly LTR for syntax)
         self.editor = CodeEditor(self)
         self.editor.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
-        ed_layout.addWidget(self.editor, 1)
+        self.editor.setVisible(False)
+        ed_card_l.addWidget(self.editor, 1)
 
-        single_splitter.addWidget(editor_box)
-        single_splitter.setSizes([260, 680])
+        single_splitter.addWidget(ed_card)
+        single_splitter.setSizes([280, 700])
         single_layout.addWidget(single_splitter)
         self.tabs.addTab(tab_single, icon_service.icon("file-pen-line", size=16), i18n.t("tab_single"))
 
@@ -285,6 +307,37 @@ class ContentPage(QWidget):
         self.shortcut_save = QShortcut(QKeySequence("Ctrl+S"), self)
         self.shortcut_save.activated.connect(self._save_single_file)
 
+    def _create_empty_state_widget(self, icon_name: str, title_key: str, desc_key: str) -> QWidget:
+        """Create clean empty state placeholder with icon, title, and helper description."""
+        w = QWidget()
+        l = QVBoxLayout(w)
+        l.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        l.setSpacing(8)
+
+        icon_lbl = QLabel()
+        icon_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        icon_lbl.setPixmap(icon_service.icon(icon_name, size=36, role="disabled").pixmap(36, 36))
+        l.addWidget(icon_lbl)
+
+        title_lbl = QLabel(i18n.t(title_key))
+        title_lbl.setObjectName("sectionTitle")
+        title_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        l.addWidget(title_lbl)
+
+        desc_lbl = QLabel(i18n.t(desc_key))
+        desc_lbl.setObjectName("caption")
+        desc_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        desc_lbl.setWordWrap(True)
+        l.addWidget(desc_lbl)
+
+        w.icon_lbl = icon_lbl
+        w.title_lbl = title_lbl
+        w.desc_lbl = desc_lbl
+        w.title_key = title_key
+        w.desc_key = desc_key
+        w.icon_name = icon_name
+        return w
+
     def load_tree_from_disk(self, root_dir_str: str, root_node: Optional[TreeNode] = None) -> None:
         """Populate project file tree and candidates from active workspace."""
         self.current_root_dir = Path(root_dir_str).resolve()
@@ -292,6 +345,8 @@ class ContentPage(QWidget):
         self.single_tree.clear()
 
         if not self.current_root_dir.exists():
+            self.left_empty_state.setVisible(True)
+            self.single_tree.setVisible(False)
             return
 
         def populate(parent_item, dir_path: Path) -> None:
@@ -315,6 +370,10 @@ class ContentPage(QWidget):
         populate(root_item, self.current_root_dir)
         root_item.setExpanded(True)
 
+        has_items = self.single_tree.topLevelItemCount() > 0
+        self.left_empty_state.setVisible(not has_items)
+        self.single_tree.setVisible(has_items)
+
     def _on_refresh_clicked(self) -> None:
         if self.current_root_dir:
             self.load_tree_from_disk(str(self.current_root_dir))
@@ -332,16 +391,20 @@ class ContentPage(QWidget):
             try:
                 content = p.read_text(encoding="utf-8", errors="replace")
                 self.editor.setPlainText(content)
+                self.editor_empty_state.setVisible(False)
+                self.editor.setVisible(True)
+                self.btn_save_single.setEnabled(True)
+                self.btn_add_queue.setEnabled(True)
             except Exception as e:
-                show_toast(self, f"Could not read file: {e}", "error")
+                show_toast(self, i18n.t("toast_read_error", error=str(e)), "error")
 
     def _save_single_file(self) -> None:
         if not self.current_root_dir:
-            show_toast(self, "No project folder currently open", "warning")
+            show_toast(self, i18n.t("toast_no_project"), "warning")
             return
         rel = self.lbl_current_file.text()
         if not rel or rel == i18n.t("no_file_selected"):
-            show_toast(self, "Please select a file to save into", "warning")
+            show_toast(self, i18n.t("toast_select_file"), "warning")
             return
 
         target_path = self.current_root_dir / rel
@@ -350,12 +413,12 @@ class ContentPage(QWidget):
         if success:
             show_toast(self, i18n.t("saved_success"), "success")
         else:
-            show_toast(self, f"Save failed: {msg}", "error")
+            show_toast(self, i18n.t("toast_save_failed", error=msg), "error")
 
     def _add_current_to_queue(self) -> None:
         rel = self.lbl_current_file.text()
         if not rel or rel == i18n.t("no_file_selected"):
-            show_toast(self, "Select a file first", "warning")
+            show_toast(self, i18n.t("toast_select_file"), "warning")
             return
         content = self.editor.toPlainText()
         self.queue.append((rel, content))
@@ -376,7 +439,7 @@ class ContentPage(QWidget):
         for path, content in self.queue:
             target = self.current_root_dir / path
             self.file_writer.write_file(target, content)
-        show_toast(self, f"Saved {len(self.queue)} queued files!", "success")
+        show_toast(self, i18n.t("toast_saved_queue", count=len(self.queue)), "success")
         self._clear_queue()
 
     def _clear_queue(self) -> None:
@@ -386,7 +449,7 @@ class ContentPage(QWidget):
     def _parse_and_match_batch(self) -> None:
         text = self.batch_input.toPlainText()
         if not text.strip():
-            show_toast(self, "Please paste batch content first", "warning")
+            show_toast(self, i18n.t("toast_paste_first"), "warning")
             return
 
         splitter = ContentSplitter(
@@ -447,12 +510,12 @@ class ContentPage(QWidget):
 
     def _save_selected_batch(self) -> None:
         if not self.current_root_dir:
-            show_toast(self, "Please select or build a project directory first", "warning")
+            show_toast(self, i18n.t("toast_no_project"), "warning")
             return
 
         selected_chunks = [c for c in self.chunks if c.included and c.resolved_path]
         if not selected_chunks:
-            show_toast(self, "No valid files selected for saving", "warning")
+            show_toast(self, i18n.t("toast_no_valid_files"), "warning")
             return
 
         existing = [c.resolved_path for c in selected_chunks if (self.current_root_dir / c.resolved_path).exists()]
@@ -486,14 +549,14 @@ class ContentPage(QWidget):
     def _on_batch_finished(self, stats: BuildStats) -> None:
         self.btn_save_batch.setEnabled(True)
         self.batch_progress.setVisible(False)
-        show_toast(self, f"Saved {len(stats.created_files)} files successfully!", "success")
+        show_toast(self, i18n.t("toast_saved_files", count=len(stats.created_files)), "success")
         if self.current_root_dir:
             self.load_tree_from_disk(str(self.current_root_dir))
 
     def _on_batch_error(self, err_msg: str) -> None:
         self.btn_save_batch.setEnabled(True)
         self.batch_progress.setVisible(False)
-        show_toast(self, f"Batch save error: {err_msg}", "error")
+        show_toast(self, i18n.t("toast_batch_error", error=err_msg), "error")
 
     def _undo_batch(self) -> None:
         restored, errors = self.file_writer.undo_last_batch()
@@ -502,7 +565,7 @@ class ContentPage(QWidget):
             if self.current_root_dir:
                 self.load_tree_from_disk(str(self.current_root_dir))
         else:
-            show_toast(self, "No backups available to restore", "info")
+            show_toast(self, i18n.t("toast_no_backups"), "info")
 
     def _on_theme_changed(self, theme_name: str = "") -> None:
         """Refresh icons and button styles on theme change."""
@@ -547,3 +610,10 @@ class ContentPage(QWidget):
         self.batch_input.setPlaceholderText(i18n.t("batch_input_placeholder"))
         if self.lbl_current_file.text() in ("No file selected", "لم يتم اختيار أي ملف"):
             self.lbl_current_file.setText(i18n.t("no_file_selected"))
+
+        if hasattr(self, "left_empty_state"):
+            self.left_empty_state.title_lbl.setText(i18n.t(self.left_empty_state.title_key))
+            self.left_empty_state.desc_lbl.setText(i18n.t(self.left_empty_state.desc_key))
+        if hasattr(self, "editor_empty_state"):
+            self.editor_empty_state.title_lbl.setText(i18n.t(self.editor_empty_state.title_key))
+            self.editor_empty_state.desc_lbl.setText(i18n.t(self.editor_empty_state.desc_key))

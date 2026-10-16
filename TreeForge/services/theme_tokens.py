@@ -16,7 +16,8 @@ DARK_TOKENS: Dict[str, str] = {
     "bg_input": "#0f1726",
     
     # Borders
-    "border": "#2b3a55",
+    "border": "#40557d",
+    "border_subtle": "#25334d",
     "border_input": "#5a6a85",
     "border_focus": "#34d399",
     
@@ -38,6 +39,21 @@ DARK_TOKENS: Dict[str, str] = {
     "warning": "#fbbf24",
     "error": "#f87171",
     "info": "#38bdf8",
+    
+    # Toast Tokens
+    "toast_bg": "#1c2840",
+    "toast_bg_end": "#16203a",
+    "toast_text": "#f8fafc",
+    "toast_subtext": "#b6c2d6",
+    "toast_success": "#34d399",
+    "toast_warning": "#fbbf24",
+    "toast_error": "#fb7185",
+    "toast_info": "#38bdf8",
+
+    # Disabled State Tokens
+    "disabled_bg": "#232f47",
+    "disabled_text": "#9aa8be",
+    "disabled_border": "#334155",
     
     # Code Editor
     "code_bg": "#0a101c",
@@ -63,14 +79,15 @@ LIGHT_TOKENS: Dict[str, str] = {
     "bg_input": "#ffffff",
     
     # Borders
-    "border": "#dde3ec",
-    "border_input": "#8695aa",
+    "border": "#b8c5d6",
+    "border_subtle": "#e2e8f0",
+    "border_input": "#6b7c93",
     "border_focus": "#047857",
     
     # Text
     "text_primary": "#0f172a",
     "text_secondary": "#475569",
-    "text_muted": "#64748b",
+    "text_muted": "#556479",
     
     # Accents
     "accent_solid": "#047857",
@@ -85,6 +102,21 @@ LIGHT_TOKENS: Dict[str, str] = {
     "warning": "#b45309",
     "error": "#b91c1c",
     "info": "#0369a1",
+    
+    # Toast Tokens
+    "toast_bg": "#0f172a",
+    "toast_bg_end": "#1e293b",
+    "toast_text": "#f8fafc",
+    "toast_subtext": "#b6c2d6",
+    "toast_success": "#34d399",
+    "toast_warning": "#fbbf24",
+    "toast_error": "#fb7185",
+    "toast_info": "#38bdf8",
+
+    # Disabled State Tokens
+    "disabled_bg": "#e2e8f0",
+    "disabled_text": "#5a687d",
+    "disabled_border": "#cbd5e1",
     
     # Code Editor
     "code_bg": "#fbfcfe",

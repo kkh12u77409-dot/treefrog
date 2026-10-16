@@ -124,7 +124,7 @@ class ThemeService(QObject):
             pass
 
     def apply_theme(self) -> None:
-        """Apply Qt typography, palette, and generated modular QSS."""
+        """Apply Qt typography, QPalette, indicator SVGs, and generated modular QSS."""
         app = QApplication.instance()
         if not app:
             return
@@ -132,10 +132,46 @@ class ThemeService(QObject):
         tokens = self.palette
         m = METRICS
 
+        # B6: Set Fusion style and construct full QPalette
+        app.setStyle("Fusion")
+        pal = QPalette()
+        for group in (QPalette.ColorGroup.Active, QPalette.ColorGroup.Inactive):
+            pal.setColor(group, QPalette.ColorRole.Window, QColor(tokens["bg_window"]))
+            pal.setColor(group, QPalette.ColorRole.WindowText, QColor(tokens["text_primary"]))
+            pal.setColor(group, QPalette.ColorRole.Base, QColor(tokens["bg_input"]))
+            pal.setColor(group, QPalette.ColorRole.AlternateBase, QColor(tokens["bg_elevated"]))
+            pal.setColor(group, QPalette.ColorRole.Text, QColor(tokens["text_primary"]))
+            pal.setColor(group, QPalette.ColorRole.PlaceholderText, QColor(tokens["text_muted"]))
+            pal.setColor(group, QPalette.ColorRole.Button, QColor(tokens["bg_elevated"]))
+            pal.setColor(group, QPalette.ColorRole.ButtonText, QColor(tokens["text_primary"]))
+            pal.setColor(group, QPalette.ColorRole.Highlight, QColor(tokens["accent_solid"]))
+            pal.setColor(group, QPalette.ColorRole.HighlightedText, QColor(tokens["on_accent"]))
+            pal.setColor(group, QPalette.ColorRole.ToolTipBase, QColor(tokens["bg_card"]))
+            pal.setColor(group, QPalette.ColorRole.ToolTipText, QColor(tokens["text_primary"]))
+            pal.setColor(group, QPalette.ColorRole.Link, QColor(tokens["accent_text"]))
+            pal.setColor(group, QPalette.ColorRole.BrightText, QColor(tokens["on_accent"]))
+
+        # B5 & B6: Disabled QPalette group
+        pal.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Window, QColor(tokens["bg_window"]))
+        pal.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.WindowText, QColor(tokens["disabled_text"]))
+        pal.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Base, QColor(tokens["disabled_bg"]))
+        pal.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.AlternateBase, QColor(tokens["disabled_bg"]))
+        pal.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text, QColor(tokens["disabled_text"]))
+        pal.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.PlaceholderText, QColor(tokens["disabled_text"]))
+        pal.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Button, QColor(tokens["disabled_bg"]))
+        pal.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.ButtonText, QColor(tokens["disabled_text"]))
+        pal.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Highlight, QColor(tokens["disabled_bg"]))
+        pal.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.HighlightedText, QColor(tokens["disabled_text"]))
+        app.setPalette(pal)
+
         # Set default application font
         default_font = QFont("Segoe UI Variable", 10)
         default_font.setStyleHint(QFont.StyleHint.SansSerif)
         app.setFont(default_font)
+
+        # B2: Generate crisp SVGs for indicators
+        from .icon_service import icon_service
+        ind_urls = icon_service.get_indicator_svg_urls(self._resolved_theme)
 
         # Build comprehensive modular QSS without global '*' overrides
         qss = f"""
@@ -193,12 +229,21 @@ class ThemeService(QObject):
             color: {tokens["text_muted"]};
         }}
 
-        /* === 3. SIDEBAR NAVIGATION === */
+        /* === 3. SIDEBAR NAVIGATION & B7 RTL/LTR RULES === */
+        QWidget#sidebar[rtl="true"] {{
+            background-color: {tokens["bg_sidebar"]};
+            border-left: 1px solid {tokens["border"]};
+            border-right: none;
+        }}
+
+        QWidget#sidebar[rtl="false"],
         QWidget#sidebar {{
             background-color: {tokens["bg_sidebar"]};
             border-right: 1px solid {tokens["border"]};
+            border-left: none;
         }}
 
+        QPushButton[nav="true"][rtl="false"],
         QPushButton[nav="true"] {{
             background-color: transparent;
             color: {tokens["text_secondary"]};
@@ -210,19 +255,40 @@ class ThemeService(QObject):
             text-align: left;
         }}
 
+        QPushButton[nav="true"][rtl="true"] {{
+            background-color: transparent;
+            color: {tokens["text_secondary"]};
+            border: none;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            text-align: right;
+        }}
+
         QPushButton[nav="true"]:hover {{
             background-color: {tokens["bg_elevated"]};
             color: {tokens["text_primary"]};
         }}
 
+        QPushButton[nav="true"][rtl="false"]:checked,
         QPushButton[nav="true"]:checked {{
             background-color: {tokens["accent_soft"]};
             color: {tokens["accent_text"]};
             font-weight: 600;
             border-left: 3px solid {tokens["accent_solid"]};
+            border-right: none;
         }}
 
-        QPushButton[nav="true"]:focus-visible {{
+        QPushButton[nav="true"][rtl="true"]:checked {{
+            background-color: {tokens["accent_soft"]};
+            color: {tokens["accent_text"]};
+            font-weight: 600;
+            border-right: 3px solid {tokens["accent_solid"]};
+            border-left: none;
+        }}
+
+        QPushButton[nav="true"]:focus {{
             border: 2px solid {tokens["border_focus"]};
         }}
 
@@ -235,12 +301,12 @@ class ThemeService(QObject):
 
         #optionsBox {{
             background-color: {tokens["bg_elevated"]};
-            border: 1px solid {tokens["border"]};
+            border: 1px solid {tokens["border_subtle"]};
             border-radius: {m["radius_control"]}px;
             padding: 12px;
         }}
 
-        /* === 5. BUTTONS === */
+        /* === 5. BUTTONS & B5 DISABLED STATES === */
         QPushButton {{
             background-color: {tokens["bg_elevated"]};
             color: {tokens["text_primary"]};
@@ -263,13 +329,12 @@ class ThemeService(QObject):
         }}
 
         QPushButton:disabled {{
-            opacity: 0.45;
-            color: {tokens["text_muted"]};
-            background-color: {tokens["bg_elevated"]};
-            border-color: {tokens["border"]};
+            color: {tokens["disabled_text"]};
+            background-color: {tokens["disabled_bg"]};
+            border-color: {tokens["disabled_border"]};
         }}
 
-        QPushButton:focus-visible {{
+        QPushButton:focus {{
             border: 2px solid {tokens["border_focus"]};
         }}
 
@@ -280,7 +345,7 @@ class ThemeService(QObject):
         QPushButton#btnSaveBatch,
         QPushButton#btnSaveQueue {{
             background-color: {tokens["accent_solid"]};
-            color: #ffffff;
+            color: {tokens["on_accent"]};
             border: 1px solid {tokens["accent_hover"] if self._resolved_theme == "dark" else tokens["accent_solid"]};
             border-radius: {m["radius_control"]}px;
             padding: 8px 20px;
@@ -297,7 +362,7 @@ class ThemeService(QObject):
         QPushButton#btnSaveQueue:hover {{
             background-color: {tokens["accent_hover"]};
             border-color: {tokens["accent_text"] if self._resolved_theme == "dark" else tokens["accent_hover"]};
-            color: #ffffff;
+            color: {tokens["on_accent"]};
         }}
 
         QPushButton[variant="primary"]:pressed,
@@ -308,7 +373,7 @@ class ThemeService(QObject):
         QPushButton#btnSaveQueue:pressed {{
             background-color: {tokens["accent_pressed"]};
             border-color: {tokens["accent_pressed"]};
-            color: #ffffff;
+            color: {tokens["on_accent"]};
         }}
 
         QPushButton[variant="primary"]:disabled,
@@ -317,21 +382,52 @@ class ThemeService(QObject):
         QPushButton#btnParseBatch:disabled,
         QPushButton#btnSaveBatch:disabled,
         QPushButton#btnSaveQueue:disabled {{
+            background-color: {tokens["disabled_bg"]};
+            border-color: {tokens["disabled_border"]};
+            color: {tokens["disabled_text"]};
+        }}
+
+        QPushButton[variant="secondary"] {{
+            background-color: {tokens["bg_elevated"]};
+            color: {tokens["text_primary"]};
+            border: 1px solid {tokens["border"]};
+            border-radius: {m["radius_control"]}px;
+            padding: 6px 14px;
+            font-weight: 500;
+            font-size: 13px;
+            min-height: 20px;
+        }}
+
+        QPushButton[variant="secondary"]:hover {{
             background-color: {tokens["border"]};
-            border-color: {tokens["border"]};
-            color: {tokens["text_muted"]};
+            border-color: {tokens["border_input"]};
+        }}
+
+        QPushButton[variant="secondary"]:disabled {{
+            background-color: {tokens["disabled_bg"]};
+            border-color: {tokens["disabled_border"]};
+            color: {tokens["disabled_text"]};
         }}
 
         QPushButton[variant="ghost"] {{
             background-color: transparent;
-            border: 1px solid transparent;
+            border: 1px solid {tokens["border_subtle"]};
+            border-radius: {m["radius_control"]}px;
             color: {tokens["text_secondary"]};
+            padding: 4px 10px;
+            font-size: 12px;
         }}
 
         QPushButton[variant="ghost"]:hover {{
             background-color: {tokens["bg_elevated"]};
             color: {tokens["text_primary"]};
             border-color: {tokens["border"]};
+        }}
+
+        QPushButton[variant="ghost"]:disabled {{
+            background-color: transparent;
+            border-color: transparent;
+            color: {tokens["disabled_text"]};
         }}
 
         QPushButton[variant="danger"] {{
@@ -342,7 +438,7 @@ class ThemeService(QObject):
 
         QPushButton[variant="danger"]:hover {{
             background-color: {tokens["error"]};
-            color: #ffffff;
+            color: {tokens["on_accent"]};
             border-color: {tokens["error"]};
         }}
 
@@ -403,29 +499,81 @@ class ThemeService(QObject):
             outline: none;
         }}
 
-        /* === 8. CHECKBOXES (SWITCH & SQUARE) === */
+        /* === 8. CHECKBOXES & INDICATORS (B2 WITH CRISP SVGs) === */
         QCheckBox {{
             spacing: 8px;
             font-size: 13px;
             color: {tokens["text_primary"]};
         }}
 
-        QCheckBox::indicator {{
+        QCheckBox::indicator,
+        QTreeView::indicator,
+        QTreeWidget::indicator,
+        QTableWidget::indicator {{
             width: 18px;
             height: 18px;
             border-radius: 4px;
             border: 1.5px solid {tokens["border_input"]};
             background-color: {tokens["bg_input"]};
+            image: none;
         }}
 
-        QCheckBox::indicator:hover {{
+        QCheckBox::indicator:hover,
+        QTreeView::indicator:hover,
+        QTreeWidget::indicator:hover,
+        QTableWidget::indicator:hover {{
             border-color: {tokens["border_focus"]};
         }}
 
-        QCheckBox::indicator:checked {{
+        QCheckBox::indicator:focus,
+        QTreeView::indicator:focus,
+        QTreeWidget::indicator:focus,
+        QTableWidget::indicator:focus {{
+            border: 2px solid {tokens["border_focus"]};
+        }}
+
+        QCheckBox::indicator:checked,
+        QTreeView::indicator:checked,
+        QTreeWidget::indicator:checked,
+        QTableWidget::indicator:checked {{
             background-color: {tokens["accent_solid"]};
             border-color: {tokens["accent_solid"]};
-            image: none;
+            image: url('{ind_urls["check"]}');
+        }}
+
+        QCheckBox::indicator:indeterminate,
+        QTreeView::indicator:indeterminate,
+        QTreeWidget::indicator:indeterminate,
+        QTableWidget::indicator:indeterminate {{
+            background-color: {tokens["accent_solid"]};
+            border-color: {tokens["accent_solid"]};
+            image: url('{ind_urls["minus"]}');
+        }}
+
+        QCheckBox::indicator:disabled,
+        QTreeView::indicator:disabled,
+        QTreeWidget::indicator:disabled,
+        QTableWidget::indicator:disabled {{
+            background-color: {tokens["disabled_bg"]};
+            border-color: {tokens["disabled_border"]};
+        }}
+
+        QCheckBox::indicator:checked:disabled,
+        QTreeView::indicator:checked:disabled,
+        QTreeWidget::indicator:checked:disabled,
+        QTableWidget::indicator:checked:disabled {{
+            background-color: {tokens["disabled_bg"]};
+            border-color: {tokens["disabled_border"]};
+            image: url('{ind_urls["check_disabled"]}');
+        }}
+
+        QCheckBox::indicator:indeterminate:disabled,
+        QTreeView::indicator:indeterminate:disabled,
+        QTreeWidget::indicator:indeterminate:disabled,
+        QTableWidget::indicator:indeterminate:disabled {{
+            background-color: {tokens["disabled_bg"]};
+            border-color: {tokens["disabled_border"]};
+            image: url('{ind_urls["minus_disabled"]}');
         }}
 
         /* === 9. TABS (UNDERLINE & PILL) === */
@@ -441,7 +589,7 @@ class ThemeService(QObject):
             color: {tokens["text_secondary"]};
             border: none;
             border-bottom: 2px solid transparent;
-            padding: 8px 18px;
+            padding: 8px 16px;
             font-weight: 500;
             font-size: 13px;
             min-height: 22px;
@@ -465,23 +613,23 @@ class ThemeService(QObject):
             border: 1px solid {tokens["border"]};
             border-radius: {m["radius_control"]}px;
             alternate-background-color: {tokens["bg_elevated"]};
-            gridline-color: {tokens["border"]};
+            gridline-color: {tokens["border_subtle"]};
             color: {tokens["text_primary"]};
             outline: none;
         }}
 
-        QTreeView::item, QTableWidget::item {{
+        QTreeView::item, QTreeWidget::item, QTableWidget::item {{
             height: 32px;
             padding: 2px 8px;
             border-radius: 4px;
         }}
 
-        QTreeView::item:hover, QTableWidget::item:hover {{
+        QTreeView::item:hover, QTreeWidget::item:hover, QTableWidget::item:hover {{
             background-color: {tokens["bg_elevated"]};
             color: {tokens["text_primary"]};
         }}
 
-        QTreeView::item:selected, QTableWidget::item:selected {{
+        QTreeView::item:selected, QTreeWidget::item:selected, QTableWidget::item:selected {{
             background-color: {tokens["accent_soft"]};
             color: {tokens["accent_text"]};
             font-weight: 600;
