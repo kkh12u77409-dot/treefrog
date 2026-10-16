@@ -77,7 +77,6 @@ class ContentPage(QWidget):
         left_card_l.setSpacing(8)
 
         tree_bar = QHBoxLayout()
-        tree_bar.setFixedHeight(36)
         self.lbl_tree = QLabel(i18n.t("project_files"))
         self.lbl_tree.setObjectName("sectionTitle")
         tree_bar.addWidget(self.lbl_tree)
@@ -121,7 +120,6 @@ class ContentPage(QWidget):
 
         # Action toolbar above editor
         ed_bar = QHBoxLayout()
-        ed_bar.setFixedHeight(36)
         self.lbl_current_file = QLabel(i18n.t("no_file_selected"))
         self.lbl_current_file.setObjectName("statLabel")
         ed_bar.addWidget(self.lbl_current_file)

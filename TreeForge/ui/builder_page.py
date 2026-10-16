@@ -90,14 +90,20 @@ class BuilderPage(QWidget):
         action_row.addStretch()
 
         self.btn_load_example = QPushButton()
+        self.btn_load_example.setFixedHeight(28)
         self.btn_load_example.setIcon(icon_service.icon("wand-sparkles", size=14))
-        set_variant(self.btn_load_example, "ghost")
+        set_variant(self.btn_load_example, "secondary")
+        set_button_text(self.btn_load_example, i18n.t("load_example"))
+        self.btn_load_example.setToolTip(i18n.t("load_example"))
         self.btn_load_example.clicked.connect(self._load_example)
         action_row.addWidget(self.btn_load_example)
 
         self.btn_clear = QPushButton()
+        self.btn_clear.setFixedHeight(28)
         self.btn_clear.setIcon(icon_service.icon("eraser", size=14))
-        set_variant(self.btn_clear, "ghost")
+        set_variant(self.btn_clear, "secondary")
+        set_button_text(self.btn_clear, i18n.t("clear_input"))
+        self.btn_clear.setToolTip(i18n.t("clear_input"))
         self.btn_clear.clicked.connect(self._clear_input)
         action_row.addWidget(self.btn_clear)
         card_layout.addLayout(action_row)
@@ -139,7 +145,7 @@ class BuilderPage(QWidget):
         # RIGHT PANEL: Structure preview & options
         right_widget = QWidget()
         right_layout = QVBoxLayout(right_widget)
-        right_layout.setContentsMargins(8, 0, 0, 0)
+        right_layout.setContentsMargins(0, 0, 0, 0)
         right_layout.setSpacing(10)
 
         right_card = create_card_frame(right_widget)
@@ -154,10 +160,16 @@ class BuilderPage(QWidget):
         prev_head_row.addWidget(self.lbl_preview_title)
         prev_head_row.addStretch()
 
-        self.lbl_stats = QLabel("0 folders, 0 files")
+        self.lbl_stats = QLabel(i18n.t("items_count", folders=0, files=0))
         self.lbl_stats.setObjectName("statLabel")
         prev_head_row.addWidget(self.lbl_stats)
         right_card_layout.addLayout(prev_head_row)
+
+        # B10: Empty State for structure preview
+        self.preview_empty_state = self._create_empty_state_widget(
+            "folder-tree", "empty_tree_title", "empty_tree_desc"
+        )
+        right_card_layout.addWidget(self.preview_empty_state, 1)
 
         # Live TreeView with semantic icons and custom context menu
         self.tree_view = QTreeWidget()
@@ -168,18 +180,25 @@ class BuilderPage(QWidget):
         self.tree_view.customContextMenuRequested.connect(
             lambda pos: create_structure_tree_context_menu(self.tree_view, pos, self.last_built_dir)
         )
+        self.tree_view.setVisible(False)
         right_card_layout.addWidget(self.tree_view, 1)
 
         # Selection shortcuts
         sel_row = QHBoxLayout()
         self.btn_select_all = QPushButton()
+        self.btn_select_all.setFixedHeight(28)
         self.btn_select_all.setIcon(icon_service.icon("list-checks", size=14))
-        set_variant(self.btn_select_all, "ghost")
+        set_variant(self.btn_select_all, "secondary")
+        set_button_text(self.btn_select_all, i18n.t("select_all"))
+        self.btn_select_all.setToolTip(i18n.t("select_all"))
         self.btn_select_all.clicked.connect(lambda: self._set_all_checked(True))
 
         self.btn_deselect_all = QPushButton()
+        self.btn_deselect_all.setFixedHeight(28)
         self.btn_deselect_all.setIcon(icon_service.icon("square-dashed", size=14))
-        set_variant(self.btn_deselect_all, "ghost")
+        set_variant(self.btn_deselect_all, "secondary")
+        set_button_text(self.btn_deselect_all, i18n.t("deselect_all"))
+        self.btn_deselect_all.setToolTip(i18n.t("deselect_all"))
         self.btn_deselect_all.clicked.connect(lambda: self._set_all_checked(False))
 
         sel_row.addWidget(self.btn_select_all)
@@ -187,18 +206,20 @@ class BuilderPage(QWidget):
         sel_row.addStretch()
         right_card_layout.addLayout(sel_row)
 
-        # Themed Generation Options Soft Panel (Resolves L2 dark slab bug)
+        # Themed Generation Options Soft Panel
         options_box = QFrame()
         options_box.setObjectName("optionsBox")
         opt_layout = QVBoxLayout(options_box)
         opt_layout.setContentsMargins(12, 12, 12, 12)
         opt_layout.setSpacing(10)
 
-        # Policy row with rich ThemedComboBox
-        policy_row = QHBoxLayout()
+        # B10: Existing files policy label above the combo
+        policy_box = QVBoxLayout()
+        policy_box.setSpacing(6)
         self.lbl_policy = QLabel()
-        self.lbl_policy.setObjectName("caption")
-        
+        self.lbl_policy.setObjectName("sectionTitle")
+        policy_box.addWidget(self.lbl_policy)
+
         self.combo_policy = ThemedComboBox()
         self.combo_policy.add_themed_item(
             ItemPolicy.SKIP, "policy_skip", "shield-check",
@@ -218,9 +239,8 @@ class BuilderPage(QWidget):
             self.combo_policy.setCurrentIndex(idx)
         self.combo_policy.activated.connect(self._on_policy_changed)
 
-        policy_row.addWidget(self.lbl_policy)
-        policy_row.addWidget(self.combo_policy, 1)
-        opt_layout.addLayout(policy_row)
+        policy_box.addWidget(self.combo_policy)
+        opt_layout.addLayout(policy_box)
 
         # Switch checkboxes
         self.chk_add_init = QCheckBox()
@@ -251,6 +271,7 @@ class BuilderPage(QWidget):
         self.btn_build.setIcon(icon_service.icon("hammer", size=18, role="on_accent"))
         set_variant(self.btn_build, "primary")
         set_button_text(self.btn_build, i18n.t("build_button"))
+        self.btn_build.setEnabled(False)
         self.btn_build.clicked.connect(self._build_tree)
 
         self.btn_cancel = QPushButton()
@@ -285,11 +306,43 @@ class BuilderPage(QWidget):
         self.tree_input.setPlainText(EXAMPLE_TREE)
         self._on_text_changed()
 
+    def _create_empty_state_widget(self, icon_name: str, title_key: str, desc_key: str) -> QWidget:
+        w = QWidget()
+        l = QVBoxLayout(w)
+        l.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        l.setSpacing(8)
+
+        icon_lbl = QLabel()
+        icon_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        icon_lbl.setPixmap(icon_service.icon(icon_name, size=36, role="disabled").pixmap(36, 36))
+        l.addWidget(icon_lbl)
+
+        title_lbl = QLabel(i18n.t(title_key))
+        title_lbl.setObjectName("sectionTitle")
+        title_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        l.addWidget(title_lbl)
+
+        desc_lbl = QLabel(i18n.t(desc_key))
+        desc_lbl.setObjectName("caption")
+        desc_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        desc_lbl.setWordWrap(True)
+        l.addWidget(desc_lbl)
+
+        w.icon_lbl = icon_lbl
+        w.title_lbl = title_lbl
+        w.desc_lbl = desc_lbl
+        w.title_key = title_key
+        w.desc_key = desc_key
+        return w
+
     def _clear_input(self) -> None:
         self.tree_input.clear()
         self.tree_view.clear()
-        self.lbl_stats.setText("0 folders, 0 files")
+        self.lbl_stats.setText(i18n.t("items_count", folders=0, files=0))
         self.current_parsed_root = None
+        self.preview_empty_state.setVisible(True)
+        self.tree_view.setVisible(False)
+        self.btn_build.setEnabled(False)
 
     def _populate_recent_paths(self) -> None:
         recents = settings.get_recent_paths()
@@ -311,8 +364,11 @@ class BuilderPage(QWidget):
         text = self.tree_input.toPlainText().strip()
         if not text:
             self.tree_view.clear()
-            self.lbl_stats.setText("0 folders, 0 files")
+            self.lbl_stats.setText(i18n.t("items_count", folders=0, files=0))
             self.current_parsed_root = None
+            self.preview_empty_state.setVisible(True)
+            self.tree_view.setVisible(False)
+            self.btn_build.setEnabled(False)
             return
 
         result = self.parser.parse(text)
@@ -320,8 +376,17 @@ class BuilderPage(QWidget):
             self.current_parsed_root = result.root
             self._render_tree_view(result.root)
             self.lbl_stats.setText(i18n.t("items_count", folders=result.total_folders, files=result.total_files))
+            self.btn_build.setEnabled(True)
+        else:
+            self.current_parsed_root = None
+            self.tree_view.clear()
+            self.preview_empty_state.setVisible(True)
+            self.tree_view.setVisible(False)
+            self.btn_build.setEnabled(False)
 
     def _render_tree_view(self, root: TreeNode) -> None:
+        self.preview_empty_state.setVisible(False)
+        self.tree_view.setVisible(True)
         self.tree_view.blockSignals(True)
         self.tree_view.clear()
 
@@ -363,13 +428,14 @@ class BuilderPage(QWidget):
             update_item(self.tree_view.topLevelItem(i))
 
     def _build_tree(self) -> None:
-        if not self.current_parsed_root:
-            show_toast(self, i18n.t("toast_parse_err", count=1), "warning")
+        tree_text = self.tree_input.toPlainText().strip()
+        if not tree_text or not self.current_parsed_root:
+            show_toast(self, i18n.t("toast_empty_tree"), "warning")
             return
 
         dest_text = self.dest_combo.currentText().strip()
         if not dest_text:
-            show_toast(self, "Please select a destination directory first", "error")
+            show_toast(self, i18n.t("toast_select_dest"), "error")
             return
 
         dest_path = Path(dest_text).resolve()
@@ -420,12 +486,12 @@ class BuilderPage(QWidget):
         self.btn_build.setEnabled(True)
         self.btn_cancel.setVisible(False)
         self.progress_bar.setVisible(False)
-        show_toast(self, f"Build error: {err_msg}", "error")
+        show_toast(self, i18n.t("toast_build_error", error=err_msg), "error")
 
     def _cancel_build(self) -> None:
         if self.worker:
             self.worker.cancel()
-            show_toast(self, "Cancelling generation...", "warning")
+            show_toast(self, i18n.t("toast_cancelling"), "warning")
 
     def _open_created_folder(self) -> None:
         if self.last_built_dir and self.last_built_dir.exists():
@@ -441,13 +507,17 @@ class BuilderPage(QWidget):
         self.header.set_texts(i18n.t("builder_title"), i18n.t("builder_desc"))
         self.lbl_tree_input.setText(i18n.t("nav_builder"))
         set_button_text(self.btn_load_example, i18n.t("load_example"))
+        self.btn_load_example.setToolTip(i18n.t("load_example"))
         set_button_text(self.btn_clear, i18n.t("clear_input"))
+        self.btn_clear.setToolTip(i18n.t("clear_input"))
         self.lbl_dest.setText(i18n.t("dest_folder"))
         set_button_text(self.btn_browse, i18n.t("browse"))
         self.lbl_preview_title.setText(i18n.t("preview_title"))
         self.tree_view.setHeaderLabels([i18n.t("col_item"), i18n.t("col_type")])
         set_button_text(self.btn_select_all, i18n.t("select_all"))
+        self.btn_select_all.setToolTip(i18n.t("select_all"))
         set_button_text(self.btn_deselect_all, i18n.t("deselect_all"))
+        self.btn_deselect_all.setToolTip(i18n.t("deselect_all"))
         self.lbl_policy.setText(i18n.t("policy_label"))
         self.combo_policy.retranslate()
         self.chk_add_init.setText(i18n.t("opt_add_init"))
@@ -458,3 +528,13 @@ class BuilderPage(QWidget):
         set_button_text(self.btn_cancel, i18n.t("cancel"))
         set_button_text(self.btn_open_folder, i18n.t("open_folder"))
         self.tree_input.setPlaceholderText(i18n.t("tree_input_placeholder"))
+
+        if hasattr(self, "preview_empty_state"):
+            self.preview_empty_state.title_lbl.setText(i18n.t(self.preview_empty_state.title_key))
+            self.preview_empty_state.desc_lbl.setText(i18n.t(self.preview_empty_state.desc_key))
+
+        if self.current_parsed_root:
+            res = self.parser.parse(self.tree_input.toPlainText().strip())
+            self.lbl_stats.setText(i18n.t("items_count", folders=res.total_folders, files=res.total_files))
+        else:
+            self.lbl_stats.setText(i18n.t("items_count", folders=0, files=0))

@@ -129,18 +129,18 @@ class ToastCard(QFrame):
         # Status Title
         self.lbl_title = QLabel()
         title_font = QFont()
-        title_font.setPointSize(9)
+        title_font.setPixelSize(11)
         title_font.setBold(True)
         self.lbl_title.setFont(title_font)
         status_col_str = p.get(f"toast_{self.toast_type}", p["toast_info"])
-        self.lbl_title.setStyleSheet(f"color: {status_col_str}; font-weight: 700;")
+        self.lbl_title.setStyleSheet(f"color: {status_col_str}; font-weight: 700; font-size: 11px;")
         self.lbl_title.setText(i18n.t(f"toast_{self.toast_type}"))
         head_row.addWidget(self.lbl_title)
 
         # Deduplication count badge ("×2", "×3"...)
         self.lbl_count = QLabel()
         cnt_font = QFont()
-        cnt_font.setPointSize(8)
+        cnt_font.setPixelSize(10)
         cnt_font.setBold(True)
         self.lbl_count.setFont(cnt_font)
         self.lbl_count.setStyleSheet(
@@ -153,7 +153,7 @@ class ToastCard(QFrame):
         # App branding subtitle
         self.lbl_app = QLabel("• TreeForge")
         app_font = QFont()
-        app_font.setPointSize(8)
+        app_font.setPixelSize(10)
         self.lbl_app.setFont(app_font)
         self.lbl_app.setStyleSheet(f"color: {p['toast_subtext']};")
         head_row.addWidget(self.lbl_app)
@@ -165,10 +165,10 @@ class ToastCard(QFrame):
         self.lbl_msg = QLabel(self.raw_message)
         self.lbl_msg.setWordWrap(True)
         msg_font = QFont()
-        msg_font.setPointSize(10)
+        msg_font.setPixelSize(13)
         msg_font.setWeight(QFont.Weight.DemiBold)
         self.lbl_msg.setFont(msg_font)
-        self.lbl_msg.setStyleSheet(f"color: {p['toast_text']}; font-weight: 600;")
+        self.lbl_msg.setStyleSheet(f"color: {p['toast_text']}; font-weight: 600; font-size: 13px;")
         text_col.addWidget(self.lbl_msg)
 
         root_layout.addLayout(text_col, 1)
@@ -439,15 +439,23 @@ class ToastManager(QObject):
 
         # Stack from newest (bottom) to oldest (top)
         for toast in reversed(stack):
-            max_w = min(560, max(340, win_w - 48))
+            max_w = min(560, max(280, win_w - 48))
             toast.setMaximumWidth(max_w)
+            
+            msg_fm = toast.lbl_msg.fontMetrics()
+            decor_w = (SHADOW_PAD + 14) * 2 + 32 + 12 + 24 + 12
+            avail_msg_w = max(100, max_w - decor_w)
+            bounding = msg_fm.boundingRect(QRect(0, 0, avail_msg_w, 1000), Qt.TextFlag.TextWordWrap, toast.raw_message)
+            raw_w = bounding.width() + decor_w
+            tw = min(max_w, max(min(340, max_w), raw_w))
+
+            toast.setFixedWidth(tw)
             toast.layout().activate()
             toast.adjustSize()
-            tw = min(max_w, max(340, toast.sizeHint().width()))
-            th = toast.sizeHint().height()
+            th = max(68, toast.sizeHint().height())
             toast.resize(tw, th)
 
-            center_x = (win_w - tw) // 2
+            center_x = max(0, (win_w - tw) // 2)
             target_y = current_bottom_y - th
             target_pos = QPoint(center_x, target_y)
 
