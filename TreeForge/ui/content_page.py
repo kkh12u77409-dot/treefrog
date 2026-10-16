@@ -20,7 +20,7 @@ from ..services.theme_service import theme, set_variant
 from ..services.icon_service import icon_service
 from .code_editor import CodeEditor
 from .toast import show_toast
-from .styles import create_card_frame, create_section_header
+from .styles import create_card_frame, create_section_header, set_button_text
 from .widgets.themed_combo import ThemedComboBox
 from .context_menus import (
     attach_text_context_menu,
@@ -44,6 +44,7 @@ class ContentPage(QWidget):
         self._setup_ui()
         self.retranslate_ui()
         i18n.language_changed.connect(self.retranslate_ui)
+        theme.theme_changed.connect(self._on_theme_changed)
 
     def _setup_ui(self) -> None:
         main_layout = QVBoxLayout(self)
@@ -117,8 +118,11 @@ class ContentPage(QWidget):
         ed_bar.addStretch()
 
         self.btn_save_single = QPushButton()
+        self.btn_save_single.setObjectName("btnSaveSingle")
+        self.btn_save_single.setFixedHeight(36)
         self.btn_save_single.setIcon(icon_service.icon("save", size=16, role="on_accent"))
         set_variant(self.btn_save_single, "primary")
+        set_button_text(self.btn_save_single, i18n.t("save_file"))
         self.btn_save_single.clicked.connect(self._save_single_file)
         ed_bar.addWidget(self.btn_save_single)
 
@@ -178,10 +182,12 @@ class ContentPage(QWidget):
         attach_text_context_menu(self.batch_input)
         tb_layout.addWidget(self.batch_input, 1)
 
-        self.btn_parse_batch = QPushButton(i18n.t("split_and_match"))
+        self.btn_parse_batch = QPushButton()
+        self.btn_parse_batch.setObjectName("btnParseBatch")
         self.btn_parse_batch.setFixedHeight(36)
         self.btn_parse_batch.setIcon(icon_service.icon("split", size=16, role="on_accent"))
         set_variant(self.btn_parse_batch, "primary")
+        set_button_text(self.btn_parse_batch, i18n.t("split_and_match"))
         self.btn_parse_batch.clicked.connect(self._parse_and_match_batch)
         tb_layout.addWidget(self.btn_parse_batch)
 
@@ -209,10 +215,12 @@ class ContentPage(QWidget):
 
         # Batch Action Row
         action_row = QHBoxLayout()
-        self.btn_save_batch = QPushButton(i18n.t("save_selected"))
+        self.btn_save_batch = QPushButton()
+        self.btn_save_batch.setObjectName("btnSaveBatch")
         self.btn_save_batch.setFixedHeight(36)
         self.btn_save_batch.setIcon(icon_service.icon("save-all", size=16, role="on_accent"))
         set_variant(self.btn_save_batch, "primary")
+        set_button_text(self.btn_save_batch, i18n.t("save_selected"))
         self.btn_save_batch.clicked.connect(self._save_selected_batch)
 
         self.btn_undo = QPushButton(i18n.t("undo_batch"))
@@ -250,10 +258,12 @@ class ContentPage(QWidget):
         q_layout.addWidget(self.queue_table, 1)
 
         q_btn_row = QHBoxLayout()
-        self.btn_save_queue = QPushButton(i18n.t("save_queue"))
+        self.btn_save_queue = QPushButton()
+        self.btn_save_queue.setObjectName("btnSaveQueue")
         self.btn_save_queue.setFixedHeight(36)
         self.btn_save_queue.setIcon(icon_service.icon("save-all", size=16, role="on_accent"))
         set_variant(self.btn_save_queue, "primary")
+        set_button_text(self.btn_save_queue, i18n.t("save_queue"))
         self.btn_save_queue.clicked.connect(self._save_queue)
 
         self.btn_clear_queue = QPushButton(i18n.t("clear_queue"))
@@ -494,6 +504,17 @@ class ContentPage(QWidget):
         else:
             show_toast(self, "No backups available to restore", "info")
 
+    def _on_theme_changed(self, theme_name: str = "") -> None:
+        """Refresh icons and button styles on theme change."""
+        self.btn_save_single.setIcon(icon_service.icon("save", size=16, role="on_accent"))
+        self.btn_parse_batch.setIcon(icon_service.icon("split", size=16, role="on_accent"))
+        self.btn_save_batch.setIcon(icon_service.icon("save-all", size=16, role="on_accent"))
+        self.btn_save_queue.setIcon(icon_service.icon("save-all", size=16, role="on_accent"))
+        set_variant(self.btn_save_single, "primary")
+        set_variant(self.btn_parse_batch, "primary")
+        set_variant(self.btn_save_batch, "primary")
+        set_variant(self.btn_save_queue, "primary")
+
     def retranslate_ui(self) -> None:
         """Live updates for localized texts and headers."""
         self.header.set_texts(i18n.t("content_title"), i18n.t("content_desc"))
@@ -501,24 +522,28 @@ class ContentPage(QWidget):
         self.tabs.setTabText(1, i18n.t("tab_batch"))
         self.tabs.setTabText(2, i18n.t("tab_queue"))
         self.lbl_tree.setText(i18n.t("project_files"))
-        self.btn_save_single.setText(i18n.t("save_file"))
-        self.btn_add_queue.setText(i18n.t("add_to_queue"))
+        set_button_text(self.btn_save_single, i18n.t("save_file"))
+        self.btn_save_single.setIcon(icon_service.icon("save", size=16, role="on_accent"))
+        set_button_text(self.btn_add_queue, i18n.t("add_to_queue"))
         self.chk_strip_fences.setText(i18n.t("opt_strip_fences"))
         self.chk_backups.setText(i18n.t("opt_backup"))
         self.chk_bom.setText(i18n.t("bom_toggle"))
         self.combo_newline.retranslate()
-        self.btn_parse_batch.setText(i18n.t("split_and_match"))
+        set_button_text(self.btn_parse_batch, i18n.t("split_and_match"))
+        self.btn_parse_batch.setIcon(icon_service.icon("split", size=16, role="on_accent"))
         self.table.setHorizontalHeaderLabels([
             i18n.t("col_include"), i18n.t("col_target"), i18n.t("col_status"),
             i18n.t("col_lines"), i18n.t("col_size"), i18n.t("col_marker")
         ])
-        self.btn_save_batch.setText(i18n.t("save_selected"))
-        self.btn_undo.setText(i18n.t("undo_batch"))
+        set_button_text(self.btn_save_batch, i18n.t("save_selected"))
+        self.btn_save_batch.setIcon(icon_service.icon("save-all", size=16, role="on_accent"))
+        set_button_text(self.btn_undo, i18n.t("undo_batch"))
         self.queue_table.setHorizontalHeaderLabels([
             i18n.t("col_target"), i18n.t("col_lines"), i18n.t("col_size")
         ])
-        self.btn_save_queue.setText(i18n.t("save_queue"))
-        self.btn_clear_queue.setText(i18n.t("clear_queue"))
+        set_button_text(self.btn_save_queue, i18n.t("save_queue"))
+        self.btn_save_queue.setIcon(icon_service.icon("save-all", size=16, role="on_accent"))
+        set_button_text(self.btn_clear_queue, i18n.t("clear_queue"))
         self.batch_input.setPlaceholderText(i18n.t("batch_input_placeholder"))
         if self.lbl_current_file.text() in ("No file selected", "لم يتم اختيار أي ملف"):
             self.lbl_current_file.setText(i18n.t("no_file_selected"))

@@ -14,7 +14,7 @@ from ..services.theme_service import theme, set_variant
 from ..services.settings_service import settings
 from ..services.icon_service import icon_service
 from .toast import show_toast
-from .styles import create_card_frame, create_section_header
+from .styles import create_card_frame, create_section_header, set_button_text
 from .widgets.themed_combo import ThemedComboBox
 
 
@@ -167,4 +167,4 @@ class SettingsPage(QWidget):
         self.lbl_lang.setText(i18n.t("language_label"))
         self.lbl_about_title.setText(i18n.t("about_title"))
         self.lbl_about_text.setText(i18n.t("about_text"))
-        self.btn_reset.setText(i18n.t("reset_defaults"))
+        set_button_text(self.btn_reset, i18n.t("reset_defaults"))

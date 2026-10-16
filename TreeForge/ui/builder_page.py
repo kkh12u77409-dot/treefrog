@@ -20,7 +20,7 @@ from ..services.theme_service import theme, set_variant
 from ..services.icon_service import icon_service
 from ..services.settings_service import settings
 from .toast import show_toast
-from .styles import create_card_frame, create_section_header
+from .styles import create_card_frame, create_section_header, set_button_text
 from .widgets.themed_combo import ThemedComboBox, PathComboBox
 from .context_menus import create_tree_input_context_menu, create_structure_tree_context_menu
 
@@ -52,6 +52,7 @@ class BuilderPage(QWidget):
         self._setup_ui()
         self.retranslate_ui()
         i18n.language_changed.connect(self.retranslate_ui)
+        theme.theme_changed.connect(self._on_theme_changed)
 
     def _setup_ui(self) -> None:
         main_layout = QVBoxLayout(self)
@@ -245,9 +246,11 @@ class BuilderPage(QWidget):
         # Primary Action Row (44px height Build button)
         btn_action_row = QHBoxLayout()
         self.btn_build = QPushButton()
+        self.btn_build.setObjectName("btnBuild")
         self.btn_build.setFixedHeight(44)
         self.btn_build.setIcon(icon_service.icon("hammer", size=18, role="on_accent"))
         set_variant(self.btn_build, "primary")
+        set_button_text(self.btn_build, i18n.t("build_button"))
         self.btn_build.clicked.connect(self._build_tree)
 
         self.btn_cancel = QPushButton()
@@ -428,24 +431,30 @@ class BuilderPage(QWidget):
         if self.last_built_dir and self.last_built_dir.exists():
             QDesktopServices.openUrl(QUrl.fromLocalFile(str(self.last_built_dir)))
 
+    def _on_theme_changed(self, theme_name: str = "") -> None:
+        """Refresh icons and button styles on theme change."""
+        self.btn_build.setIcon(icon_service.icon("hammer", size=18, role="on_accent"))
+        set_variant(self.btn_build, "primary")
+
     def retranslate_ui(self) -> None:
         """Live translation updates for all labels and controls."""
         self.header.set_texts(i18n.t("builder_title"), i18n.t("builder_desc"))
         self.lbl_tree_input.setText(i18n.t("nav_builder"))
-        self.btn_load_example.setText(i18n.t("load_example"))
-        self.btn_clear.setText(i18n.t("clear_input"))
+        set_button_text(self.btn_load_example, i18n.t("load_example"))
+        set_button_text(self.btn_clear, i18n.t("clear_input"))
         self.lbl_dest.setText(i18n.t("dest_folder"))
-        self.btn_browse.setText(i18n.t("browse"))
+        set_button_text(self.btn_browse, i18n.t("browse"))
         self.lbl_preview_title.setText(i18n.t("preview_title"))
         self.tree_view.setHeaderLabels([i18n.t("col_item"), i18n.t("col_type")])
-        self.btn_select_all.setText(i18n.t("select_all"))
-        self.btn_deselect_all.setText(i18n.t("deselect_all"))
+        set_button_text(self.btn_select_all, i18n.t("select_all"))
+        set_button_text(self.btn_deselect_all, i18n.t("deselect_all"))
         self.lbl_policy.setText(i18n.t("policy_label"))
         self.combo_policy.retranslate()
         self.chk_add_init.setText(i18n.t("opt_add_init"))
         self.chk_starter.setText(i18n.t("opt_starter_content"))
         self.chk_dry_run.setText(i18n.t("opt_dry_run"))
-        self.btn_build.setText(i18n.t("build_button"))
-        self.btn_cancel.setText(i18n.t("cancel"))
-        self.btn_open_folder.setText(i18n.t("open_folder"))
+        set_button_text(self.btn_build, i18n.t("build_button"))
+        self.btn_build.setIcon(icon_service.icon("hammer", size=18, role="on_accent"))
+        set_button_text(self.btn_cancel, i18n.t("cancel"))
+        set_button_text(self.btn_open_folder, i18n.t("open_folder"))
         self.tree_input.setPlaceholderText(i18n.t("tree_input_placeholder"))

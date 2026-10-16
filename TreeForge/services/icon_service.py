@@ -7,7 +7,7 @@ and automatically updated upon theme/language transitions.
 from typing import Dict, Optional, Tuple, Any
 import weakref
 from PyQt6.QtCore import QObject, QByteArray, Qt
-from PyQt6.QtGui import QIcon, QPixmap, QPainter, QTransform
+from PyQt6.QtGui import QIcon, QPixmap, QPainter, QTransform, QColor
 from PyQt6.QtSvg import QSvgRenderer
 
 from .theme_tokens import get_theme_tokens
@@ -149,8 +149,20 @@ class IconService(QObject):
         }
         base_color = role_colors.get(role, tokens["text_secondary"])
 
+        def _build_svg_string(raw: str, c: str) -> str:
+            replaced = raw.replace("{color}", c)
+            if "<svg" in replaced:
+                idx = replaced.find(">")
+                if idx != -1:
+                    open_tag = replaced[:idx + 1]
+                    body = replaced[idx + 1:]
+                    if body.endswith("</svg>"):
+                        body = body[:-6]
+                    return f'{open_tag}<g stroke="{c}" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">{body}</g></svg>'
+            return replaced
+
         svg_text = LUCIDE_SVGS.get(name, LUCIDE_SVGS.get("file", ""))
-        colored_svg = svg_text.replace("{color}", base_color)
+        colored_svg = _build_svg_string(svg_text, base_color)
 
         icon = QIcon()
         # HiDPI rendering: generate standard (1x) and retina (2x) pixmaps
@@ -161,6 +173,9 @@ class IconService(QObject):
             pixmap.fill(Qt.GlobalColor.transparent)
             painter = QPainter(pixmap)
             renderer.render(painter)
+            # Tint rendered pixels with base_color to guarantee 100% color accuracy in Qt
+            painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceIn)
+            painter.fillRect(pixmap.rect(), QColor(base_color))
             painter.end()
             pixmap.setDevicePixelRatio(dpr)
 
@@ -168,15 +183,18 @@ class IconService(QObject):
                 pixmap = pixmap.transformed(QTransform().scale(-1, 1))
 
             icon.addPixmap(pixmap, QIcon.Mode.Normal)
+            icon.addPixmap(pixmap, QIcon.Mode.Selected)
 
         # Also add Hover and Disabled states
         hover_color = "#ffffff" if role in ("on_accent", "white") else (tokens["text_primary"] if role == "default" else base_color)
-        hover_svg = svg_text.replace("{color}", hover_color)
+        hover_svg = _build_svg_string(svg_text, hover_color)
         hover_renderer = QSvgRenderer(QByteArray(hover_svg.encode("utf-8")))
         hover_pix = QPixmap(size * 2, size * 2)
         hover_pix.fill(Qt.GlobalColor.transparent)
         p = QPainter(hover_pix)
         hover_renderer.render(p)
+        p.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceIn)
+        p.fillRect(hover_pix.rect(), QColor(hover_color))
         p.end()
         hover_pix.setDevicePixelRatio(2.0)
         if is_rtl:

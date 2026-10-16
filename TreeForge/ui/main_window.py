@@ -18,6 +18,7 @@ from .builder_page import BuilderPage
 from .content_page import ContentPage
 from .settings_page import SettingsPage
 from .toast import show_toast
+from .styles import set_button_text
 from .widgets.themed_menu import ThemedMenu
 
 
@@ -178,10 +179,10 @@ class MainWindow(QMainWindow):
 
     def retranslate_ui(self) -> None:
         """Live updates for localized texts and escaping ampersands."""
-        self.btn_nav_builder.setText(i18n.t("nav_builder"))
+        set_button_text(self.btn_nav_builder, i18n.t("nav_builder"))
         # Escaping '&' so it is not consumed as mnemonic
-        self.btn_nav_content.setText(i18n.t("nav_content"))
-        self.btn_nav_settings.setText(i18n.t("nav_settings"))
+        set_button_text(self.btn_nav_content, i18n.t("nav_content"))
+        set_button_text(self.btn_nav_settings, i18n.t("nav_settings"))
         self.lbl_version.setText(i18n.t("version_caption"))
         if not self._active_workspace:
             self.status_bar.showMessage(i18n.t("ready"))

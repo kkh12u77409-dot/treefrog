@@ -273,29 +273,50 @@ class ThemeService(QObject):
             border: 2px solid {tokens["border_focus"]};
         }}
 
-        QPushButton[variant="primary"] {{
+        QPushButton[variant="primary"],
+        QPushButton#btnSaveSingle,
+        QPushButton#btnBuild,
+        QPushButton#btnParseBatch,
+        QPushButton#btnSaveBatch,
+        QPushButton#btnSaveQueue {{
             background-color: {tokens["accent_solid"]};
             color: #ffffff;
-            border: 1px solid {tokens["accent_solid"]};
+            border: 1px solid {tokens["accent_hover"] if self._resolved_theme == "dark" else tokens["accent_solid"]};
             border-radius: {m["radius_control"]}px;
-            padding: 8px 18px;
+            padding: 8px 20px;
             font-weight: 600;
             font-size: 13px;
+            min-height: 22px;
         }}
 
-        QPushButton[variant="primary"]:hover {{
+        QPushButton[variant="primary"]:hover,
+        QPushButton#btnSaveSingle:hover,
+        QPushButton#btnBuild:hover,
+        QPushButton#btnParseBatch:hover,
+        QPushButton#btnSaveBatch:hover,
+        QPushButton#btnSaveQueue:hover {{
             background-color: {tokens["accent_hover"]};
-            border-color: {tokens["accent_hover"]};
+            border-color: {tokens["accent_text"] if self._resolved_theme == "dark" else tokens["accent_hover"]};
             color: #ffffff;
         }}
 
-        QPushButton[variant="primary"]:pressed {{
+        QPushButton[variant="primary"]:pressed,
+        QPushButton#btnSaveSingle:pressed,
+        QPushButton#btnBuild:pressed,
+        QPushButton#btnParseBatch:pressed,
+        QPushButton#btnSaveBatch:pressed,
+        QPushButton#btnSaveQueue:pressed {{
             background-color: {tokens["accent_pressed"]};
             border-color: {tokens["accent_pressed"]};
             color: #ffffff;
         }}
 
-        QPushButton[variant="primary"]:disabled {{
+        QPushButton[variant="primary"]:disabled,
+        QPushButton#btnSaveSingle:disabled,
+        QPushButton#btnBuild:disabled,
+        QPushButton#btnParseBatch:disabled,
+        QPushButton#btnSaveBatch:disabled,
+        QPushButton#btnSaveQueue:disabled {{
             background-color: {tokens["border"]};
             border-color: {tokens["border"]};
             color: {tokens["text_muted"]};

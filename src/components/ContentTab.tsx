@@ -619,10 +619,10 @@ export const ContentTab: React.FC<ContentTabProps> = ({
               </span>
               <button
                 onClick={() => handleSplitBatch()}
-                className="flex items-center space-x-2 rtl:space-x-reverse px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold text-xs shadow-lg shadow-emerald-500/20 transition"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-600/25 transition border border-emerald-500/40"
               >
-                <Split className="w-4 h-4" />
-                <span>{isAr ? 'تحليل وتقسيم الملفات الآن' : 'Split & Match Files'}</span>
+                <Split className="w-4 h-4 text-white shrink-0" />
+                <span>{isAr ? 'تقسيم ومطابقة الملفات' : 'Split & Match Files'}</span>
               </button>
             </div>
           </div>
@@ -655,13 +655,13 @@ export const ContentTab: React.FC<ContentTabProps> = ({
 
                   <button
                     onClick={handleSaveSelectedBatch}
-                    className="flex items-center space-x-2 rtl:space-x-reverse px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-md shadow-emerald-500/20 transition"
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md shadow-emerald-600/25 transition border border-emerald-500/40"
                   >
-                    <Save className="w-3.5 h-3.5" />
+                    <Save className="w-4 h-4 text-white shrink-0" />
                     <span>
                       {isAr
-                        ? `حفظ الملفات المحددة (${chunks.filter((c) => c.included).length})`
-                        : `Save Selected (${chunks.filter((c) => c.included).length})`}
+                        ? `حفظ الملفات المحددة دفعة واحدة (${chunks.filter((c) => c.included).length})`
+                        : `Save Selected Chunks (${chunks.filter((c) => c.included).length})`}
                     </span>
                   </button>
                 </div>
@@ -849,10 +849,10 @@ export const ContentTab: React.FC<ContentTabProps> = ({
 
                 <button
                   onClick={handleSaveSingle}
-                  className="flex items-center space-x-1.5 rtl:space-x-reverse px-4 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-md shadow-emerald-500/20 transition"
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md shadow-emerald-600/25 transition border border-emerald-500/40"
                 >
-                  <Save className="w-3.5 h-3.5" />
-                  <span>{isAr ? 'حفظ الملف' : 'Save File'}</span>
+                  <Save className="w-4 h-4 text-white shrink-0" />
+                  <span>{isAr ? 'حفظ الملف (Ctrl+S)' : 'Save File (Ctrl+S)'}</span>
                 </button>
               </div>
             </div>
@@ -903,10 +903,10 @@ export const ContentTab: React.FC<ContentTabProps> = ({
               <button
                 onClick={handleSaveQueue}
                 disabled={queue.length === 0}
-                className="flex items-center space-x-2 rtl:space-x-reverse px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-md shadow-emerald-500/20 transition disabled:opacity-40"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md shadow-emerald-600/25 transition border border-emerald-500/40 disabled:opacity-40"
               >
-                <Save className="w-3.5 h-3.5" />
-                <span>{isAr ? 'حفظ كافة ملفات الطابور' : 'Save All Queued Files'}</span>
+                <Save className="w-4 h-4 text-white shrink-0" />
+                <span>{isAr ? 'حفظ جميع ملفات الطابور' : 'Save All Queue Files'}</span>
               </button>
             </div>
           </div>

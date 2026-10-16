@@ -978,9 +978,9 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
               <button
                 onClick={handleDownloadZip}
                 disabled={!parseResult.root || downloading}
-                className="flex-1 min-w-[160px] flex items-center justify-center space-x-2 rtl:space-x-reverse px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold text-xs shadow-lg shadow-emerald-500/20 disabled:opacity-50 transition"
+                className="flex-1 min-w-[160px] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-600/25 border border-emerald-500/40 disabled:opacity-50 transition"
               >
-                <Download className="w-4 h-4" />
+                <Download className="w-4 h-4 text-white shrink-0" />
                 <span>
                   {downloading
                     ? isAr
@@ -991,7 +991,7 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
                       ? 'محاكاة البناء (Dry-Run)'
                       : 'Simulate Build'
                     : isAr
-                    ? 'بناء وتنزيل المشروع (ZIP)'
+                    ? 'بناء هيكل المشروع الآن (ZIP)'
                     : 'Forge & Download ZIP'}
                 </span>
               </button>
