@@ -71,14 +71,8 @@ class ToastNotification(QWidget):
         }
         ic_name = icon_map.get(self.toast_type, "info")
 
-        # Distinctive accent colors
-        accent_color_map = {
-            "success": "#10b981",  # Vivid emerald
-            "warning": "#f59e0b",  # Radiant amber
-            "error": "#ef4444",    # Crimson rose
-            "info": "#0ea5e9",     # Sky electric
-        }
-        accent_hex = accent_color_map.get(self.toast_type, "#0ea5e9")
+        # Distinctive accent colors from theme tokens
+        accent_hex = p.get(self.toast_type, p.get("accent_text", p.get("accent_solid", "green")))
 
         # Left / Leading Icon Container
         self.icon_badge = QLabel()
@@ -104,10 +98,10 @@ class ToastNotification(QWidget):
         tag_row.setSpacing(6)
         
         type_titles = {
-            "success": i18n.t("toast_success") if "toast_success" in i18n.translations.get(i18n.current_language, {}) else ("نجاح" if i18n.is_rtl() else "Success"),
-            "warning": i18n.t("toast_warning") if "toast_warning" in i18n.translations.get(i18n.current_language, {}) else ("تنبيه" if i18n.is_rtl() else "Warning"),
-            "error": i18n.t("toast_error") if "toast_error" in i18n.translations.get(i18n.current_language, {}) else ("خطأ" if i18n.is_rtl() else "Error"),
-            "info": i18n.t("toast_info") if "toast_info" in i18n.translations.get(i18n.current_language, {}) else ("معلومة" if i18n.is_rtl() else "Info"),
+            "success": i18n.t("toast_success", default="نجاح" if i18n.is_rtl() else "Success"),
+            "warning": i18n.t("toast_warning", default="تنبيه" if i18n.is_rtl() else "Warning"),
+            "error": i18n.t("toast_error", default="خطأ" if i18n.is_rtl() else "Error"),
+            "info": i18n.t("toast_info", default="معلومة" if i18n.is_rtl() else "Info"),
         }
 
         self.lbl_tag = QLabel(type_titles.get(self.toast_type, "Info"))
@@ -188,20 +182,14 @@ class ToastNotification(QWidget):
         rect = self.container.rect()
         is_dark = theme.current_theme == "dark"
 
-        # Distinctive accent colors
-        accent_color_map = {
-            "success": "#10b981",  # Vivid emerald
-            "warning": "#f59e0b",  # Radiant amber
-            "error": "#ef4444",    # Crimson rose
-            "info": "#0ea5e9",     # Sky electric
-        }
-        accent_color = QColor(accent_color_map.get(self.toast_type, "#0ea5e9"))
+        # Distinctive accent colors from theme tokens
+        accent_color = QColor(p.get(self.toast_type, p.get("accent_text", p.get("accent_solid", "green"))))
 
         # Card body background
         path = QPainterPath()
         path.addRoundedRect(0, 0, rect.width(), rect.height(), 14, 14)
 
-        bg_color = QColor(p["bg_card"]) if is_dark else QColor(255, 255, 255, 250)
+        bg_color = QColor(p["bg_card"])
         painter.fillPath(path, bg_color)
 
         # Subtle distinctive outer border

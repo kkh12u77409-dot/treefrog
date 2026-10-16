@@ -189,6 +189,10 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "badge_default": "Default",
         
         # Notifications & Dialogs
+        "toast_success": "Success",
+        "toast_warning": "Warning",
+        "toast_error": "Error",
+        "toast_info": "Info",
         "toast_parsed_ok": "Parsed successfully: {folders} folders, {files} files",
         "toast_parse_err": "Found {count} syntax or validation issue(s)",
         "toast_build_ok": "Successfully created {count} item(s)!",
@@ -356,6 +360,10 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "badge_default": "افتراضي",
         
         # Notifications & Dialogs
+        "toast_success": "نجاح",
+        "toast_warning": "تنبيه",
+        "toast_error": "خطأ",
+        "toast_info": "معلومة",
         "toast_parsed_ok": "تم التحليل بنجاح: {folders} مجلد، {files} ملف",
         "toast_parse_err": "تم اكتشاف {count} خطأ في بناء الجملة أو التسميات",
         "toast_build_ok": "تم إنشاء {count} عنصر بنجاح على القرص!",
@@ -379,6 +387,11 @@ class I18nService(QObject):
         super().__init__()
         self._current_lang = default_lang if default_lang in TRANSLATIONS else "en"
         self._qt_translator: Optional[QTranslator] = None
+
+    @property
+    def translations(self) -> Dict[str, Dict[str, str]]:
+        """Return the dictionary of available translations."""
+        return TRANSLATIONS
 
     @property
     def current_language(self) -> str:
@@ -412,10 +425,11 @@ class I18nService(QObject):
             # Fallback gracefully if standard QM files are unavailable in environment
             pass
 
-    def t(self, key: str, **kwargs: Any) -> str:
+    def t(self, key: str, default: Optional[str] = None, **kwargs: Any) -> str:
         """Translate key into current language with optional string interpolation."""
         strings = TRANSLATIONS.get(self._current_lang, TRANSLATIONS["en"])
-        val = strings.get(key, TRANSLATIONS["en"].get(key, key))
+        fallback = default if default is not None else TRANSLATIONS["en"].get(key, key)
+        val = strings.get(key, fallback)
         if kwargs:
             try:
                 return val.format(**kwargs)
