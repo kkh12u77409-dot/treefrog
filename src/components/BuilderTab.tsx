@@ -33,7 +33,7 @@ import { parseTreeText } from '../utils/treeParser';
 import { exportProjectZip, downloadBlob } from '../utils/zipGenerator';
 import { downloadTreeJson } from '../utils/treeJsonExporter';
 import { filterTree } from '../utils/treeFilter';
-import { ModernToast } from './ModernToast';
+import { ModernToast, ToastType } from './ModernToast';
 import { useTreeStateManager } from '../utils/useTreeStateManager';
 import { VisualTreeDiagram } from './VisualTreeDiagram';
 import { ExportWizardModal } from './ExportWizardModal';
@@ -169,7 +169,15 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
   const [dryRun, setDryRun] = useState<boolean>(false);
   const [copied, setCopied] = useState<boolean>(false);
   const [downloading, setDownloading] = useState<boolean>(false);
-  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [toastState, setToastState] = useState<{
+    message: string;
+    type?: ToastType;
+    title?: string;
+  } | null>(null);
+
+  const showToast = (message: string, type: ToastType = 'success', title?: string) => {
+    setToastState({ message, type, title });
+  };
   const [showHistoryModal, setShowHistoryModal] = useState<boolean>(false);
   const [previewMode, setPreviewMode] = useState<'diagram' | 'explorer'>('diagram');
   const [showExportWizard, setShowExportWizard] = useState<boolean>(false);
@@ -228,8 +236,11 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
   const handleUndo = () => {
     const target = undo();
     if (target) {
-      setStatusMessage(isAr ? `تراجع: ${target.descriptionAr}` : `Undo: ${target.description}`);
-      setTimeout(() => setStatusMessage(null), 3000);
+      showToast(
+        isAr ? `تراجع: ${target.descriptionAr}` : `Undo: ${target.description}`,
+        'info',
+        isAr ? 'سجل التعديلات' : 'History Undo'
+      );
     }
   };
 
@@ -237,8 +248,11 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
   const handleRedo = () => {
     const target = redo();
     if (target) {
-      setStatusMessage(isAr ? `إعادة: ${target.descriptionAr}` : `Redo: ${target.description}`);
-      setTimeout(() => setStatusMessage(null), 3000);
+      showToast(
+        isAr ? `إعادة: ${target.descriptionAr}` : `Redo: ${target.description}`,
+        'info',
+        isAr ? 'سجل التعديلات' : 'History Redo'
+      );
     }
   };
 
@@ -246,12 +260,13 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
   const handleDownloadZip = async () => {
     if (!parseResult.root) return;
     if (dryRun) {
-      setStatusMessage(
+      showToast(
         isAr
           ? 'تمت المحاكاة الجافة بنجاح (لم يتم إنشاء ملفات حقيقية)'
-          : 'Dry run completed successfully (no disk changes)'
+          : 'Dry run completed successfully (no disk changes)',
+        'warning',
+        isAr ? 'محاكاة جافة' : 'Dry Run Active'
       );
-      setTimeout(() => setStatusMessage(null), 4000);
       return;
     }
 
@@ -262,14 +277,15 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
         starterContent,
       });
       downloadBlob(zipBlob, `${parseResult.root.name}.zip`);
-      setStatusMessage(
+      showToast(
         isAr
           ? `تم تنزيل المشروع ${parseResult.root.name}.zip بنجاح!`
-          : `Successfully downloaded ${parseResult.root.name}.zip!`
+          : `Successfully downloaded ${parseResult.root.name}.zip!`,
+        'success',
+        isAr ? 'اكتمل التصدير' : 'Export Ready'
       );
-      setTimeout(() => setStatusMessage(null), 4000);
     } catch (err: any) {
-      alert(`Export error: ${err.message}`);
+      showToast(err.message || 'Export error', 'error', isAr ? 'خطأ في التصدير' : 'Export Error');
     } finally {
       setDownloading(false);
     }
@@ -286,21 +302,26 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
         treeText,
         disabledNodePaths,
       });
-      setStatusMessage(
+      showToast(
         isAr
           ? `تم تصدير هيكل المشروع والإعدادات إلى ${filename} بنجاح!`
-          : `Exported project tree structure to ${filename}!`
+          : `Exported project tree structure to ${filename}!`,
+        'success',
+        isAr ? 'تصدير JSON' : 'JSON Exported'
       );
-      setTimeout(() => setStatusMessage(null), 4000);
     } catch (err: any) {
-      console.error('Failed to export JSON:', err);
-      alert(`Export JSON error: ${err.message}`);
+      showToast(err.message || 'JSON Export error', 'error', isAr ? 'فشل تصدير JSON' : 'JSON Error');
     }
   };
 
   const handleCopyTree = () => {
     navigator.clipboard.writeText(treeText);
     setCopied(true);
+    showToast(
+      isAr ? 'تم نسخ شجرة المشروع النصية بنجاح إلى الحافظة!' : 'Project text tree copied to clipboard!',
+      'success',
+      isAr ? 'نسخ الحافظة' : 'Copied'
+    );
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -314,12 +335,12 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
     addItemToTree(quickItemName, quickItemType === 'folder');
     setQuickItemName('');
     setShowAddModal(false);
-    setStatusMessage(
+    showToast(
       isAr
         ? `تمت إضافة ${quickItemName} إلى الشجرة بنجاح!`
-        : `Added ${quickItemName} to project tree!`
+        : `Added ${quickItemName} to project tree!`,
+      'success'
     );
-    setTimeout(() => setStatusMessage(null), 3000);
   };
 
   // Interactive Tree Operations Handlers
@@ -329,11 +350,9 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
     if (res.success) {
       const newText = treeToText(res.root);
       resetTree(newText, `Add ${name}`, `إضافة ${name}`);
-      setStatusMessage(isAr ? `تمت إضافة ${name} بنجاح!` : `Added ${name} successfully!`);
-      setTimeout(() => setStatusMessage(null), 3000);
+      showToast(isAr ? `تمت إضافة ${name} بنجاح!` : `Added ${name} successfully!`, 'success');
     } else if (res.message) {
-      setStatusMessage(res.message);
-      setTimeout(() => setStatusMessage(null), 3000);
+      showToast(res.message, 'error', isAr ? 'تعذر الإضافة' : 'Cannot Add');
     }
   };
 
@@ -343,11 +362,9 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
     if (res.success) {
       const newText = treeToText(res.root);
       resetTree(newText, `Rename to ${newName}`, `إعادة تسمية إلى ${newName}`);
-      setStatusMessage(isAr ? `تمت إعادة التسمية إلى ${newName} بنجاح!` : `Renamed to ${newName} successfully!`);
-      setTimeout(() => setStatusMessage(null), 3000);
+      showToast(isAr ? `تمت إعادة التسمية إلى ${newName} بنجاح!` : `Renamed to ${newName} successfully!`, 'success');
     } else if (res.message) {
-      setStatusMessage(res.message);
-      setTimeout(() => setStatusMessage(null), 3000);
+      showToast(res.message, 'error', isAr ? 'تعذر إعادة التسمية' : 'Cannot Rename');
     }
   };
 
@@ -358,8 +375,7 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
     if (res.success) {
       const newText = treeToText(res.root);
       resetTree(newText, `Remove ${nodeName}`, `حذف ${nodeName}`);
-      setStatusMessage(isAr ? `تم حذف ${nodeName} بنجاح!` : `Removed ${nodeName} successfully!`);
-      setTimeout(() => setStatusMessage(null), 3000);
+      showToast(isAr ? `تم حذف ${nodeName} بنجاح!` : `Removed ${nodeName} successfully!`, 'success');
     }
   };
 
@@ -371,11 +387,9 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
     if (res.success) {
       const newText = treeToText(res.root);
       resetTree(newText, `Move ${sourceName} into ${targetName}`, `نقل ${sourceName} إلى ${targetName}`);
-      setStatusMessage(isAr ? `تم نقل ${sourceName} إلى ${targetName} بنجاح!` : `Moved ${sourceName} into ${targetName} successfully!`);
-      setTimeout(() => setStatusMessage(null), 3000);
+      showToast(isAr ? `تم نقل ${sourceName} إلى ${targetName} بنجاح!` : `Moved ${sourceName} into ${targetName} successfully!`, 'success');
     } else if (res.message) {
-      setStatusMessage(res.message);
-      setTimeout(() => setStatusMessage(null), 3000);
+      showToast(res.message, 'error', isAr ? 'تعذر نقل العنصر' : 'Cannot Move');
     }
   };
 
@@ -385,8 +399,7 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
     if (res.success) {
       const newText = treeToText(res.root);
       resetTree(newText, `Duplicate item`, `تكرار العنصر`);
-      setStatusMessage(isAr ? `تم تكرار العنصر بنجاح!` : `Item duplicated successfully!`);
-      setTimeout(() => setStatusMessage(null), 3000);
+      showToast(isAr ? `تم تكرار العنصر بنجاح!` : `Item duplicated successfully!`, 'success');
     }
   };
 
@@ -478,12 +491,13 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
   return (
     <div className="space-y-6">
       {/* Modern Centered Floating Toast Notification */}
-      {statusMessage && (
+      {toastState && (
         <ModernToast
-          message={statusMessage}
-          type="success"
+          message={toastState.message}
+          title={toastState.title}
+          type={toastState.type}
           duration={3500}
-          onClose={() => setStatusMessage(null)}
+          onClose={() => setToastState(null)}
           language={language}
         />
       )}
@@ -593,12 +607,13 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
                   key={snapshot.id}
                   onClick={() => {
                     jumpTo(idx);
-                    setStatusMessage(
+                    showToast(
                       isAr
                         ? `تم الانتقال إلى: ${snapshot.descriptionAr}`
-                        : `Jumped to: ${snapshot.description}`
+                        : `Jumped to: ${snapshot.description}`,
+                      'info',
+                      isAr ? 'استعادة الحالة' : 'Checkpoint Restored'
                     );
-                    setTimeout(() => setStatusMessage(null), 3000);
                   }}
                   className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-mono text-left rtl:text-right transition ${
                     isActive

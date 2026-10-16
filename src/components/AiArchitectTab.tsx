@@ -11,6 +11,7 @@ import {
   Lightbulb
 } from 'lucide-react';
 import { Language } from '../types';
+import { ModernToast, ToastType } from './ModernToast';
 
 interface AiArchitectTabProps {
   language: Language;
@@ -43,6 +44,15 @@ export const AiArchitectTab: React.FC<AiArchitectTabProps> = ({ language, onAppl
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copiedTree, setCopiedTree] = useState<boolean>(false);
+  const [toastState, setToastState] = useState<{
+    message: string;
+    type?: ToastType;
+    title?: string;
+  } | null>(null);
+
+  const showToast = (message: string, type: ToastType = 'success', title?: string) => {
+    setToastState({ message, type, title });
+  };
 
   const quickPrompts = isAr ? QUICK_PROMPTS_AR : QUICK_PROMPTS_EN;
 
@@ -62,8 +72,15 @@ export const AiArchitectTab: React.FC<AiArchitectTabProps> = ({ language, onAppl
         throw new Error(data.error || 'Failed to generate project structure');
       }
       setResult(data.data);
+      showToast(
+        isAr ? 'تم تصميم وتوليد معمارية المشروع بنجاح!' : 'Project architecture synthesized successfully!',
+        'success',
+        isAr ? 'اكتمل التحليل' : 'AI Architect'
+      );
     } catch (err: any) {
-      setError(err.message || 'Error communicating with AI service');
+      const errMsg = err.message || 'Error communicating with AI service';
+      setError(errMsg);
+      showToast(errMsg, 'error', isAr ? 'فشل التوليد' : 'AI Error');
     } finally {
       setLoading(false);
     }
@@ -72,10 +89,26 @@ export const AiArchitectTab: React.FC<AiArchitectTabProps> = ({ language, onAppl
   const handleApply = () => {
     if (!result) return;
     onApplyProject(result.treeText, result.batchCode);
+    showToast(
+      isAr ? 'تم تحميل هيكل المشروع والأكواد في أداة البناء!' : 'Loaded project tree and starter code into Builder!',
+      'success',
+      isAr ? 'تطبيق المشروع' : 'Applied'
+    );
   };
 
   return (
     <div className="space-y-6">
+      {/* Modern Centered Floating Toast Notification */}
+      {toastState && (
+        <ModernToast
+          message={toastState.message}
+          title={toastState.title}
+          type={toastState.type}
+          duration={3500}
+          onClose={() => setToastState(null)}
+          language={language}
+        />
+      )}
       {/* Intro Hero Banner */}
       <div className="bg-gradient-to-r from-purple-900/40 via-indigo-900/40 to-slate-900 border border-purple-500/30 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
