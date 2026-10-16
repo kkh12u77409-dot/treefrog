@@ -4,6 +4,9 @@ Crafted with Python 3.11+ and PyQt6.
 Features bilingual LTR/RTL support, dynamic theming, and modern design tokens.
 """
 
+import sys
+from pathlib import Path
+
 # Check Python version compatibility early
 if sys.version_info >= (3, 14):
     print("!" * 72)
