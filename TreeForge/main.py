@@ -4,8 +4,12 @@ Crafted with Python 3.11+ and PyQt6.
 Features bilingual LTR/RTL support, dynamic theming, and modern design tokens.
 """
 
+import os
 import sys
 from pathlib import Path
+
+# Suppress benign Windows Qt QPA monitor interface query warning
+os.environ.setdefault("QT_LOGGING_RULES", "qt.qpa.screen=false")
 
 # Check Python version compatibility early
 if sys.version_info >= (3, 14):
