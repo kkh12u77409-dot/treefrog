@@ -46,7 +46,7 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         # Builder Page
         "builder_title": "Project Tree to Filesystem",
         "builder_desc": "Paste your project tree text below and configure generation options.",
-        "tree_input_placeholder": "Paste your project tree here...\n\nSumMaster/\n├── main.py\n├── requirements.txt\n├── README.md\n├── ui/ (main_window.py, styles.py)\n└── tests/ (test_app.py)",
+        "tree_input_placeholder": "Paste your project tree here...\n\nTreeForgeApp/\n├── main.py\n├── config.py\n├── ui/ (main_window.py, views.py)\n└── tests/ (test_app.py)",
         "load_example": "Load example",
         "clear_input": "Clear",
         "parse_tree": "Parse & Preview Tree",
@@ -244,7 +244,7 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         # Builder Page
         "builder_title": "من الشجرة النصية إلى نظام الملفات",
         "builder_desc": "الصق هيكل المجلدات النصي هنا وحدد خيارات التوليد والبناء.",
-        "tree_input_placeholder": "الصق هيكل مشروعك النصي هنا...\n\nSumMaster/\n├── main.py\n├── requirements.txt\n├── README.md\n├── ui/ (main_window.py, styles.py)\n└── tests/ (test_app.py)",
+        "tree_input_placeholder": "الصق هيكل مشروعك النصي هنا...\n\nTreeForgeApp/\n├── main.py\n├── config.py\n├── ui/ (main_window.py, views.py)\n└── tests/ (test_app.py)",
         "load_example": "تحميل نموذج",
         "clear_input": "مسح",
         "parse_tree": "تحليل ومعاينة الشجرة",

@@ -109,20 +109,24 @@ export const ContentTab: React.FC<ContentTabProps> = ({
   const isAr = language === 'ar';
   const [subTab, setSubTab] = useState<'batch' | 'single' | 'queue'>('batch');
 
-  // Candidate file list (if none passed from builder, supply default SumMaster list)
+  // Candidate file list (if none passed from builder, supply default TreeForgeApp list)
   const filesList = candidateFiles.length > 0 ? candidateFiles : [
-    'SumMaster/main.py',
-    'SumMaster/make_zip.py',
-    'SumMaster/requirements.txt',
-    'SumMaster/README.md',
-    'SumMaster/ui/main_window.py',
-    'SumMaster/ui/spinner.py',
-    'SumMaster/ui/styles.py',
-    'SumMaster/core/calculator.py',
-    'SumMaster/core/worker.py',
-    'SumMaster/services/settings_service.py',
-    'SumMaster/tests/test_calculator.py',
-    'SumMaster/tests/test_worker.py',
+    'TreeForgeApp/main.py',
+    'TreeForgeApp/config.py',
+    'TreeForgeApp/requirements.txt',
+    'TreeForgeApp/Dockerfile',
+    'TreeForgeApp/README.md',
+    'TreeForgeApp/.env.example',
+    'TreeForgeApp/assets/styles/theme.qss',
+    'TreeForgeApp/ui/main_window.py',
+    'TreeForgeApp/ui/components/sidebar.py',
+    'TreeForgeApp/ui/components/header.py',
+    'TreeForgeApp/ui/views/dashboard_view.py',
+    'TreeForgeApp/core/engine.py',
+    'TreeForgeApp/core/parser.py',
+    'TreeForgeApp/services/api_service.py',
+    'TreeForgeApp/services/storage_service.py',
+    'TreeForgeApp/tests/test_engine.py',
   ];
 
   // In-memory file storage

@@ -26,6 +26,7 @@ import {
   Workflow,
   FolderTree,
   Wand2,
+  Sparkles,
   Eye,
   FileJson,
   Search
@@ -51,22 +52,42 @@ import {
   duplicateNodeInTree 
 } from '../utils/treeOperations';
 
-const SUMMASTER_EXAMPLE = `SumMaster/
+const DEFAULT_PROJECT_EXAMPLE = `TreeForgeApp/
 ├── main.py
-├── make_zip.py
+├── config.py
 ├── requirements.txt
+├── Dockerfile
 ├── README.md
-├── assets/icons/
-├── ui/  (main_window.py, spinner.py, styles.py)
-├── core/ (calculator.py, worker.py)
-├── services/ (settings_service.py)
-└── tests/ (test_calculator.py, test_worker.py)`;
+├── .env.example
+├── assets/
+│   ├── icons/ (logo.svg, app.ico)
+│   └── styles/ (theme.qss, dark.tokens.json)
+├── ui/
+│   ├── __init__.py
+│   ├── main_window.py
+│   ├── components/ (sidebar.py, header.py, toast.py)
+│   └── views/ (dashboard_view.py, editor_view.py, settings_view.py)
+├── core/
+│   ├── __init__.py
+│   ├── engine.py
+│   ├── parser.py
+│   └── models.py
+├── services/
+│   ├── __init__.py
+│   ├── api_service.py
+│   ├── storage_service.py
+│   └── telemetry.py
+└── tests/
+    ├── __init__.py
+    ├── conftest.py
+    ├── test_engine.py
+    └── test_views.py`;
 
 const PRESET_TEMPLATES: Record<string, { nameAr: string; nameEn: string; tree: string }> = {
-  summaster: {
-    nameAr: 'تطبيق سطح مكتب PyQt6 (SumMaster)',
-    nameEn: 'PyQt6 Desktop App (SumMaster)',
-    tree: SUMMASTER_EXAMPLE,
+  default_app: {
+    nameAr: 'النموذج الافتراضي (TreeForgeApp)',
+    nameEn: 'Default App (TreeForgeApp)',
+    tree: DEFAULT_PROJECT_EXAMPLE,
   },
   fastapi: {
     nameAr: 'واجهة برمجية FastAPI بمعمارية نظيفة',
@@ -150,7 +171,7 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
     addItemToTree,
     removeItemFromTree,
   } = useTreeStateManager({
-    initialTreeText: SUMMASTER_EXAMPLE,
+    initialTreeText: DEFAULT_PROJECT_EXAMPLE,
     initialPolicy: 'skip',
     initialAddInitPy: true,
     initialStarterContent: true,
@@ -698,6 +719,25 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
                 </span>
               </div>
               <div className="flex items-center space-x-1.5 rtl:space-x-reverse">
+                <button
+                  onClick={() => {
+                    resetTree(
+                      DEFAULT_PROJECT_EXAMPLE,
+                      'Loaded default example tree',
+                      'تحميل شجرة المشروع الافتراضية'
+                    );
+                    showToast(
+                      isAr ? 'تم تحميل الشجرة الافتراضية بنجاح!' : 'Default example tree loaded!',
+                      'success',
+                      isAr ? 'تحميل نموذج' : 'Example Loaded'
+                    );
+                  }}
+                  className="flex items-center space-x-1.5 rtl:space-x-reverse px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500 hover:text-slate-950 border border-emerald-500/30 transition shadow-sm"
+                  title={isAr ? 'تحميل النموذج الافتراضي (Load Example)' : 'Load Example Tree'}
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>{isAr ? 'تحميل نموذج' : 'Load Example'}</span>
+                </button>
                 <button
                   onClick={handleCopyTree}
                   className="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition"
