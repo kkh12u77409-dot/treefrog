@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { splitContent } from '../utils/contentSplitter';
 import { downloadBlob } from '../utils/zipGenerator';
+import { ModernToast } from './ModernToast';
 import { 
   generateFullBatchCode, 
   generateBoilerplateForFile,
@@ -407,26 +408,15 @@ export const ContentTab: React.FC<ContentTabProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Toast Notification */}
+      {/* Modern Centered Floating Toast Notification */}
       {notification && (
-        <div
-          className={`fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl border shadow-2xl flex items-center space-x-3 rtl:space-x-reverse text-xs font-semibold animate-slideUp ${
-            notification.type === 'success'
-              ? 'bg-emerald-950/90 border-emerald-500 text-emerald-300'
-              : notification.type === 'error'
-              ? 'bg-red-950/90 border-red-500 text-red-300'
-              : 'bg-slate-900/90 border-slate-700 text-slate-200'
-          }`}
-        >
-          {notification.type === 'success' ? (
-            <CheckCircle className="w-4 h-4 text-emerald-400" />
-          ) : notification.type === 'error' ? (
-            <XCircle className="w-4 h-4 text-red-400" />
-          ) : (
-            <AlertTriangle className="w-4 h-4 text-amber-400" />
-          )}
-          <span>{notification.text}</span>
-        </div>
+        <ModernToast
+          message={notification.text}
+          type={notification.type}
+          duration={3500}
+          onClose={() => setNotification(null)}
+          language={language}
+        />
       )}
 
       {/* Sub Mode Navigation Tabs & Export Suite */}

@@ -36,9 +36,9 @@ class MainWindow(QMainWindow):
         self._init_ui()
         self.retranslate_ui()
         
-        # Apply Windows 10/11 dark title bar
+        # Apply Windows 10/11 dark title bar & propagate theme updates
         theme.apply_titlebar_theme(self)
-        theme.theme_changed.connect(lambda _: theme.apply_titlebar_theme(self))
+        theme.theme_changed.connect(self._on_theme_changed)
         i18n.language_changed.connect(self.retranslate_ui)
 
     def _init_ui(self) -> None:
@@ -176,6 +176,15 @@ class MainWindow(QMainWindow):
                 except Exception as e:
                     show_toast(self, f"Error reading dropped file: {e}", "error")
                 break
+
+    def _on_theme_changed(self, theme_name: str = "") -> None:
+        """Handle theme change event and propagate to child views."""
+        theme.apply_titlebar_theme(self)
+        self.logo_lbl.setPixmap(icon_service.icon("folder-tree", size=28, role="accent").pixmap(28, 28))
+        if hasattr(self, "builder_page") and hasattr(self.builder_page, "_on_theme_changed"):
+            self.builder_page._on_theme_changed(theme_name)
+        if hasattr(self, "content_page") and hasattr(self.content_page, "_on_theme_changed"):
+            self.content_page._on_theme_changed(theme_name)
 
     def retranslate_ui(self) -> None:
         """Live updates for localized texts and escaping ampersands."""

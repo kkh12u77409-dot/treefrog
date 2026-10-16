@@ -1,9 +1,9 @@
-"""Modern floating toast notifications with semantic edge, soft shadow, stack manager,
-and bidirectional placement for TreeForge.
+"""Modern centered floating toast notifications with distinctive styling,
+semantic accents, soft drop shadow, stack manager, and pause-on-hover for TreeForge.
 """
 
 from typing import Optional, List
-from PyQt6.QtCore import Qt, QTimer, QPropertyAnimation, QEasingCurve, QPoint, QRect
+from PyQt6.QtCore import Qt, QTimer, QPropertyAnimation, QEasingCurve, QRect
 from PyQt6.QtGui import QColor, QFont, QPainter, QPainterPath, QPen
 from PyQt6.QtWidgets import (
     QWidget, QLabel, QHBoxLayout, QVBoxLayout, QPushButton,
@@ -16,7 +16,7 @@ from ..services.icon_service import icon_service
 
 
 class ToastNotification(QWidget):
-    """Floating card notification with semantic border, icon, and pause on hover."""
+    """Modern floating card notification centered horizontally with semantic accents."""
 
     def __init__(
         self,
@@ -29,37 +29,40 @@ class ToastNotification(QWidget):
         self.message = message
         self.toast_type = toast_type
         self.duration_ms = duration_ms
+        self._elapsed_ms = 0
 
         self.setWindowFlags(Qt.WindowType.SubWindow | Qt.WindowType.FramelessWindowHint)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
         self.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating, True)
-        self.setMaximumWidth(420)
-        self.setMinimumWidth(280)
+        self.setMaximumWidth(520)
+        self.setMinimumWidth(320)
 
         self._init_ui()
         self._init_animation()
 
     def _init_ui(self) -> None:
         p = theme.palette
+        is_dark = theme.current_theme == "dark"
+
         root_layout = QHBoxLayout(self)
-        root_layout.setContentsMargins(12, 12, 12, 12)
+        root_layout.setContentsMargins(10, 8, 10, 8)
 
         # Inner container card
         self.container = QWidget(self)
         self.container.setObjectName("toastContainer")
-        
-        # Soft shadow
+
+        # Soft glowing shadow
         shadow = QGraphicsDropShadowEffect(self)
-        shadow.setBlurRadius(24)
-        shadow.setOffset(0, 6)
-        shadow.setColor(QColor(0, 0, 0, 80 if theme.current_theme == "dark" else 30))
+        shadow.setBlurRadius(28)
+        shadow.setOffset(0, 8)
+        shadow.setColor(QColor(0, 0, 0, 110 if is_dark else 40))
         self.container.setGraphicsEffect(shadow)
 
         c_layout = QHBoxLayout(self.container)
-        c_layout.setContentsMargins(14, 12, 14, 12)
-        c_layout.setSpacing(12)
+        c_layout.setContentsMargins(16, 12, 16, 14)
+        c_layout.setSpacing(14)
 
-        # Status Icon
+        # Status Icon & Badge
         icon_map = {
             "success": "circle-check",
             "warning": "triangle-alert",
@@ -67,26 +70,89 @@ class ToastNotification(QWidget):
             "info": "info",
         }
         ic_name = icon_map.get(self.toast_type, "info")
-        self.icon_lbl = QLabel()
-        self.icon_lbl.setPixmap(icon_service.icon(ic_name, size=20, role=self.toast_type).pixmap(20, 20))
-        c_layout.addWidget(self.icon_lbl, 0, Qt.AlignmentFlag.AlignTop)
 
-        # Text label
+        # Distinctive accent colors
+        accent_color_map = {
+            "success": "#10b981",  # Vivid emerald
+            "warning": "#f59e0b",  # Radiant amber
+            "error": "#ef4444",    # Crimson rose
+            "info": "#0ea5e9",     # Sky electric
+        }
+        accent_hex = accent_color_map.get(self.toast_type, "#0ea5e9")
+
+        # Left / Leading Icon Container
+        self.icon_badge = QLabel()
+        self.icon_badge.setFixedSize(36, 36)
+        self.icon_badge.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.icon_badge.setStyleSheet(f"""
+            QLabel {{
+                background-color: {accent_hex}22;
+                border: 1.5px solid {accent_hex}66;
+                border-radius: 10px;
+            }}
+        """)
+        self.icon_badge.setPixmap(icon_service.icon(ic_name, size=20, role=self.toast_type).pixmap(20, 20))
+        c_layout.addWidget(self.icon_badge, 0, Qt.AlignmentFlag.AlignVCenter)
+
+        # Text column (tag pill + message)
+        text_col = QVBoxLayout()
+        text_col.setContentsMargins(0, 0, 0, 0)
+        text_col.setSpacing(3)
+
+        # Header tag row
+        tag_row = QHBoxLayout()
+        tag_row.setSpacing(6)
+        
+        type_titles = {
+            "success": i18n.t("toast_success") if "toast_success" in i18n.translations.get(i18n.current_language, {}) else ("نجاح" if i18n.is_rtl() else "Success"),
+            "warning": i18n.t("toast_warning") if "toast_warning" in i18n.translations.get(i18n.current_language, {}) else ("تنبيه" if i18n.is_rtl() else "Warning"),
+            "error": i18n.t("toast_error") if "toast_error" in i18n.translations.get(i18n.current_language, {}) else ("خطأ" if i18n.is_rtl() else "Error"),
+            "info": i18n.t("toast_info") if "toast_info" in i18n.translations.get(i18n.current_language, {}) else ("معلومة" if i18n.is_rtl() else "Info"),
+        }
+
+        self.lbl_tag = QLabel(type_titles.get(self.toast_type, "Info"))
+        tag_font = QFont()
+        tag_font.setPointSize(9)
+        tag_font.setBold(True)
+        self.lbl_tag.setFont(tag_font)
+        self.lbl_tag.setStyleSheet(f"color: {accent_hex}; font-weight: 800; text-transform: uppercase;")
+        tag_row.addWidget(self.lbl_tag)
+
+        self.lbl_app = QLabel("• TreeForge")
+        self.lbl_app.setStyleSheet(f"color: {p['text_muted']}; font-size: 11px;")
+        tag_row.addWidget(self.lbl_app)
+        tag_row.addStretch()
+        text_col.addLayout(tag_row)
+
+        # Message Text label
         self.lbl_text = QLabel(self.message)
         self.lbl_text.setObjectName("caption")
         self.lbl_text.setWordWrap(True)
-        font = QFont()
-        font.setPointSize(10)
-        font.setBold(True)
-        self.lbl_text.setFont(font)
-        c_layout.addWidget(self.lbl_text, 1)
+        msg_font = QFont()
+        msg_font.setPointSize(10)
+        msg_font.setBold(True)
+        self.lbl_text.setFont(msg_font)
+        self.lbl_text.setStyleSheet(f"color: {p['text_primary']}; font-weight: 600; line-height: 1.4;")
+        text_col.addWidget(self.lbl_text)
+
+        c_layout.addLayout(text_col, 1)
 
         # Close button
         self.btn_close = QPushButton()
         self.btn_close.setIcon(icon_service.icon("x", size=14, role="default"))
-        self.btn_close.setFixedSize(22, 22)
+        self.btn_close.setFixedSize(26, 26)
         self.btn_close.setFlat(True)
-        self.btn_close.setProperty("variant", "ghost")
+        self.btn_close.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.btn_close.setStyleSheet(f"""
+            QPushButton {{
+                border-radius: 13px;
+                background-color: transparent;
+                border: none;
+            }}
+            QPushButton:hover {{
+                background-color: {p['bg_elevated']};
+            }}
+        """)
         self.btn_close.clicked.connect(self.dismiss)
         c_layout.addWidget(self.btn_close, 0, Qt.AlignmentFlag.AlignTop)
 
@@ -114,34 +180,39 @@ class ToastNotification(QWidget):
         super().leaveEvent(event)
 
     def paintEvent(self, event) -> None:
-        """Draw card background with semantic status edge."""
+        """Draw modern rounded card with distinctive vibrant border and top highlight."""
         painter = QPainter(self.container)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
         p = theme.palette
         rect = self.container.rect()
+        is_dark = theme.current_theme == "dark"
 
-        # Semantic accent color
-        color_map = {
-            "success": p["success"],
-            "warning": p["warning"],
-            "error": p["error"],
-            "info": p["info"],
+        # Distinctive accent colors
+        accent_color_map = {
+            "success": "#10b981",  # Vivid emerald
+            "warning": "#f59e0b",  # Radiant amber
+            "error": "#ef4444",    # Crimson rose
+            "info": "#0ea5e9",     # Sky electric
         }
-        edge_color = QColor(color_map.get(self.toast_type, p["info"]))
+        accent_color = QColor(accent_color_map.get(self.toast_type, "#0ea5e9"))
 
-        # Card body
+        # Card body background
         path = QPainterPath()
-        path.addRoundedRect(rect.x(), rect.y(), rect.width(), rect.height(), 12, 12)
-        painter.fillPath(path, QColor(p["bg_card"]))
-        painter.setPen(QPen(QColor(p["border"]), 1))
+        path.addRoundedRect(0, 0, rect.width(), rect.height(), 14, 14)
+
+        bg_color = QColor(p["bg_card"]) if is_dark else QColor(255, 255, 255, 250)
+        painter.fillPath(path, bg_color)
+
+        # Subtle distinctive outer border
+        border_pen = QPen(QColor(accent_color.red(), accent_color.green(), accent_color.blue(), 120 if is_dark else 80), 1.5)
+        painter.setPen(border_pen)
         painter.drawPath(path)
 
-        # 4px Semantic leading edge
-        is_rtl = (self.layoutDirection() == Qt.LayoutDirection.RightToLeft)
-        edge_x = rect.right() - 4 if is_rtl else rect.left()
-        edge_rect = QRect(edge_x, rect.top() + 6, 4, rect.height() - 12)
-        painter.fillRect(edge_rect, edge_color)
+        # 3px Top ambient highlight bar
+        highlight_path = QPainterPath()
+        highlight_path.addRoundedRect(12, 1, rect.width() - 24, 3, 2, 2)
+        painter.fillPath(highlight_path, accent_color)
 
         painter.end()
 
@@ -150,7 +221,7 @@ class ToastNotification(QWidget):
 
 
 class ToastManager:
-    """Manages placement and non-overlapping stacking of multiple active toasts."""
+    """Manages centered placement and non-overlapping stacking of multiple active toasts."""
 
     _instance: Optional["ToastManager"] = None
 
@@ -170,8 +241,8 @@ class ToastManager:
 
         toast = ToastNotification(top_window, message, toast_type=toast_type)
         self._active_toasts.append(toast)
-        self._reposition_all(top_window)
         toast.show()
+        self._reposition_all(top_window)
         toast.dismiss_timer.start(toast.duration_ms)
 
     def remove_toast(self, toast: ToastNotification) -> None:
@@ -184,20 +255,20 @@ class ToastManager:
             self._reposition_all(app.activeWindow())
 
     def _reposition_all(self, window: QWidget) -> None:
-        margin_x = 24
-        margin_y = 24
-        current_y = window.height() - margin_y
-        is_rtl = (window.layoutDirection() == Qt.LayoutDirection.RightToLeft)
+        """Position toasts elegantly in the horizontal center of the active window, stacking from top."""
+        start_y = 28
+        spacing = 10
+        current_y = start_y
 
-        for toast in reversed(self._active_toasts):
+        for toast in self._active_toasts:
             toast.adjustSize()
             tw = toast.width()
             th = toast.height()
-            current_y -= th
 
-            x = margin_x if is_rtl else (window.width() - tw - margin_x)
-            toast.move(x, current_y)
-            current_y -= 8
+            # Guaranteed horizontal centering in the parent window
+            center_x = max(16, (window.width() - tw) // 2)
+            toast.move(center_x, current_y)
+            current_y += th + spacing
 
 
 def show_toast(parent: QWidget, text: str, toast_type: str = "info") -> None:

@@ -72,6 +72,6 @@ def set_button_text(btn, text: str) -> None:
         btn.setText("")
         return
     clean = text.strip()
-    btn.setText(f"\u00A0\u00A0{clean}\u00A0\u00A0")
+    btn.setText(f"\u00A0\u00A0\u00A0\u00A0{clean}\u00A0\u00A0\u00A0\u00A0")
 
 

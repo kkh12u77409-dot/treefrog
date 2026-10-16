@@ -33,6 +33,7 @@ import { parseTreeText } from '../utils/treeParser';
 import { exportProjectZip, downloadBlob } from '../utils/zipGenerator';
 import { downloadTreeJson } from '../utils/treeJsonExporter';
 import { filterTree } from '../utils/treeFilter';
+import { ModernToast } from './ModernToast';
 import { useTreeStateManager } from '../utils/useTreeStateManager';
 import { VisualTreeDiagram } from './VisualTreeDiagram';
 import { ExportWizardModal } from './ExportWizardModal';
@@ -476,17 +477,15 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
 
   return (
     <div className="space-y-6">
-      {/* Top Banner Alert / Status */}
+      {/* Modern Centered Floating Toast Notification */}
       {statusMessage && (
-        <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 flex items-center justify-between space-x-2 rtl:space-x-reverse text-sm font-medium animate-fadeIn">
-          <div className="flex items-center space-x-2 rtl:space-x-reverse">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-            <span>{statusMessage}</span>
-          </div>
-          <button onClick={() => setStatusMessage(null)} className="text-slate-400 hover:text-white">
-            <X className="w-3.5 h-3.5" />
-          </button>
-        </div>
+        <ModernToast
+          message={statusMessage}
+          type="success"
+          duration={3500}
+          onClose={() => setStatusMessage(null)}
+          language={language}
+        />
       )}
 
       {/* Preset Templates Bar & State Management Toolbar */}
