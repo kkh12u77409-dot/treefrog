@@ -78,6 +78,23 @@ class TestCombos(unittest.TestCase):
                 f"Invalid SVG path command '{p[:20]}' found in icon_service.py"
             )
 
+    def test_combobox_popup_placement_fix(self):
+        """Ensure ThemedComboBox defines showPopup with below-box coordinate placement."""
+        from pathlib import Path
+        themed_combo_py = Path(__file__).resolve().parent.parent / "ui" / "widgets" / "themed_combo.py"
+        with open(themed_combo_py, "r", encoding="utf-8") as f:
+            content = f.read()
+        self.assertIn("def showPopup(self)", content)
+        self.assertIn("self.mapToGlobal(QPoint(0, self.height() + 2))", content)
+
+    def test_combobox_popup_qss_configured(self):
+        """Ensure QComboBox QSS explicitly specifies combobox-popup: 0."""
+        from pathlib import Path
+        theme_service_py = Path(__file__).resolve().parent.parent / "services" / "theme_service.py"
+        with open(theme_service_py, "r", encoding="utf-8") as f:
+            content = f.read()
+        self.assertIn("combobox-popup: 0;", content)
+
 
 if __name__ == "__main__":
     unittest.main()

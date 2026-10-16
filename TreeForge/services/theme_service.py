@@ -465,6 +465,7 @@ class ThemeService(QObject):
 
         /* === 7. COMBOBOXES === */
         QComboBox {{
+            combobox-popup: 0;
             background-color: {tokens["bg_input"]};
             border: 1px solid {tokens["border_input"]};
             border-radius: {m["radius_control"]}px;

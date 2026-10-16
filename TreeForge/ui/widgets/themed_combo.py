@@ -4,7 +4,7 @@ wheel hijack prevention, and specialized PathComboBox for TreeForge.
 
 from pathlib import Path
 from typing import List, Tuple, Optional, Any, Dict
-from PyQt6.QtCore import Qt, QRect, QSize, pyqtSignal, QEvent
+from PyQt6.QtCore import Qt, QRect, QSize, pyqtSignal, QEvent, QPoint
 from PyQt6.QtGui import (
     QPainter, QColor, QFont, QPen, QPainterPath, QCursor, QWheelEvent,
     QKeyEvent, QIcon, QMouseEvent
@@ -201,6 +201,36 @@ class ThemedComboBox(QComboBox):
 
     def _on_language_changed(self) -> None:
         self.retranslate()
+
+    def showPopup(self) -> None:
+        """Position the dropdown popup cleanly below (or above if at screen bottom) the combobox box.
+        
+        Fixes the issue where combobox popups appear directly on top of the combobox box.
+        """
+        super().showPopup()
+        popup = self.view().window()
+        if popup:
+            # Map the bottom-left point of the combobox into global screen coordinates
+            pos = self.mapToGlobal(QPoint(0, self.height() + 2))
+            
+            # Ensure the popup is at least as wide as the combobox
+            popup.setMinimumWidth(self.width())
+            
+            # Check screen boundaries
+            screen = self.screen()
+            if screen:
+                screen_rect = screen.availableGeometry()
+                if pos.y() + popup.height() > screen_rect.bottom():
+                    # Place above the combobox if insufficient room below
+                    pos = self.mapToGlobal(QPoint(0, -popup.height() - 2))
+                
+                # Check horizontal boundaries
+                if pos.x() + popup.width() > screen_rect.right():
+                    pos.setX(max(screen_rect.left(), screen_rect.right() - popup.width()))
+                if pos.x() < screen_rect.left():
+                    pos.setX(screen_rect.left())
+
+            popup.move(pos)
 
     def wheelEvent(self, e: QWheelEvent) -> None:
         """Prevent mouse wheel from accidentally changing combobox value while scrolling."""

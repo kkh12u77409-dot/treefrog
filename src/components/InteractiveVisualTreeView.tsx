@@ -199,19 +199,44 @@ export const InteractiveVisualTreeView: React.FC<InteractiveVisualTreeViewProps>
     onMoveNode(sourcePath, targetFolderPath);
   };
 
-  // Handle Context Menu (Right Click)
+  // Handle Context Menu (Right Click or Action Button Click)
   const handleContextMenu = (e: React.MouseEvent, node: WebTreeNode) => {
     e.preventDefault();
     e.stopPropagation();
 
-    // Clamp coordinates to window
     const menuWidth = 220;
     const menuHeight = 260;
-    const clickX = e.clientX;
-    const clickY = e.clientY;
 
-    const posX = clickX + menuWidth > window.innerWidth ? window.innerWidth - menuWidth - 10 : clickX;
-    const posY = clickY + menuHeight > window.innerHeight ? window.innerHeight - menuHeight - 10 : clickY;
+    let targetX = e.clientX;
+    let targetY = e.clientY;
+
+    // If opened via button click, place cleanly underneath the button
+    const targetElement = e.currentTarget as HTMLElement;
+    if (targetElement && targetElement.tagName === 'BUTTON') {
+      const rect = targetElement.getBoundingClientRect();
+      targetX = isAr ? rect.right - menuWidth : rect.left;
+      targetY = rect.bottom + 4;
+    }
+
+    // Clamp coordinates to stay within window bounds and avoid overlapping
+    let posX = targetX;
+    if (posX + menuWidth > window.innerWidth - 10) {
+      posX = window.innerWidth - menuWidth - 10;
+    }
+    if (posX < 10) {
+      posX = 10;
+    }
+
+    let posY = targetY;
+    if (posY + menuHeight > window.innerHeight - 10) {
+      // If opening downward would clip offscreen, place cleanly above
+      if (targetElement && targetElement.tagName === 'BUTTON') {
+        const rect = targetElement.getBoundingClientRect();
+        posY = Math.max(10, rect.top - menuHeight - 4);
+      } else {
+        posY = Math.max(10, window.innerHeight - menuHeight - 10);
+      }
+    }
 
     setContextMenu({
       visible: true,

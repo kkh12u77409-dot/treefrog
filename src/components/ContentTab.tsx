@@ -38,6 +38,7 @@ import {
 } from '../utils/codeGenerator';
 import { PrismCodeEditor } from './PrismCodeEditor';
 import { PrismCodeViewer } from './PrismCodeViewer';
+import { ThemedSelect } from './ThemedSelect';
 import JSZip from 'jszip';
 import { WebFileChunk, Language, MatchStatus } from '../types';
 
@@ -152,6 +153,19 @@ export const ContentTab: React.FC<ContentTabProps> = ({
   const [searchTarget, setSearchTarget] = useState<string>('');
   const [replaceTarget, setReplaceTarget] = useState<string>('');
   const [showExportMenu, setShowExportMenu] = useState<boolean>(false);
+  const exportMenuRef = React.useRef<HTMLDivElement>(null);
+
+  // Close export menu on outside click
+  useEffect(() => {
+    if (!showExportMenu) return;
+    const handleOutside = (e: MouseEvent) => {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(e.target as Node)) {
+        setShowExportMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutside);
+    return () => document.removeEventListener('mousedown', handleOutside);
+  }, [showExportMenu]);
 
   useEffect(() => {
     if (initialBatchCode) {
@@ -473,18 +487,18 @@ export const ContentTab: React.FC<ContentTabProps> = ({
           </button>
 
           {/* Export Suite Dropdown */}
-          <div className="relative">
+          <div className="relative" ref={exportMenuRef}>
             <button
               onClick={() => setShowExportMenu(!showExportMenu)}
               className="flex items-center space-x-1.5 rtl:space-x-reverse px-3.5 py-1.5 rounded-lg bg-emerald-500 text-slate-950 font-bold text-xs shadow-md shadow-emerald-500/20 hover:bg-emerald-400 transition"
             >
               <Download className="w-3.5 h-3.5" />
               <span>{isAr ? 'أدوات التصدير' : 'Export Suite'}</span>
-              <ChevronDown className="w-3 h-3 ml-0.5" />
+              <ChevronDown className={`w-3 h-3 ml-0.5 transition-transform duration-200 ${showExportMenu ? 'rotate-180' : ''}`} />
             </button>
 
             {showExportMenu && (
-              <div className="absolute right-0 rtl:left-0 top-full mt-2 w-64 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl py-2 z-50 text-xs divide-y divide-slate-800">
+              <div className="absolute ltr:right-0 rtl:left-0 top-full mt-2 w-64 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl py-2 z-50 text-xs divide-y divide-slate-800 animate-fadeIn">
                 <div className="px-3 py-1.5 text-[10px] font-semibold uppercase text-slate-400">
                   {isAr ? 'خيارات التصدير الجاهزة' : 'Export Formats'}
                 </div>
@@ -708,10 +722,9 @@ export const ContentTab: React.FC<ContentTabProps> = ({
                         </td>
                         <td className="p-3">
                           {chunk.candidatePaths.length > 1 ? (
-                            <select
+                            <ThemedSelect
                               value={chunk.resolvedPath}
-                              onChange={(e) => {
-                                const newPath = e.target.value;
+                              onChange={(newPath) => {
                                 setChunks((prev) =>
                                   prev.map((c) =>
                                     c.id === chunk.id
@@ -720,14 +733,14 @@ export const ContentTab: React.FC<ContentTabProps> = ({
                                   )
                                 );
                               }}
-                              className="bg-slate-800 border border-amber-500/50 rounded-lg px-2 py-1 text-amber-300 text-xs focus:outline-none"
-                            >
-                              {chunk.candidatePaths.map((cand) => (
-                                <option key={cand} value={cand}>
-                                  {cand}
-                                </option>
-                              ))}
-                            </select>
+                              options={chunk.candidatePaths.map((cand) => ({
+                                value: cand,
+                                label: cand,
+                              }))}
+                              compact={true}
+                              isRtl={isAr}
+                              className="w-48 sm:w-56"
+                            />
                           ) : (
                             <span className="text-emerald-400">
                               {chunk.resolvedPath || (isAr ? 'لا يوجد تطابق' : 'None')}

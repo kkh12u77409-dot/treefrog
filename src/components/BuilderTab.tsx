@@ -8,6 +8,7 @@ import {
   CheckSquare, 
   Square, 
   AlertCircle, 
+  AlertTriangle,
   CheckCircle2, 
   Copy, 
   FileCode,
@@ -29,6 +30,7 @@ import {
   FileJson,
   Search
 } from 'lucide-react';
+import { ThemedSelect } from './ThemedSelect';
 import { parseTreeText } from '../utils/treeParser';
 import { exportProjectZip, downloadBlob } from '../utils/zipGenerator';
 import { downloadTreeJson } from '../utils/treeJsonExporter';
@@ -231,6 +233,38 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
     collect(parseResult.root);
     return list;
   }, [parseResult.root]);
+
+  // Options for Collision Policy dropdown
+  const policyOptions = useMemo(
+    () => [
+      {
+        value: 'skip',
+        label: isAr ? 'تخطي (Safe Skip)' : 'Safe Skip',
+        description: isAr
+          ? 'الأكثر أماناً: لا يمس الملفات الموجودة إطلاقاً'
+          : 'Safest: Never touches existing files',
+        icon: ShieldCheck,
+        badge: isAr ? 'افتراضي' : 'Default',
+      },
+      {
+        value: 'overwrite',
+        label: isAr ? 'استبدال (Overwrite)' : 'Overwrite',
+        description: isAr
+          ? 'يستبدل محتويات الملفات الموجودة بالكامل'
+          : 'Completely overwrite existing files',
+        icon: AlertTriangle,
+      },
+      {
+        value: 'auto_rename',
+        label: isAr ? 'إعادة تسمية تلقائية' : 'Auto-Rename',
+        description: isAr
+          ? 'ينشئ ملفاً جديداً باسم مرقم (مثل file_1.py)'
+          : 'Creates numbered file (e.g. file_1.py)',
+        icon: Copy,
+      },
+    ],
+    [isAr]
+  );
 
   // Handle undo with toast
   const handleUndo = () => {
@@ -939,19 +973,18 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
 
             {/* Options Panel with State-Managed Toggles */}
             <div className="p-3.5 bg-slate-950/50 border border-slate-800/80 rounded-xl space-y-2.5 text-xs">
-              <div className="flex items-center justify-between">
-                <span className="text-slate-400 font-medium">
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-slate-400 font-medium shrink-0">
                   {isAr ? 'سياسة الملفات الموجودة:' : 'Collision Policy:'}
                 </span>
-                <select
+                <ThemedSelect
                   value={policy}
-                  onChange={(e) => setPolicy(e.target.value as CollisionPolicy)}
-                  className="bg-slate-800 border border-slate-700 text-slate-200 rounded-lg px-2.5 py-1 text-xs focus:outline-none focus:border-emerald-500"
-                >
-                  <option value="skip">{isAr ? 'تخطي (Safe Skip)' : 'Skip Existing'}</option>
-                  <option value="overwrite">{isAr ? 'استبدال (Overwrite)' : 'Overwrite'}</option>
-                  <option value="auto_rename">{isAr ? 'إعادة تسمية تلقائية (Auto-rename)' : 'Auto-rename'}</option>
-                </select>
+                  onChange={(val) => setPolicy(val as CollisionPolicy)}
+                  options={policyOptions}
+                  isRtl={isAr}
+                  compact={true}
+                  className="w-52 sm:w-60"
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-800/60">
