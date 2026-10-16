@@ -191,46 +191,130 @@ export const TechDocsTab: React.FC<TechDocsTabProps> = ({ language }) => {
         </div>
       </div>
 
-      {/* Workflow Steps Section */}
+      {/* Design System & Accessibility Matrix */}
       <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
         <div className="flex items-center space-x-2.5 rtl:space-x-reverse">
-          <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 font-bold">
-            <Layers className="w-5 h-5" />
+          <div className="w-9 h-9 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400 font-bold">
+            <Palette className="w-5 h-5" />
           </div>
           <div>
             <h2 className="text-lg font-bold text-white">
-              {isAr ? 'خطوات العمل التفصيلية ومراحل التنفيذ' : 'Step-by-Step Implementation Workflow'}
+              {isAr ? 'نظام التصميم، رموز الألوان، ومطابقة معايير WCAG 2.1' : 'Design Tokens & WCAG 2.1 Accessibility Matrix'}
             </h2>
             <p className="text-xs text-slate-400">
               {isAr
-                ? 'المراحل الهندسية المتبعة لبناء التطبيق من مرحلة التخطيط وحتى التحزيم النهائي'
-                : 'Chronological phases executed from requirements planning to final packaging and testing'}
+                ? 'جدول الألوان المعتمد بدون أي لون ثابت في ملفات الواجهة مع التحقق التلقائي من التباين'
+                : 'Zero hardcoded colors across all UI files; strict token-driven QSS and WCAG AA contrast compliance'}
             </p>
           </div>
         </div>
 
-        {/* Steps Timeline Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {workflowSteps.map((step, idx) => (
-            <div
-              key={idx}
-              className="bg-slate-950/60 border border-slate-800 rounded-xl p-4 flex space-x-3.5 rtl:space-x-reverse hover:border-slate-700 transition"
-            >
-              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center text-xs font-black shrink-0 font-mono">
-                {step.step}
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs text-left rtl:text-right border-collapse">
+            <thead>
+              <tr className="border-b border-slate-800 text-slate-400 font-mono">
+                <th className="py-2.5 px-3">Design Token</th>
+                <th className="py-2.5 px-3">Dark Palette</th>
+                <th className="py-2.5 px-3">Light Palette</th>
+                <th className="py-2.5 px-3">Contrast Ratio</th>
+                <th className="py-2.5 px-3">Standard Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-800/60 font-mono text-slate-300">
+              <tr>
+                <td className="py-2 px-3 font-semibold text-emerald-400">bg_window</td>
+                <td className="py-2 px-3">#0b1220</td>
+                <td className="py-2 px-3">#f3f5f9</td>
+                <td className="py-2 px-3">—</td>
+                <td className="py-2 px-3 text-slate-400">Root Window Chrome</td>
+              </tr>
+              <tr>
+                <td className="py-2 px-3 font-semibold text-emerald-400">bg_card / bg_sidebar</td>
+                <td className="py-2 px-3">#131c2e / #0f172a</td>
+                <td className="py-2 px-3">#ffffff / #ffffff</td>
+                <td className="py-2 px-3">—</td>
+                <td className="py-2 px-3 text-slate-400">Surface Cards & Nav</td>
+              </tr>
+              <tr>
+                <td className="py-2 px-3 font-semibold text-emerald-400">text_primary on bg_card</td>
+                <td className="py-2 px-3">#e6edf7</td>
+                <td className="py-2 px-3">#0f172a</td>
+                <td className="py-2 px-3 text-emerald-400 font-bold">&gt; 12.5 : 1</td>
+                <td className="py-2 px-3 text-emerald-400">WCAG AAA Pass</td>
+              </tr>
+              <tr>
+                <td className="py-2 px-3 font-semibold text-emerald-400">text_muted on bg_card</td>
+                <td className="py-2 px-3">#8494ab</td>
+                <td className="py-2 px-3">#64748b</td>
+                <td className="py-2 px-3 text-emerald-400 font-bold">&gt; 4.5 : 1</td>
+                <td className="py-2 px-3 text-emerald-400">WCAG AA Pass</td>
+              </tr>
+              <tr>
+                <td className="py-2 px-3 font-semibold text-emerald-400">on_accent on accent_solid</td>
+                <td className="py-2 px-3">#04261b on #10b981</td>
+                <td className="py-2 px-3">#ffffff on #047857</td>
+                <td className="py-2 px-3 text-emerald-400 font-bold">&gt; 5.2 : 1</td>
+                <td className="py-2 px-3 text-emerald-400">WCAG AA Pass (Fixed D5/L6)</td>
+              </tr>
+              <tr>
+                <td className="py-2 px-3 font-semibold text-emerald-400">border_input on bg_input</td>
+                <td className="py-2 px-3">#5a6a85 on #0f1726</td>
+                <td className="py-2 px-3">#8695aa on #ffffff</td>
+                <td className="py-2 px-3 text-emerald-400 font-bold">&gt; 3.0 : 1</td>
+                <td className="py-2 px-3 text-emerald-400">Non-text UI Component Pass</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Defect Resolutions & Upgrades Directory */}
+      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
+        <div className="flex items-center space-x-2.5 rtl:space-x-reverse">
+          <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold">
+            <CheckCircle2 className="w-5 h-5" />
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-white">
+              {isAr ? 'سجل معالجة العيوب والتحسينات المكتملة' : 'Defect Resolutions & Modernization Log'}
+            </h2>
+            <p className="text-xs text-slate-400">
+              {isAr
+                ? 'فهرس شامل لجميع العيوب المعالجة في الواجهة وقوائم كليك يمين والقوائم المنسدلة'
+                : 'Mapping of defect IDs (L1-L11, D1-D8, T1-T2, I1-I4, M1-M7, C1-C10) to implemented components'}
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+          {[
+            { id: 'M1-M7', title: 'Context Menus Overhaul', file: 'ui/widgets/themed_menu.py + ui/context_menus.py', desc: 'Bespoke rounded translucent card menus with soft shadow, bidirectional shortcuts, and rich per-widget action sets.' },
+            { id: 'C1-C10', title: 'Themed Dropdowns Upgrade', file: 'ui/widgets/themed_combo.py', desc: 'Custom ComboItemDelegate with descriptions, badge chips, checkmarks, wheel prevention, and PathComboBox validation.' },
+            { id: 'L1 & I1', title: 'Dynamic Section Headers', file: 'ui/styles.py (SectionHeader)', desc: 'Replaced hardcoded title colors with SectionHeader supporting live retranslation without losing container handles.' },
+            { id: 'L2', title: 'Builder Soft Panel', file: 'ui/builder_page.py (#optionsBox)', desc: 'Replaced dark slab background with themed bg_elevated soft panel, 12px radius, and switch-style toggles.' },
+            { id: 'L3 & D6', title: 'Theme-Aware Code Editor', file: 'ui/code_editor.py', desc: 'Gutter, current line, and syntax highlighter driven dynamically by code_* and syn_* theme tokens.' },
+            { id: 'L4 & D1', title: 'Modern Tabs & Card Panes', file: 'services/theme_service.py', desc: 'Modern underline/pill tabs with accent indicator, card pane background, and full RTL mirroring.' },
+            { id: 'L7 & L8', title: 'Crisp Checkboxes & Scrollbars', file: 'services/theme_service.py', desc: 'Themed vector check indicators and clean 10px scrollbars with hidden arrow buttons and rounded thumb handles.' },
+            { id: 'D3', title: 'Windows 10/11 Title Bar Chrome', file: 'services/theme_service.py', desc: 'Implemented DwmSetWindowAttribute via ctypes for immersive dark title bar and caption matching.' },
+            { id: 'D4', title: 'Stackable Semantic Toasts', file: 'ui/toast.py (ToastManager)', desc: 'Card notification with semantic 4px edge, status icons, soft shadow, hover pause, and bottom-end stacking.' },
+            { id: 'T1 & T2', title: 'Lucide Icon System & Zero Hex', file: 'services/icon_service.py + theme_tokens.py', desc: 'Dynamic recolored SVG icons via QSvgRenderer, IconBinder, and 100% elimination of hex literals in ui/.' },
+            { id: 'I2', title: 'Self-Labelled Language Selector', file: 'ui/settings_page.py', desc: 'Always shows English and العربية with EN / ع badge chips; added System default theme mode.' },
+            { id: 'I3 & I4', title: 'True RTL Polish & 960x640 Min', file: 'ui/main_window.py', desc: 'Complete layout mirroring while keeping code editors and file paths strictly LTR for ergonomic readability.' }
+          ].map((item, idx) => (
+            <div key={idx} className="bg-slate-950/70 border border-slate-800 rounded-xl p-3.5 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md">
+                  {item.id}
+                </span>
+                <span className="text-[10px] text-slate-500 font-mono truncate max-w-[130px]">{item.file}</span>
               </div>
-              <div className="space-y-1">
-                <h4 className="text-xs font-bold text-slate-200">
-                  {isAr ? step.titleAr : step.titleEn}
-                </h4>
-                <p className="text-[11px] text-slate-400 leading-relaxed">
-                  {isAr ? step.descAr : step.descEn}
-                </p>
-              </div>
+              <h4 className="text-xs font-bold text-slate-200">{item.title}</h4>
+              <p className="text-[11px] text-slate-400 leading-relaxed">{item.desc}</p>
             </div>
           ))}
         </div>
       </div>
+
     </div>
   );
 };

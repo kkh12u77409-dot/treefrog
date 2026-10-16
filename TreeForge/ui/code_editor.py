@@ -1,13 +1,18 @@
-"""Custom code editor for TreeForge with line numbers and syntax highlighting."""
+"""Custom code editor for TreeForge with theme-aware gutter, current line highlight,
+and dynamic syntax highlighting driven by design tokens.
+"""
 
 import re
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 from PyQt6.QtCore import Qt, QRect, QSize
 from PyQt6.QtGui import (
     QColor, QPainter, QTextFormat, QFont, QSyntaxHighlighter,
-    QTextCharFormat, QKeyEvent
+    QTextCharFormat, QKeyEvent, QPen
 )
 from PyQt6.QtWidgets import QPlainTextEdit, QWidget, QTextEdit
+
+from ..services.theme_service import theme
+from .context_menus import create_code_editor_context_menu
 
 
 class LineNumberArea(QWidget):
@@ -23,44 +28,58 @@ class LineNumberArea(QWidget):
 
 
 class MultiSyntaxHighlighter(QSyntaxHighlighter):
-    """Lightweight syntax highlighter for Python, Markdown, and JSON."""
+    """Dynamic token-driven syntax highlighter for Python, Markdown, and JSON."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.highlighting_rules: List[Tuple[re.Pattern, QTextCharFormat]] = []
+        self.rebuild_formats()
 
-        # Keywords format
-        keyword_format = QTextCharFormat()
-        keyword_format.setForeground(QColor("#38bdf8"))  # Light cyan / blue
-        keyword_format.setFontWeight(QFont.Weight.Bold)
+    def rebuild_formats(self) -> None:
+        """Re-read current theme palette and regenerate formatting rules."""
+        self.highlighting_rules.clear()
+        p = theme.palette
+
+        # Keywords
+        kw_fmt = QTextCharFormat()
+        kw_fmt.setForeground(QColor(p["syn_keyword"]))
+        kw_fmt.setFontWeight(QFont.Weight.Bold)
         keywords = [
             r"\bdef\b", r"\bclass\b", r"\bimport\b", r"\bfrom\b", r"\breturn\b",
             r"\bif\b", r"\belif\b", r"\belse\b", r"\bfor\b", r"\bwhile\b",
             r"\btry\b", r"\bexcept\b", r"\bfinally\b", r"\bwith\b", r"\bas\b",
-            r"\bpass\b", r"\braise\b", r"\bTrue\b", r"\bFalse\b", r"\bNone\b"
+            r"\bpass\b", r"\braise\b", r"\bTrue\b", r"\bFalse\b", r"\bNone\b",
+            r"\basync\b", r"\bawait\b", r"\byield\b"
         ]
         for kw in keywords:
-            self.highlighting_rules.append((re.compile(kw), keyword_format))
+            self.highlighting_rules.append((re.compile(kw), kw_fmt))
 
-        # String format
-        string_format = QTextCharFormat()
-        string_format.setForeground(QColor("#34d399"))  # Emerald green
-        self.highlighting_rules.append((re.compile(r'"[^"\\]*(\\.[^"\\]*)*"'), string_format))
-        self.highlighting_rules.append((re.compile(r"'[^'\\]*(\\.[^'\\]*)*'"), string_format))
+        # Strings
+        str_fmt = QTextCharFormat()
+        str_fmt.setForeground(QColor(p["syn_string"]))
+        self.highlighting_rules.append((re.compile(r'"[^"\\]*(\\.[^"\\]*)*"'), str_fmt))
+        self.highlighting_rules.append((re.compile(r"'[^'\\]*(\\.[^'\\]*)*'"), str_fmt))
 
-        # Comments format
-        comment_format = QTextCharFormat()
-        comment_format.setForeground(QColor("#94a3b8"))  # Slate grey
-        comment_format.setFontItalic(True)
-        self.highlighting_rules.append((re.compile(r"#[^\n]*"), comment_format))
-        self.highlighting_rules.append((re.compile(r"//[^\n]*"), comment_format))
+        # Comments
+        comment_fmt = QTextCharFormat()
+        comment_fmt.setForeground(QColor(p["syn_comment"]))
+        comment_fmt.setFontItalic(True)
+        self.highlighting_rules.append((re.compile(r"#[^\n]*"), comment_fmt))
+        self.highlighting_rules.append((re.compile(r"//[^\n]*"), comment_fmt))
 
-        # Markdown headers / Markers
-        header_format = QTextCharFormat()
-        header_format.setForeground(QColor("#fbbf24"))  # Amber
-        header_format.setFontWeight(QFont.Weight.Bold)
-        self.highlighting_rules.append((re.compile(r"^#{1,6}\s+.*$"), header_format))
-        self.highlighting_rules.append((re.compile(r"^[=\-]{3,}\s+.*$"), header_format))
+        # Numbers
+        num_fmt = QTextCharFormat()
+        num_fmt.setForeground(QColor(p["syn_number"]))
+        self.highlighting_rules.append((re.compile(r"\b\d+(\.\d+)?\b"), num_fmt))
+
+        # Markdown headers / Section markers
+        head_fmt = QTextCharFormat()
+        head_fmt.setForeground(QColor(p["syn_heading"]))
+        head_fmt.setFontWeight(QFont.Weight.Bold)
+        self.highlighting_rules.append((re.compile(r"^#{1,6}\s+.*$"), head_fmt))
+        self.highlighting_rules.append((re.compile(r"^###\s+.*$"), head_fmt))
+
+        self.rehighlight()
 
     def highlightBlock(self, text: str) -> None:
         for pattern, fmt in self.highlighting_rules:
@@ -71,10 +90,11 @@ class MultiSyntaxHighlighter(QSyntaxHighlighter):
 
 
 class CodeEditor(QPlainTextEdit):
-    """Full-featured code editor with line numbers gutter and current-line highlight."""
+    """Full-featured code editor with theme token colors and custom context menu."""
 
-    def __init__(self, parent: QWidget = None):
+    def __init__(self, parent: Optional[QWidget] = None, file_name: str = "main.py"):
         super().__init__(parent)
+        self.file_name = file_name
         self.line_number_area = LineNumberArea(self)
 
         font = QFont("JetBrains Mono", 10)
@@ -90,6 +110,18 @@ class CodeEditor(QPlainTextEdit):
 
         self.update_line_number_area_width(0)
         self.highlight_current_line()
+
+        # Custom Context Menu Policy
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.customContextMenuRequested.connect(self._on_context_menu)
+
+        theme.theme_changed.connect(self._on_theme_changed)
+
+    def _on_theme_changed(self) -> None:
+        self.highlighter.rebuild_formats()
+        self.highlight_current_line()
+        self.line_number_area.update()
+        self.viewport().update()
 
     def line_number_area_width(self) -> int:
         digits = 1
@@ -122,8 +154,8 @@ class CodeEditor(QPlainTextEdit):
         extra_selections = []
         if not self.isReadOnly():
             selection = QTextEdit.ExtraSelection()
-            line_color = QColor("#1e293b")
-            selection.format.setBackground(line_color)
+            p = theme.palette
+            selection.format.setBackground(QColor(p["code_current_line"]))
             selection.format.setProperty(QTextFormat.Property.FullWidthSelection, True)
             selection.cursor = self.textCursor()
             selection.cursor.clearSelection()
@@ -131,8 +163,16 @@ class CodeEditor(QPlainTextEdit):
         self.setExtraSelections(extra_selections)
 
     def line_number_area_paint_event(self, event) -> None:
+        p = theme.palette
         painter = QPainter(self.line_number_area)
-        painter.fillRect(event.rect(), QColor("#0f172a"))
+        painter.fillRect(event.rect(), QColor(p["code_gutter_bg"]))
+
+        # 1px vertical separator line
+        painter.setPen(QPen(QColor(p["border"]), 1))
+        painter.drawLine(
+            self.line_number_area.width() - 1, event.rect().top(),
+            self.line_number_area.width() - 1, event.rect().bottom()
+        )
 
         block = self.firstVisibleBlock()
         block_number = block.blockNumber()
@@ -142,7 +182,7 @@ class CodeEditor(QPlainTextEdit):
         while block.isValid() and top <= event.rect().bottom():
             if block.isVisible() and bottom >= event.rect().top():
                 number = str(block_number + 1)
-                painter.setPen(QColor("#64748b"))
+                painter.setPen(QColor(p["code_gutter_text"]))
                 painter.drawText(
                     0, top, self.line_number_area.width() - 8,
                     self.fontMetrics().height(),
@@ -152,10 +192,13 @@ class CodeEditor(QPlainTextEdit):
             top = bottom
             bottom = top + int(self.blockBoundingRect(block).height())
             block_number += 1
+        painter.end()
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
-        # Handle Tab as 4 spaces
         if event.key() == Qt.Key.Key_Tab and not event.modifiers():
             self.insertPlainText("    ")
             return
         super().keyPressEvent(event)
+
+    def _on_context_menu(self, pos) -> None:
+        create_code_editor_context_menu(self, pos, self.file_name)

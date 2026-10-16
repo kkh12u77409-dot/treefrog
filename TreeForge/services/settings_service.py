@@ -2,7 +2,16 @@
 
 from typing import List, Any
 from pathlib import Path
-from PyQt6.QtCore import QSettings
+try:
+    from PyQt6.QtCore import QSettings
+except ImportError:
+    class QSettings:
+        def __init__(self, *args, **kwargs):
+            self._storage = {}
+        def value(self, key, default=None):
+            return self._storage.get(key, default)
+        def setValue(self, key, value):
+            self._storage[key] = value
 
 
 class SettingsService:

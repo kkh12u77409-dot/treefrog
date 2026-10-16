@@ -80,7 +80,14 @@ app.post('/api/generate-ai-tree', async (req, res) => {
       return res.status(500).json({ error: 'GEMINI_API_KEY is not configured on the server' });
     }
 
-    const ai = new GoogleGenAI({ apiKey });
+    const ai = new GoogleGenAI({
+      apiKey,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build',
+        },
+      },
+    });
 
     const systemPrompt = `You are a Principal Software Architect and PyQt6 Desktop Engineering Expert.
 The user wants to scaffold a new software project.
@@ -98,26 +105,18 @@ Return ONLY a JSON object with this exact schema:
 
     let response;
     try {
-      // First attempt with gemini-4-argon and HIGH thinkingLevel as required
-      response = await ai.models.generateContent({
-        model: 'gemini-4-argon',
-        contents: `${systemPrompt}\n\nUser Request: ${prompt}\nLanguage Preference: ${language}`,
-        config: {
-          thinkingConfig: {
-            thinkingLevel: 'HIGH' as any,
-          },
-          responseMimeType: 'application/json',
-        },
-      });
-    } catch (modelErr: any) {
-      console.warn('Primary model thinking error, falling back to gemini-3.8-flash:', modelErr.message);
-      // Fallback to gemini-3.8-flash if gemini-4-argon is unavailable or requires paid plan
       response = await ai.models.generateContent({
         model: 'gemini-3.8-flash',
         contents: `${systemPrompt}\n\nUser Request: ${prompt}\nLanguage Preference: ${language}`,
         config: {
           responseMimeType: 'application/json',
         },
+      });
+    } catch (modelErr: any) {
+      console.warn('Primary model error, attempting retry:', modelErr.message);
+      response = await ai.models.generateContent({
+        model: 'gemini-3.8-flash',
+        contents: `${systemPrompt}\n\nUser Request: ${prompt}\nLanguage Preference: ${language}`,
       });
     }
 

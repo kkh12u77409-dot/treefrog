@@ -1,82 +1,204 @@
-"""Non-intrusive floating toast notifications for PyQt6."""
+"""Modern floating toast notifications with semantic edge, soft shadow, stack manager,
+and bidirectional placement for TreeForge.
+"""
 
-from typing import Optional
-from PyQt6.QtCore import Qt, QTimer, QPropertyAnimation, QEasingCurve, QPoint
-from PyQt6.QtGui import QColor, QPainter, QBrush, QPen, QFont
-from PyQt6.QtWidgets import QWidget, QLabel, QHBoxLayout, QGraphicsOpacityEffect
+from typing import Optional, List
+from PyQt6.QtCore import Qt, QTimer, QPropertyAnimation, QEasingCurve, QPoint, QRect
+from PyQt6.QtGui import QColor, QFont, QPainter, QPainterPath, QPen
+from PyQt6.QtWidgets import (
+    QWidget, QLabel, QHBoxLayout, QVBoxLayout, QPushButton,
+    QGraphicsDropShadowEffect, QApplication
+)
+
+from ..services.theme_service import theme
+from ..services.i18n_service import i18n
+from ..services.icon_service import icon_service
 
 
 class ToastNotification(QWidget):
-    """Floating notification banner that automatically fades out."""
+    """Floating card notification with semantic border, icon, and pause on hover."""
 
-    def __init__(self, parent: QWidget, text: str, toast_type: str = "info", duration_ms: int = 3500):
+    def __init__(
+        self,
+        parent: QWidget,
+        message: str,
+        toast_type: str = "info",
+        duration_ms: int = 4000
+    ):
         super().__init__(parent)
+        self.message = message
+        self.toast_type = toast_type
+        self.duration_ms = duration_ms
+
         self.setWindowFlags(Qt.WindowType.SubWindow | Qt.WindowType.FramelessWindowHint)
-        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
-        self.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
+        self.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating, True)
+        self.setMaximumWidth(420)
+        self.setMinimumWidth(280)
 
-        color_map = {
-            "info": ("#1e293b", "#38bdf8", "#0284c7"),
-            "success": ("#064e3b", "#34d399", "#10b981"),
-            "warning": ("#78350f", "#fbbf24", "#d97706"),
-            "error": ("#7f1d1d", "#f87171", "#ef4444"),
+        self._init_ui()
+        self._init_animation()
+
+    def _init_ui(self) -> None:
+        p = theme.palette
+        root_layout = QHBoxLayout(self)
+        root_layout.setContentsMargins(12, 12, 12, 12)
+
+        # Inner container card
+        self.container = QWidget(self)
+        self.container.setObjectName("toastContainer")
+        
+        # Soft shadow
+        shadow = QGraphicsDropShadowEffect(self)
+        shadow.setBlurRadius(24)
+        shadow.setOffset(0, 6)
+        shadow.setColor(QColor(0, 0, 0, 80 if theme.current_theme == "dark" else 30))
+        self.container.setGraphicsEffect(shadow)
+
+        c_layout = QHBoxLayout(self.container)
+        c_layout.setContentsMargins(14, 12, 14, 12)
+        c_layout.setSpacing(12)
+
+        # Status Icon
+        icon_map = {
+            "success": "circle-check",
+            "warning": "triangle-alert",
+            "error": "circle-x",
+            "info": "info",
         }
-        bg_col, border_col, accent_col = color_map.get(toast_type, color_map["info"])
+        ic_name = icon_map.get(self.toast_type, "info")
+        self.icon_lbl = QLabel()
+        self.icon_lbl.setPixmap(icon_service.icon(ic_name, size=20, role=self.toast_type).pixmap(20, 20))
+        c_layout.addWidget(self.icon_lbl, 0, Qt.AlignmentFlag.AlignTop)
 
-        layout = QHBoxLayout(self)
-        layout.setContentsMargins(16, 10, 16, 10)
-
-        self.label = QLabel(text, self)
+        # Text label
+        self.lbl_text = QLabel(self.message)
+        self.lbl_text.setObjectName("caption")
+        self.lbl_text.setWordWrap(True)
         font = QFont()
         font.setPointSize(10)
         font.setBold(True)
-        self.label.setFont(font)
-        self.label.setStyleSheet("color: #ffffff; background: transparent;")
-        layout.addWidget(self.label)
+        self.lbl_text.setFont(font)
+        c_layout.addWidget(self.lbl_text, 1)
 
-        self.setStyleSheet(f"""
-            QWidget {{
-                background-color: {bg_col};
-                border: 1px solid {border_col};
-                border-left: 5px solid {accent_col};
-                border-radius: 8px;
-            }}
-        """)
+        # Close button
+        self.btn_close = QPushButton()
+        self.btn_close.setIcon(icon_service.icon("x", size=14, role="default"))
+        self.btn_close.setFixedSize(22, 22)
+        self.btn_close.setFlat(True)
+        self.btn_close.setProperty("variant", "ghost")
+        self.btn_close.clicked.connect(self.dismiss)
+        c_layout.addWidget(self.btn_close, 0, Qt.AlignmentFlag.AlignTop)
 
-        self.opacity_effect = QGraphicsOpacityEffect(self)
-        self.setGraphicsEffect(self.opacity_effect)
-        self.opacity_effect.setOpacity(0.0)
+        root_layout.addWidget(self.container)
 
-        self.anim = QPropertyAnimation(self.opacity_effect, b"opacity")
-        self.anim.setDuration(300)
-        self.anim.setStartValue(0.0)
-        self.anim.setEndValue(0.96)
-        self.anim.setEasingCurve(QEasingCurve.Type.OutQuad)
-
+        # Timer for auto-dismiss
         self.dismiss_timer = QTimer(self)
         self.dismiss_timer.setSingleShot(True)
-        self.dismiss_timer.timeout.connect(self.fade_out)
-        self.duration_ms = duration_ms
+        self.dismiss_timer.timeout.connect(self.dismiss)
 
-    def show_toast(self) -> None:
-        self.adjustSize()
-        if self.parentWidget():
-            parent_rect = self.parentWidget().rect()
-            x = (parent_rect.width() - self.width()) // 2
-            y = parent_rect.height() - self.height() - 40
-            self.move(x, y)
-        self.show()
-        self.anim.start()
-        self.dismiss_timer.start(self.duration_ms)
+    def _init_animation(self) -> None:
+        self.anim = QPropertyAnimation(self, b"pos")
+        self.anim.setDuration(180)
+        self.anim.setEasingCurve(QEasingCurve.Type.OutCubic)
 
-    def fade_out(self) -> None:
-        self.anim.stop()
-        self.anim.setStartValue(0.96)
-        self.anim.setEndValue(0.0)
-        self.anim.finished.connect(self.deleteLater)
-        self.anim.start()
+    def enterEvent(self, event) -> None:
+        """Pause auto-dismiss timer on mouse hover."""
+        if self.dismiss_timer.isActive():
+            self.dismiss_timer.stop()
+        super().enterEvent(event)
+
+    def leaveEvent(self, event) -> None:
+        """Resume timer when mouse leaves."""
+        self.dismiss_timer.start(1500)
+        super().leaveEvent(event)
+
+    def paintEvent(self, event) -> None:
+        """Draw card background with semantic status edge."""
+        painter = QPainter(self.container)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+        p = theme.palette
+        rect = self.container.rect()
+
+        # Semantic accent color
+        color_map = {
+            "success": p["success"],
+            "warning": p["warning"],
+            "error": p["error"],
+            "info": p["info"],
+        }
+        edge_color = QColor(color_map.get(self.toast_type, p["info"]))
+
+        # Card body
+        path = QPainterPath()
+        path.addRoundedRect(rect.x(), rect.y(), rect.width(), rect.height(), 12, 12)
+        painter.fillPath(path, QColor(p["bg_card"]))
+        painter.setPen(QPen(QColor(p["border"]), 1))
+        painter.drawPath(path)
+
+        # 4px Semantic leading edge
+        is_rtl = (self.layoutDirection() == Qt.LayoutDirection.RightToLeft)
+        edge_x = rect.right() - 4 if is_rtl else rect.left()
+        edge_rect = QRect(edge_x, rect.top() + 6, 4, rect.height() - 12)
+        painter.fillRect(edge_rect, edge_color)
+
+        painter.end()
+
+    def dismiss(self) -> None:
+        ToastManager.instance().remove_toast(self)
+
+
+class ToastManager:
+    """Manages placement and non-overlapping stacking of multiple active toasts."""
+
+    _instance: Optional["ToastManager"] = None
+
+    @classmethod
+    def instance(cls) -> "ToastManager":
+        if cls._instance is None:
+            cls._instance = ToastManager()
+        return cls._instance
+
+    def __init__(self):
+        self._active_toasts: List[ToastNotification] = []
+
+    def show(self, parent: QWidget, message: str, toast_type: str = "info") -> None:
+        top_window = parent.window() if parent else None
+        if not top_window:
+            return
+
+        toast = ToastNotification(top_window, message, toast_type=toast_type)
+        self._active_toasts.append(toast)
+        self._reposition_all(top_window)
+        toast.show()
+        toast.dismiss_timer.start(toast.duration_ms)
+
+    def remove_toast(self, toast: ToastNotification) -> None:
+        if toast in self._active_toasts:
+            self._active_toasts.remove(toast)
+        toast.hide()
+        toast.deleteLater()
+        app = QApplication.instance()
+        if app and app.activeWindow():
+            self._reposition_all(app.activeWindow())
+
+    def _reposition_all(self, window: QWidget) -> None:
+        margin_x = 24
+        margin_y = 24
+        current_y = window.height() - margin_y
+        is_rtl = (window.layoutDirection() == Qt.LayoutDirection.RightToLeft)
+
+        for toast in reversed(self._active_toasts):
+            toast.adjustSize()
+            tw = toast.width()
+            th = toast.height()
+            current_y -= th
+
+            x = margin_x if is_rtl else (window.width() - tw - margin_x)
+            toast.move(x, current_y)
+            current_y -= 8
 
 
 def show_toast(parent: QWidget, text: str, toast_type: str = "info") -> None:
-    toast = ToastNotification(parent, text, toast_type=toast_type)
-    toast.show_toast()
+    ToastManager.instance().show(parent, text, toast_type=toast_type)

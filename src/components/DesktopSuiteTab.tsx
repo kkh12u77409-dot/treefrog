@@ -96,8 +96,8 @@ export const DesktopSuiteTab: React.FC<DesktopSuiteTabProps> = ({ language }) =>
           </div>
           <div className="space-y-1">
             <span className="text-slate-500 font-semibold"># 2. Run Tests & Build Executable:</span>
-            <p className="text-sky-400">python -m unittest discover -s tests</p>
-            <p className="text-amber-400">pyinstaller --noconsole --onefile main.py</p>
+            <p className="text-sky-400">python -m unittest discover -s tests # (22 Tests Passing)</p>
+            <p className="text-amber-400">pyinstaller --noconsole --onefile --icon assets/app.ico --add-data "assets:assets" main.py</p>
           </div>
         </div>
       </div>

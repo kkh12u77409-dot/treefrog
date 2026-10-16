@@ -1,6 +1,7 @@
 """TreeForge — Desktop Application Entry Point.
 
 Crafted with Python 3.11+ and PyQt6.
+Features bilingual LTR/RTL support, dynamic theming, and modern design tokens.
 """
 
 import sys
@@ -16,15 +17,23 @@ if str(BASE_DIR.parent) not in sys.path:
 from TreeForge.services.settings_service import settings
 from TreeForge.services.theme_service import theme
 from TreeForge.services.i18n_service import i18n
+from TreeForge.services.icon_service import icon_service
 from TreeForge.ui.main_window import MainWindow
 
 
 def main() -> None:
-    # High-DPI support is enabled by default in PyQt6
     app = QApplication(sys.argv)
     app.setApplicationName("TreeForge")
     app.setOrganizationName("TreeForgeOrg")
     app.setApplicationVersion("1.0.0")
+
+    # Set Window Icon
+    logo_path = BASE_DIR / "assets" / "logo.svg"
+    if logo_path.exists():
+        from PyQt6.QtGui import QIcon
+        app.setWindowIcon(QIcon(str(logo_path)))
+    else:
+        app.setWindowIcon(icon_service.icon("folder-tree", size=32, role="accent"))
 
     # Load persisted language
     saved_lang = settings.get_language()

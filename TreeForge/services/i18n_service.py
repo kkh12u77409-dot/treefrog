@@ -1,10 +1,35 @@
-"""Internationalization service for TreeForge.
-
-Provides instant runtime language switching between English and Arabic with full RTL support.
-"""
-
 from typing import Dict, Any, Optional
-from PyQt6.QtCore import QObject, pyqtSignal
+
+try:
+    from PyQt6.QtCore import QObject, pyqtSignal, QTranslator, QLibraryInfo
+    from PyQt6.QtWidgets import QApplication
+except ImportError:
+    class QObject:
+        def __init__(self, *args, **kwargs):
+            pass
+
+    def pyqtSignal(*args, **kwargs):
+        class Signal:
+            def connect(self, slot):
+                pass
+            def emit(self, *args):
+                pass
+        return Signal()
+
+    class QTranslator:
+        pass
+
+    class QLibraryInfo:
+        class LibraryPath:
+            TranslationsPath = ""
+        @staticmethod
+        def path(p):
+            return ""
+
+    class QApplication:
+        @staticmethod
+        def instance():
+            return None
 
 
 TRANSLATIONS: Dict[str, Dict[str, str]] = {
@@ -13,53 +38,62 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "app_name": "TreeForge",
         "app_tagline": "Turn text trees into real projects & bulk inject code",
         "nav_builder": "Tree Builder",
-        "nav_content": "Content & Files",
+        "nav_content": "Content && Files",
         "nav_settings": "Settings",
+        "ready": "Ready",
+        "version_caption": "v1.0.0 • Desktop Suite",
         
         # Builder Page
         "builder_title": "Project Tree to Filesystem",
         "builder_desc": "Paste your project tree text below and configure generation options.",
         "tree_input_placeholder": "Paste your project tree here...\n\nSumMaster/\n├── main.py\n├── requirements.txt\n├── README.md\n├── ui/ (main_window.py, styles.py)\n└── tests/ (test_app.py)",
-        "load_example": "Load Example Tree",
+        "load_example": "Load example",
         "clear_input": "Clear",
         "parse_tree": "Parse & Preview Tree",
-        "dest_folder": "Destination Directory",
+        "dest_folder": "Destination directory",
         "browse": "Browse...",
         "select_folder": "Select Destination Directory",
         "recent_folders": "Recent Folders",
         
         # Options
-        "options_title": "Generation Options",
-        "policy_label": "Existing Files Policy:",
-        "policy_skip": "Skip (Safe, never destroy)",
-        "policy_overwrite": "Overwrite (Replace existing)",
-        "policy_auto_rename": "Auto-rename (file (1).py)",
+        "options_title": "Generation options",
+        "policy_label": "Existing files policy",
+        "policy_skip": "Skip — safe, never destroys data",
+        "policy_skip_desc": "Safest: never touches existing files",
+        "policy_overwrite": "Overwrite",
+        "policy_overwrite_desc": "Replaces files that already exist",
+        "policy_auto_rename": "Auto-rename",
+        "policy_rename_desc": "Creates file (1).py next to the original",
         "opt_add_init": "Add __init__.py to Python packages",
-        "opt_starter_content": "Create starter templates (.py, .md, .gitignore)",
-        "opt_dry_run": "Dry-run mode (Simulate without writing)",
+        "opt_starter_content": "Starter templates",
+        "opt_dry_run": "Dry-run mode (simulate without writing)",
         
         # Preview & Stats
-        "preview_title": "Structure Preview",
-        "items_count": "{folders} Folders, {files} Files",
+        "preview_title": "Structure preview",
+        "items_count": "{folders} folders, {files} files",
+        "col_item": "Item",
+        "col_type": "Type",
+        "type_folder": "Folder",
+        "type_file": "File",
         "build_button": "Build Project Tree",
         "building": "Forging files...",
         "cancel": "Cancel",
         "open_folder": "Open Folder",
         "copy_tree": "Copy Tree",
-        "select_all": "Select All",
-        "deselect_all": "Deselect All",
+        "select_all": "Select all",
+        "deselect_all": "Deselect all",
         
         # Content Page
         "content_title": "Content Workspace",
         "content_desc": "Save text into individual files or split multi-file batches at once.",
-        "tab_single": "Single File Editor",
-        "tab_batch": "Batch Smart Splitter",
-        "tab_queue": "Multi-File Queue",
+        "tab_single": "Single file editor",
+        "tab_batch": "Batch smart splitter",
+        "tab_queue": "Multi-file queue",
         "target_file": "Target File:",
-        "save_file": "Save File (Ctrl+S)",
+        "save_file": "Save file",
         "saved_success": "File saved successfully!",
         "batch_input_placeholder": "Paste multi-file code containing markers...\n\n### main.py\nprint('Hello TreeForge!')\n\n### README.md\n# My Awesome Project\n\n### ui/styles.py\nDARK_THEME = True",
-        "split_and_match": "Split & Match Files",
+        "split_and_match": "Split & match files",
         "col_include": "Include",
         "col_target": "Target Path",
         "col_status": "Status",
@@ -69,36 +103,90 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "status_matched": "Matched",
         "status_ambiguous": "Ambiguous",
         "status_not_found": "Not Found",
-        "save_selected": "Save Selected Files",
-        "undo_batch": "Undo Last Batch",
-        "add_to_queue": "Add to Queue",
-        "save_queue": "Save All in Queue",
-        "clear_queue": "Clear Queue",
+        "save_selected": "Save selected files",
+        "undo_batch": "Undo batch",
+        "add_to_queue": "Add to queue",
+        "save_queue": "Save all in queue",
+        "clear_queue": "Clear queue",
         "queue_count": "{count} file(s) waiting in queue",
+        "no_file_selected": "No file selected",
+        "project_files": "Project files",
         
         # Splitter Options
-        "opt_strip_fences": "Strip surrounding code fences (```)",
-        "opt_backup": "Create .bak backup before overwrite",
-        "newline_mode": "Line Endings:",
-        "nl_keep": "Keep Original",
-        "nl_lf": "Force LF (Linux / macOS)",
-        "nl_crlf": "Force CRLF (Windows)",
+        "opt_strip_fences": "Strip code fences (```)",
+        "opt_backup": "Create .bak backup",
+        "newline_mode": "Line endings:",
+        "nl_keep": "Keep original",
+        "nl_lf": "LF (Linux · macOS)",
+        "nl_lf_desc": "Linux · macOS",
+        "nl_crlf": "CRLF (Windows)",
+        "nl_crlf_desc": "Windows",
         "bom_toggle": "UTF-8 with BOM",
         
         # Settings Page
         "settings_title": "Application Preferences",
+        "settings_desc": "Customize the application appearance, internationalization, and default behaviors.",
         "section_appearance": "Appearance & UI",
-        "theme_label": "Color Theme:",
-        "theme_system": "System Default",
-        "theme_dark": "Dark Modern",
-        "theme_light": "Light Crisp",
-        "language_label": "Display Language:",
+        "theme_label": "Color theme:",
+        "theme_system": "System default",
+        "theme_dark": "Dark modern",
+        "theme_light": "Light crisp",
+        "language_label": "Display language:",
         "lang_en": "English",
-        "lang_ar": "العربية (Arabic)",
+        "lang_ar": "العربية",
         "section_defaults": "Default Behaviors",
-        "reset_defaults": "Reset to Defaults",
+        "reset_defaults": "Reset to defaults",
         "about_title": "About TreeForge",
         "about_text": "TreeForge v1.0.0 — Crafted with Python 3.11+ & PyQt6.\nDesigned for developers to bridge project scaffolding and code generation.",
+        
+        # Context Menus
+        "undo": "Undo",
+        "redo": "Redo",
+        "cut": "Cut",
+        "copy": "Copy",
+        "paste": "Paste",
+        "paste_plain": "Paste as plain text",
+        "delete": "Delete",
+        "insert_branch": "Insert branch symbol",
+        "go_to_line": "Go to line…",
+        "word_wrap": "Word wrap",
+        "copy_code_block": "Copy as code block",
+        "save_file_menu": "Save file",
+        "add_queue_menu": "Add to queue",
+        "include_branch": "Include this branch",
+        "exclude_branch": "Exclude this branch",
+        "expand_branch": "Expand branch",
+        "collapse_branch": "Collapse branch",
+        "expand_all": "Expand all",
+        "collapse_all": "Collapse all",
+        "copy_name": "Copy name",
+        "copy_rel_path": "Copy relative path",
+        "copy_full_path": "Copy full path",
+        "show_in_explorer": "Show in file explorer",
+        "open_in_editor": "Open in editor",
+        "refresh": "Refresh",
+        "include_row": "Include",
+        "exclude_row": "Exclude",
+        "include_matched": "Include all matched",
+        "exclude_missing": "Exclude not found",
+        "change_target": "Change target",
+        "best_match": "Best match",
+        "columns": "Columns",
+        "move_up": "Move up",
+        "move_down": "Move down",
+        "remove": "Remove",
+        "clear_recent": "Clear recent paths",
+        "remove_recent": "Remove from recent",
+        "copy_message": "Copy message",
+        "dismiss": "Dismiss",
+        "copy_workspace_path": "Copy workspace path",
+        
+        # Validation & Badges
+        "path_invalid": "Directory does not exist",
+        "path_not_writable": "Directory is not writable",
+        "filter_placeholder": "Search candidate files…",
+        "badge_recommended": "Recommended",
+        "badge_default": "Default",
         
         # Notifications & Dialogs
         "toast_parsed_ok": "Parsed successfully: {folders} folders, {files} files",
@@ -109,20 +197,24 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "toast_queue_added": "Added {name} to save queue",
         "confirm_overwrite_title": "Confirm Overwrite",
         "confirm_overwrite_msg": "The following {count} file(s) will be overwritten. Proceed?",
+        "btn_overwrite": "Overwrite",
+        "btn_cancel": "Cancel",
     },
     "ar": {
         # App & Navigation
         "app_name": "تري فورج (TreeForge)",
         "app_tagline": "حوّل هياكل المجلدات النصية إلى مشاريع حقيقية مع كتابة جماعية للملفات",
         "nav_builder": "منشئ المجلدات",
-        "nav_content": "محرر المحتوى وحقن الأكواد",
+        "nav_content": "المحتوى والملفات",
         "nav_settings": "الإعدادات",
+        "ready": "جاهز",
+        "version_caption": "الإصدار 1.0.0 • حزمة سطح المكتب",
         
         # Builder Page
         "builder_title": "من الشجرة النصية إلى نظام الملفات",
         "builder_desc": "الصق هيكل المجلدات النصي هنا وحدد خيارات التوليد والبناء.",
         "tree_input_placeholder": "الصق هيكل مشروعك النصي هنا...\n\nSumMaster/\n├── main.py\n├── requirements.txt\n├── README.md\n├── ui/ (main_window.py, styles.py)\n└── tests/ (test_app.py)",
-        "load_example": "تحميل شجرة نموذجية",
+        "load_example": "تحميل نموذج",
         "clear_input": "مسح",
         "parse_tree": "تحليل ومعاينة الشجرة",
         "dest_folder": "مجلد الوجهة المستهدف",
@@ -131,18 +223,25 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "recent_folders": "المسارات الأخيرة",
         
         # Options
-        "options_title": "خيارات البناء والتوليد",
-        "policy_label": "سياسة الملفات الموجودة:",
-        "policy_skip": "تخطي (آمن، لا يحذف البيانات)",
-        "policy_overwrite": "استبدال (الكتابة فوق الملف)",
-        "policy_auto_rename": "إعادة تسمية تلقائية (file (1).py)",
+        "options_title": "خيارات التوليد والبناء",
+        "policy_label": "سياسة الملفات الموجودة",
+        "policy_skip": "تخطي — آمن، لا يتلف الملفات الحالية",
+        "policy_skip_desc": "الأكثر أمانًا: لا يمس الملفات الموجودة إطلاقًا",
+        "policy_overwrite": "استبدال",
+        "policy_overwrite_desc": "يستبدل الملفات الموجودة ببيانات جديدة",
+        "policy_auto_rename": "إعادة تسمية تلقائية",
+        "policy_rename_desc": "ينشئ نسخة جديدة باسم مرقم بجانب الأصل",
         "opt_add_init": "إضافة __init__.py إلى حزم بايثون",
-        "opt_starter_content": "توليد قوالب أولية للملفات (.py, .md, .gitignore)",
-        "opt_dry_run": "وضع المعاينة الجافة (محاكاة بدون كتابة على القرص)",
+        "opt_starter_content": "قوالب أولية للملفات",
+        "opt_dry_run": "وضع المعاينة الجافة (محاكاة بدون كتابة)",
         
         # Preview & Stats
-        "preview_title": "المعاينة التفاعلية للشجرة",
+        "preview_title": "شجرة المعاينة التفاعلية",
         "items_count": "{folders} مجلد، {files} ملف",
+        "col_item": "العنصر",
+        "col_type": "النوع",
+        "type_folder": "مجلد",
+        "type_file": "ملف",
         "build_button": "بناء هيكل المشروع الآن",
         "building": "جارٍ إنشاء الملفات والمجلدات...",
         "cancel": "إلغاء",
@@ -155,8 +254,8 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "content_title": "مساحة حقن وإدارة المحتوى",
         "content_desc": "احفظ الأكواد في ملفات محددة أو قسّم النصوص الكبيرة لملفات متعددة بضغطة واحدة.",
         "tab_single": "محرر الملف الفردي",
-        "tab_batch": "التقسيم الذكي للملفات المجمعة",
-        "tab_queue": "طابور الحفظ المتعدد",
+        "tab_batch": "التقسيم الذكي للملفات",
+        "tab_queue": "طابور الحفظ",
         "target_file": "الملف المستهدف:",
         "save_file": "حفظ الملف (Ctrl+S)",
         "saved_success": "تم حفظ الملف بنجاح!",
@@ -173,34 +272,88 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "status_not_found": "غير موجود",
         "save_selected": "حفظ الملفات المحددة دفعة واحدة",
         "undo_batch": "تراجع عن الحزمة السابقة",
-        "add_to_queue": "إضافة إلى طابور الحفظ",
+        "add_to_queue": "إضافة إلى الطابور",
         "save_queue": "حفظ جميع ملفات الطابور",
         "clear_queue": "تفريغ الطابور",
         "queue_count": "{count} ملف في قائمة الانتظار",
+        "no_file_selected": "لم يتم اختيار أي ملف",
+        "project_files": "ملفات المشروع",
         
         # Splitter Options
-        "opt_strip_fences": "إزالة علامات الكود البرمجي (```)",
-        "opt_backup": "إنشاء نسخة احتياطية (.bak) قبل الاستبدال",
+        "opt_strip_fences": "إزالة علامات الكود (```)",
+        "opt_backup": "إنشاء نسخة احتياطية (.bak)",
         "newline_mode": "فواصل الأسطر:",
         "nl_keep": "الإبقاء على الأصل",
         "nl_lf": "فرض LF (لينكس / ماك)",
+        "nl_lf_desc": "لينكس · ماك",
         "nl_crlf": "فرض CRLF (ويندوز)",
+        "nl_crlf_desc": "ويندوز",
         "bom_toggle": "ترميز UTF-8 مع BOM",
         
         # Settings Page
         "settings_title": "إعدادات التطبيق وتخصيص الواجهة",
+        "settings_desc": "تخصيص المظهر، واللغة، وسلوكيات البناء الافتراضية للتطبيق.",
         "section_appearance": "المظهر والواجهة",
         "theme_label": "سمة الألوان:",
         "theme_system": "تلقائي حسب النظام",
         "theme_dark": "الوضع الداكن العصري",
         "theme_light": "الوضع الفاتح المريح",
         "language_label": "لغة الواجهة:",
-        "lang_en": "الإنجليزية (English)",
+        "lang_en": "English",
         "lang_ar": "العربية",
         "section_defaults": "السلوكيات الافتراضية",
         "reset_defaults": "استعادة الإعدادات الافتراضية",
         "about_title": "حول تطبيق TreeForge",
         "about_text": "TreeForge الإصدار 1.0.0 — مبني باحترافية باستخدام بايثون 3.11+ و PyQt6.\nصُمم لتسريع إنشاء المشاريع وحقن الأكواد الذكية بدقة وكفاءة.",
+        
+        # Context Menus
+        "undo": "تراجع",
+        "redo": "إعادة",
+        "cut": "قص",
+        "copy": "نسخ",
+        "paste": "لصق",
+        "paste_plain": "لصق كنص عادي",
+        "delete": "حذف",
+        "insert_branch": "إدراج رمز فرع",
+        "go_to_line": "الانتقال إلى سطر…",
+        "word_wrap": "التفاف الأسطر",
+        "copy_code_block": "نسخ ككتلة كود",
+        "save_file_menu": "حفظ الملف",
+        "add_queue_menu": "إضافة إلى الطابور",
+        "include_branch": "تضمين هذا الفرع",
+        "exclude_branch": "استبعاد هذا الفرع",
+        "expand_branch": "توسيع الفرع",
+        "collapse_branch": "طي الفرع",
+        "expand_all": "توسيع الكل",
+        "collapse_all": "طي الكل",
+        "copy_name": "نسخ الاسم",
+        "copy_rel_path": "نسخ المسار النسبي",
+        "copy_full_path": "نسخ المسار الكامل",
+        "show_in_explorer": "إظهار في مستكشف الملفات",
+        "open_in_editor": "فتح في المحرر",
+        "refresh": "تحديث",
+        "include_row": "تضمين",
+        "exclude_row": "استبعاد",
+        "include_matched": "تضمين كل المتطابق",
+        "exclude_missing": "استبعاد غير الموجود",
+        "change_target": "تغيير المسار المستهدف",
+        "best_match": "الأفضل تطابقًا",
+        "columns": "الأعمدة",
+        "move_up": "نقل لأعلى",
+        "move_down": "نقل لأسفل",
+        "remove": "إزالة",
+        "clear_recent": "مسح المسارات الأخيرة",
+        "remove_recent": "إزالة من الأخيرة",
+        "copy_message": "نسخ الرسالة",
+        "dismiss": "إغلاق",
+        "copy_workspace_path": "نسخ مسار مساحة العمل",
+        
+        # Validation & Badges
+        "path_invalid": "المجلد غير موجود على القرص",
+        "path_not_writable": "تعذر الكتابة في هذا المجلد",
+        "filter_placeholder": "ابحث في الملفات المرشحة…",
+        "badge_recommended": "موصى به",
+        "badge_default": "افتراضي",
         
         # Notifications & Dialogs
         "toast_parsed_ok": "تم التحليل بنجاح: {folders} مجلد، {files} ملف",
@@ -211,18 +364,21 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "toast_queue_added": "تمت إضافة {name} إلى طابور الحفظ",
         "confirm_overwrite_title": "تأكيد الاستبدال",
         "confirm_overwrite_msg": "سيتم استبدال محتويات {count} ملف(ات). هل تريد المتابعة؟",
+        "btn_overwrite": "استبدال",
+        "btn_cancel": "إلغاء",
     }
 }
 
 
 class I18nService(QObject):
-    """Manages application language state and dynamic UI string translation."""
+    """Manages application language state, standard Qt translations, and RTL layout."""
 
     language_changed = pyqtSignal(str)
 
     def __init__(self, default_lang: str = "en"):
         super().__init__()
         self._current_lang = default_lang if default_lang in TRANSLATIONS else "en"
+        self._qt_translator: Optional[QTranslator] = None
 
     @property
     def current_language(self) -> str:
@@ -231,7 +387,30 @@ class I18nService(QObject):
     def set_language(self, lang_code: str) -> None:
         if lang_code in TRANSLATIONS and lang_code != self._current_lang:
             self._current_lang = lang_code
+            self._install_qt_translations(lang_code)
             self.language_changed.emit(lang_code)
+
+    def _install_qt_translations(self, lang_code: str) -> None:
+        """Attempt to load native Qt translation files for dialogs and buttons."""
+        app = QApplication.instance()
+        if not app:
+            return
+
+        if self._qt_translator:
+            try:
+                app.removeTranslator(self._qt_translator)
+            except Exception:
+                pass
+
+        try:
+            self._qt_translator = QTranslator(app)
+            trans_path = QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+            qm_name = f"qtbase_{lang_code}"
+            if self._qt_translator.load(qm_name, trans_path):
+                app.installTranslator(self._qt_translator)
+        except Exception:
+            # Fallback gracefully if standard QM files are unavailable in environment
+            pass
 
     def t(self, key: str, **kwargs: Any) -> str:
         """Translate key into current language with optional string interpolation."""
@@ -246,6 +425,10 @@ class I18nService(QObject):
 
     def is_rtl(self) -> bool:
         return self._current_lang == "ar"
+
+    def isolate_ltr(self, text: str) -> str:
+        """Wrap text in Unicode LTR directional isolate so it won't break in RTL."""
+        return f"\u2066{text}\u2069"
 
 
 # Global singleton instance

@@ -1,71 +1,26 @@
 """Theme and styling tokens service for TreeForge.
 
-Provides unified color palettes, dynamic QSS generation, and SVG icon management
-for both Dark and Light modes.
+Provides unified WCAG contrast checked design tokens, modular QSS generation,
+system color scheme synchronization, and Windows dark mode window chrome.
 """
 
+import sys
 from typing import Dict, Any, Optional
 from PyQt6.QtCore import QObject, pyqtSignal, Qt
-from PyQt6.QtGui import QPalette, QColor, QIcon, QPixmap
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtGui import QPalette, QColor, QFont, QGuiApplication
+from PyQt6.QtWidgets import QApplication, QWidget
+
+from .theme_tokens import DARK_TOKENS, LIGHT_TOKENS, get_theme_tokens, METRICS
 
 
-DARK_PALETTE = {
-    "bg_window": "#111827",
-    "bg_card": "#1f2937",
-    "bg_elevated": "#283548",
-    "bg_input": "#182232",
-    "border": "#374151",
-    "border_focus": "#10b981",
-    "accent": "#10b981",
-    "accent_hover": "#059669",
-    "accent_pressed": "#047857",
-    "text_primary": "#f9fafb",
-    "text_secondary": "#9ca3af",
-    "text_muted": "#6b7280",
-    "success": "#10b981",
-    "warning": "#f59e0b",
-    "error": "#ef4444",
-    "code_bg": "#0f172a",
-    "code_line_num": "#475569",
-    "code_current_line": "#1e293b",
-}
-
-LIGHT_PALETTE = {
-    "bg_window": "#f8fafc",
-    "bg_card": "#ffffff",
-    "bg_elevated": "#f1f5f9",
-    "bg_input": "#ffffff",
-    "border": "#e2e8f0",
-    "border_focus": "#059669",
-    "accent": "#059669",
-    "accent_hover": "#047857",
-    "accent_pressed": "#065f46",
-    "text_primary": "#0f172a",
-    "text_secondary": "#475569",
-    "text_muted": "#94a3b8",
-    "success": "#10b981",
-    "warning": "#d97706",
-    "error": "#dc2626",
-    "code_bg": "#f8fafc",
-    "code_line_num": "#94a3b8",
-    "code_current_line": "#e2e8f0",
-}
-
-
-SVG_ICONS = {
-    "builder": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>""",
-    "content": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>""",
-    "settings": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>""",
-    "folder": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>""",
-    "file": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>""",
-    "python": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m10 9 5-5-5-5"/><path d="m14 15-5 5 5 5"/></svg>""",
-    "play": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>""",
-    "save": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>""",
-    "check": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>""",
-    "alert": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>""",
-    "undo": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>""",
-}
+def set_variant(widget: QWidget, variant: str) -> None:
+    """Set dynamic variant property on widget and trigger QSS restyling."""
+    widget.setProperty("variant", variant)
+    style = widget.style()
+    if style:
+        style.unpolish(widget)
+        style.polish(widget)
+    widget.update()
 
 
 class ThemeService(QObject):
@@ -75,154 +30,538 @@ class ThemeService(QObject):
 
     def __init__(self, initial_theme: str = "dark"):
         super().__init__()
-        self._current_theme = initial_theme
+        self._user_preference = initial_theme  # 'system', 'dark', 'light'
+        self._resolved_theme = "dark" if initial_theme == "dark" else "light"
+        
+        # Connect to system color scheme if supported
+        try:
+            hints = QGuiApplication.styleHints()
+            if hints and hasattr(hints, "colorSchemeChanged"):
+                hints.colorSchemeChanged.connect(self._on_system_scheme_changed)
+        except Exception:
+            pass
 
     @property
     def current_theme(self) -> str:
-        return self._current_theme
+        return self._resolved_theme
+
+    @property
+    def user_preference(self) -> str:
+        return self._user_preference
 
     @property
     def palette(self) -> Dict[str, str]:
-        return DARK_PALETTE if self._current_theme == "dark" else LIGHT_PALETTE
+        return get_theme_tokens(self._resolved_theme)
 
-    def set_theme(self, theme_name: str) -> None:
-        if theme_name in ("dark", "light"):
-            self._current_theme = theme_name
-            self.apply_theme()
-            self.theme_changed.emit(theme_name)
-
-    def get_icon(self, icon_name: str, color_override: Optional[str] = None) -> QIcon:
-        """Create a theme-aware recolored QIcon from SVG."""
-        color = color_override or self.palette["accent"]
-        svg_template = SVG_ICONS.get(icon_name, SVG_ICONS["file"])
-        svg_data = svg_template.replace("{color}", color).encode("utf-8")
+    def set_theme(self, theme_choice: str) -> None:
+        """Set theme preference: 'system', 'dark', or 'light'."""
+        self._user_preference = theme_choice
+        resolved = self._resolve_theme(theme_choice)
+        self._resolved_theme = resolved
+        self.apply_theme()
         
-        pixmap = QPixmap()
-        pixmap.loadFromData(svg_data, "SVG")
-        return QIcon(pixmap)
+        # Clear icon service cache so all icons recolor
+        try:
+            from .icon_service import icon_service
+            icon_service.clear()
+        except Exception:
+            pass
+
+        self.theme_changed.emit(resolved)
+
+    def _resolve_theme(self, choice: str) -> str:
+        if choice in ("dark", "light"):
+            return choice
+        # System detection
+        try:
+            hints = QGuiApplication.styleHints()
+            if hints and hasattr(hints, "colorScheme"):
+                scheme = hints.colorScheme()
+                if scheme == Qt.ColorScheme.Dark:
+                    return "dark"
+                elif scheme == Qt.ColorScheme.Light:
+                    return "light"
+        except Exception:
+            pass
+        return "dark"
+
+    def _on_system_scheme_changed(self) -> None:
+        if self._user_preference == "system":
+            self.set_theme("system")
+
+    def apply_titlebar_theme(self, window: QWidget) -> None:
+        """Apply Windows 10/11 immersive dark title bar via ctypes DwmSetWindowAttribute."""
+        if sys.platform != "win32":
+            return
+        try:
+            import ctypes
+            from ctypes import wintypes
+            hwnd = int(window.winId())
+            DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 = 19
+            DWMWA_USE_IMMERSIVE_DARK_MODE = 20
+            DWMWA_CAPTION_COLOR = 35
+            
+            is_dark = (self._resolved_theme == "dark")
+            value = ctypes.c_int(1 if is_dark else 0)
+
+            # Try modern attribute 20, fallback to 19
+            res = ctypes.windll.dwmapi.DwmSetWindowAttribute(
+                hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, ctypes.byref(value), ctypes.sizeof(value)
+            )
+            if res != 0:
+                ctypes.windll.dwmapi.DwmSetWindowAttribute(
+                    hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1, ctypes.byref(value), ctypes.sizeof(value)
+                )
+
+            # Caption color on Windows 11
+            if is_dark:
+                color_ref = 0x0020120B  # BGR for #0b1220
+                color_val = ctypes.c_ulong(color_ref)
+                ctypes.windll.dwmapi.DwmSetWindowAttribute(
+                    hwnd, DWMWA_CAPTION_COLOR, ctypes.byref(color_val), ctypes.sizeof(color_val)
+                )
+        except Exception:
+            pass
 
     def apply_theme(self) -> None:
-        """Apply Qt palette and custom stylesheet across the whole application."""
+        """Apply Qt typography, palette, and generated modular QSS."""
         app = QApplication.instance()
         if not app:
             return
 
-        p = self.palette
-        # Build QSS
+        tokens = self.palette
+        m = METRICS
+
+        # Set default application font
+        default_font = QFont("Segoe UI Variable", 10)
+        default_font.setStyleHint(QFont.StyleHint.SansSerif)
+        app.setFont(default_font)
+
+        # Build comprehensive modular QSS without global '*' overrides
         qss = f"""
-        * {{
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Cairo", "Noto Sans Arabic", Roboto, Helvetica, Arial, sans-serif;
-            font-size: 13px;
-            color: {p["text_primary"]};
-        }}
+        /* === 1. BASE WINDOW & WIDGETS === */
         QMainWindow, QWidget#centralWidget {{
-            background-color: {p["bg_window"]};
+            background-color: {tokens["bg_window"]};
+            color: {tokens["text_primary"]};
         }}
+
+        QWidget {{
+            color: {tokens["text_primary"]};
+        }}
+
+        /* === 2. TYPOGRAPHIC ROLES === */
+        #pageTitle {{
+            font-size: 20px;
+            font-weight: 700;
+            color: {tokens["text_primary"]};
+            padding: 0;
+            margin: 0;
+        }}
+
+        #pageSubtitle {{
+            font-size: 13px;
+            color: {tokens["text_secondary"]};
+            padding: 0;
+            margin-top: 2px;
+        }}
+
+        #sectionTitle {{
+            font-size: 14px;
+            font-weight: 600;
+            color: {tokens["text_primary"]};
+        }}
+
+        #caption {{
+            font-size: 12px;
+            color: {tokens["text_muted"]};
+        }}
+
+        #statLabel {{
+            font-size: 13px;
+            font-weight: 600;
+            color: {tokens["accent_text"]};
+        }}
+
+        #brandTitle {{
+            font-size: 18px;
+            font-weight: 800;
+            color: {tokens["text_primary"]};
+        }}
+
+        #brandSub {{
+            font-size: 11px;
+            color: {tokens["text_muted"]};
+        }}
+
+        /* === 3. SIDEBAR NAVIGATION === */
         QWidget#sidebar {{
-            background-color: {p["bg_card"]};
-            border-right: 1px solid {p["border"]};
+            background-color: {tokens["bg_sidebar"]};
+            border-right: 1px solid {tokens["border"]};
         }}
-        QFrame.card {{
-            background-color: {p["bg_card"]};
-            border: 1px solid {p["border"]};
-            border-radius: 10px;
+
+        QPushButton[nav="true"] {{
+            background-color: transparent;
+            color: {tokens["text_secondary"]};
+            border: none;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            text-align: left;
         }}
+
+        QPushButton[nav="true"]:hover {{
+            background-color: {tokens["bg_elevated"]};
+            color: {tokens["text_primary"]};
+        }}
+
+        QPushButton[nav="true"]:checked {{
+            background-color: {tokens["accent_soft"]};
+            color: {tokens["accent_text"]};
+            font-weight: 600;
+            border-left: 3px solid {tokens["accent_solid"]};
+        }}
+
+        QPushButton[nav="true"]:focus-visible {{
+            border: 2px solid {tokens["border_focus"]};
+        }}
+
+        /* === 4. CARDS & PANELS === */
+        QFrame[card="true"] {{
+            background-color: {tokens["bg_card"]};
+            border: 1px solid {tokens["border"]};
+            border-radius: {m["radius_card"]}px;
+        }}
+
+        #optionsBox {{
+            background-color: {tokens["bg_elevated"]};
+            border: 1px solid {tokens["border"]};
+            border-radius: {m["radius_control"]}px;
+            padding: 12px;
+        }}
+
+        /* === 5. BUTTONS === */
         QPushButton {{
-            background-color: {p["bg_elevated"]};
-            color: {p["text_primary"]};
-            border: 1px solid {p["border"]};
-            border-radius: 6px;
+            background-color: {tokens["bg_elevated"]};
+            color: {tokens["text_primary"]};
+            border: 1px solid {tokens["border"]};
+            border-radius: {m["radius_control"]}px;
             padding: 8px 16px;
             font-weight: 500;
+            font-size: 13px;
+            min-height: 20px;
         }}
+
         QPushButton:hover {{
-            background-color: {p["border"]};
-            border-color: {p["border_focus"]};
+            background-color: {tokens["border"]};
+            border-color: {tokens["border_input"]};
+            color: {tokens["text_primary"]};
         }}
+
         QPushButton:pressed {{
-            background-color: {p["accent_pressed"]};
+            background-color: {tokens["bg_input"]};
         }}
-        QPushButton.primary {{
-            background-color: {p["accent"]};
+
+        QPushButton:disabled {{
+            opacity: 0.45;
+            color: {tokens["text_muted"]};
+            background-color: {tokens["bg_elevated"]};
+            border-color: {tokens["border"]};
+        }}
+
+        QPushButton:focus-visible {{
+            border: 2px solid {tokens["border_focus"]};
+        }}
+
+        QPushButton[variant="primary"] {{
+            background-color: {tokens["accent_solid"]};
+            color: {tokens["on_accent"]};
+            border: 1px solid {tokens["accent_solid"]};
+            font-weight: 600;
+        }}
+
+        QPushButton[variant="primary"]:hover {{
+            background-color: {tokens["accent_hover"]};
+            border-color: {tokens["accent_hover"]};
+            color: {tokens["on_accent"]};
+        }}
+
+        QPushButton[variant="primary"]:pressed {{
+            background-color: {tokens["accent_pressed"]};
+            border-color: {tokens["accent_pressed"]};
+        }}
+
+        QPushButton[variant="primary"]:disabled {{
+            background-color: {tokens["border"]};
+            border-color: {tokens["border"]};
+            color: {tokens["text_muted"]};
+        }}
+
+        QPushButton[variant="ghost"] {{
+            background-color: transparent;
+            border: 1px solid transparent;
+            color: {tokens["text_secondary"]};
+        }}
+
+        QPushButton[variant="ghost"]:hover {{
+            background-color: {tokens["bg_elevated"]};
+            color: {tokens["text_primary"]};
+            border-color: {tokens["border"]};
+        }}
+
+        QPushButton[variant="danger"] {{
+            background-color: transparent;
+            color: {tokens["error"]};
+            border: 1px solid {tokens["border"]};
+        }}
+
+        QPushButton[variant="danger"]:hover {{
+            background-color: {tokens["error"]};
             color: #ffffff;
+            border-color: {tokens["error"]};
+        }}
+
+        /* === 6. INPUTS & TEXT EDITS === */
+        QLineEdit, QTextEdit, QPlainTextEdit {{
+            background-color: {tokens["bg_input"]};
+            border: 1px solid {tokens["border_input"]};
+            border-radius: {m["radius_control"]}px;
+            padding: 8px 12px;
+            color: {tokens["text_primary"]};
+            selection-background-color: {tokens["accent_solid"]};
+            selection-color: {tokens["on_accent"]};
+            font-size: 13px;
+        }}
+
+        QLineEdit:hover, QTextEdit:hover, QPlainTextEdit:hover {{
+            border-color: {tokens["text_secondary"]};
+        }}
+
+        QLineEdit:focus, QTextEdit:focus, QPlainTextEdit:focus {{
+            border: 2px solid {tokens["border_focus"]};
+            padding: 7px 11px;
+        }}
+
+        /* === 7. COMBOBOXES === */
+        QComboBox {{
+            background-color: {tokens["bg_input"]};
+            border: 1px solid {tokens["border_input"]};
+            border-radius: {m["radius_control"]}px;
+            padding: 6px 12px;
+            color: {tokens["text_primary"]};
+            min-height: 22px;
+            font-size: 13px;
+        }}
+
+        QComboBox:hover {{
+            border-color: {tokens["text_secondary"]};
+        }}
+
+        QComboBox:focus {{
+            border: 2px solid {tokens["border_focus"]};
+        }}
+
+        QComboBox::drop-down {{
             border: none;
-            font-weight: 600;
+            width: 28px;
+            background: transparent;
         }}
-        QPushButton.primary:hover {{
-            background-color: {p["accent_hover"]};
+
+        QComboBox QAbstractItemView {{
+            background-color: {tokens["bg_card"]};
+            border: 1px solid {tokens["border"]};
+            border-radius: {m["radius_control"]}px;
+            selection-background-color: {tokens["accent_soft"]};
+            selection-color: {tokens["accent_text"]};
+            color: {tokens["text_primary"]};
+            padding: 4px;
+            outline: none;
         }}
-        QPushButton.primary:pressed {{
-            background-color: {p["accent_pressed"]};
-        }}
-        QLineEdit, QTextEdit, QPlainTextEdit, QComboBox {{
-            background-color: {p["bg_input"]};
-            border: 1px solid {p["border"]};
-            border-radius: 6px;
-            padding: 6px 10px;
-            color: {p["text_primary"]};
-            selection-background-color: {p["accent"]};
-            selection-color: #ffffff;
-        }}
-        QLineEdit:focus, QTextEdit:focus, QPlainTextEdit:focus, QComboBox:focus {{
-            border: 1px solid {p["border_focus"]};
-        }}
-        QTreeView, QTableWidget {{
-            background-color: {p["bg_card"]};
-            border: 1px solid {p["border"]};
-            border-radius: 8px;
-            alternate-background-color: {p["bg_elevated"]};
-            gridline-color: {p["border"]};
-        }}
-        QHeaderView::section {{
-            background-color: {p["bg_elevated"]};
-            color: {p["text_secondary"]};
-            padding: 6px 10px;
-            border: none;
-            border-bottom: 1px solid {p["border"]};
-            font-weight: 600;
-        }}
-        QProgressBar {{
-            background-color: {p["bg_elevated"]};
-            border-radius: 4px;
-            text-align: center;
-            height: 10px;
-        }}
-        QProgressBar::chunk {{
-            background-color: {p["accent"]};
-            border-radius: 4px;
-        }}
+
+        /* === 8. CHECKBOXES (SWITCH & SQUARE) === */
         QCheckBox {{
             spacing: 8px;
+            font-size: 13px;
+            color: {tokens["text_primary"]};
         }}
+
         QCheckBox::indicator {{
             width: 18px;
             height: 18px;
             border-radius: 4px;
-            border: 1px solid {p["border"]};
-            background-color: {p["bg_input"]};
+            border: 1.5px solid {tokens["border_input"]};
+            background-color: {tokens["bg_input"]};
         }}
+
+        QCheckBox::indicator:hover {{
+            border-color: {tokens["border_focus"]};
+        }}
+
         QCheckBox::indicator:checked {{
-            background-color: {p["accent"]};
-            border-color: {p["accent"]};
+            background-color: {tokens["accent_solid"]};
+            border-color: {tokens["accent_solid"]};
+            image: none;
         }}
-        QSplitter::handle {{
-            background-color: {p["border"]};
+
+        /* === 9. TABS (UNDERLINE & PILL) === */
+        QTabWidget::pane {{
+            background-color: {tokens["bg_card"]};
+            border: 1px solid {tokens["border"]};
+            border-radius: {m["radius_card"]}px;
+            top: -1px;
         }}
+
+        QTabBar::tab {{
+            background-color: transparent;
+            color: {tokens["text_secondary"]};
+            border: none;
+            border-bottom: 2px solid transparent;
+            padding: 8px 18px;
+            font-weight: 500;
+            font-size: 13px;
+            min-height: 22px;
+        }}
+
+        QTabBar::tab:hover {{
+            color: {tokens["text_primary"]};
+            background-color: {tokens["bg_elevated"]};
+            border-radius: 6px 6px 0 0;
+        }}
+
+        QTabBar::tab:selected {{
+            color: {tokens["accent_text"]};
+            border-bottom: 2px solid {tokens["accent_solid"]};
+            font-weight: 600;
+        }}
+
+        /* === 10. TREES & TABLES === */
+        QTreeView, QTreeWidget, QTableWidget {{
+            background-color: {tokens["bg_card"]};
+            border: 1px solid {tokens["border"]};
+            border-radius: {m["radius_control"]}px;
+            alternate-background-color: {tokens["bg_elevated"]};
+            gridline-color: {tokens["border"]};
+            color: {tokens["text_primary"]};
+            outline: none;
+        }}
+
+        QTreeView::item, QTableWidget::item {{
+            height: 32px;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }}
+
+        QTreeView::item:hover, QTableWidget::item:hover {{
+            background-color: {tokens["bg_elevated"]};
+            color: {tokens["text_primary"]};
+        }}
+
+        QTreeView::item:selected, QTableWidget::item:selected {{
+            background-color: {tokens["accent_soft"]};
+            color: {tokens["accent_text"]};
+            font-weight: 600;
+        }}
+
+        QHeaderView::section {{
+            background-color: {tokens["bg_elevated"]};
+            color: {tokens["text_secondary"]};
+            padding: 6px 10px;
+            border: none;
+            border-bottom: 1px solid {tokens["border"]};
+            font-weight: 600;
+            font-size: 12px;
+        }}
+
+        /* === 11. SCROLLBARS === */
         QScrollBar:vertical {{
             border: none;
             background: transparent;
-            width: 8px;
+            width: 10px;
+            margin: 0px;
         }}
+
         QScrollBar::handle:vertical {{
-            background: {p["border"]};
-            min-height: 20px;
-            border-radius: 4px;
+            background: {tokens["border"]};
+            min-height: 24px;
+            border-radius: 5px;
         }}
+
         QScrollBar::handle:vertical:hover {{
-            background: {p["accent"]};
+            background: {tokens["accent_solid"]};
+        }}
+
+        QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
+            height: 0px;
+            background: transparent;
+        }}
+
+        QScrollBar:horizontal {{
+            border: none;
+            background: transparent;
+            height: 10px;
+            margin: 0px;
+        }}
+
+        QScrollBar::handle:horizontal {{
+            background: {tokens["border"]};
+            min-width: 24px;
+            border-radius: 5px;
+        }}
+
+        QScrollBar::handle:horizontal:hover {{
+            background: {tokens["accent_solid"]};
+        }}
+
+        QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {{
+            width: 0px;
+            background: transparent;
+        }}
+
+        /* === 12. SPLITTER === */
+        QSplitter::handle {{
+            background-color: transparent;
+        }}
+
+        QSplitter::handle:hover {{
+            background-color: {tokens["accent_solid"]};
+        }}
+
+        /* === 13. PROGRESS BAR === */
+        QProgressBar {{
+            background-color: {tokens["bg_elevated"]};
+            border: 1px solid {tokens["border"]};
+            border-radius: 4px;
+            text-align: center;
+            height: 8px;
+            font-size: 10px;
+        }}
+
+        QProgressBar::chunk {{
+            background-color: {tokens["accent_solid"]};
+            border-radius: 3px;
+        }}
+
+        /* === 14. STATUS BAR === */
+        QStatusBar {{
+            background-color: {tokens["bg_window"]};
+            border-top: 1px solid {tokens["border"]};
+            color: {tokens["text_secondary"]};
+            font-size: 12px;
+            padding: 2px 10px;
+        }}
+
+        /* === 15. TOOLTIPS === */
+        QToolTip {{
+            background-color: {tokens["bg_card"]};
+            border: 1px solid {tokens["border"]};
+            border-radius: 8px;
+            color: {tokens["text_primary"]};
+            padding: 6px 10px;
+            font-size: 12px;
         }}
         """
         app.setStyleSheet(qss)
 
 
+# Global singleton instance
 theme = ThemeService()

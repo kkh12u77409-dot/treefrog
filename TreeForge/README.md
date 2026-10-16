@@ -68,11 +68,13 @@
 
 ```
 TreeForge/
-├── main.py                  # Application entry point & Qt bootstrapping
+├── main.py                  # Application entry point, icon loading & Qt bootstrapping
 ├── make_zip.py              # Distribution packager
-├── requirements.txt         # Pinned dependencies
+├── requirements.txt         # Pinned dependencies (PyQt6, PyQt6-QtSvg)
 ├── README.md                # Documentation & build guide
-├── assets/icons/            # Theme-aware SVG icons
+├── assets/
+│   ├── logo.svg             # Original TreeForge brand mark & vector icon
+│   └── icons/               # Lucide SVG icon collection & ISC license
 ├── core/
 │   ├── models.py            # Typed dataclasses (TreeNode, FileChunk, BuildStats)
 │   ├── tree_parser.py       # Pure Python tree syntax parser & safety validator
@@ -81,21 +83,32 @@ TreeForge/
 │   ├── file_writer.py       # Pure Python atomic writes, backup & undo engine
 │   └── worker.py            # PyQt6 background QThread workers
 ├── services/
-│   ├── settings_service.py  # QSettings persistence (theme, language, recents)
-│   ├── i18n_service.py      # Internationalization service (English & Arabic)
-│   └── theme_service.py     # Palette tokens, dynamic QSS, and SVG recoloring
+│   ├── theme_tokens.py      # Design tokens (Dark & Light) & WCAG contrast engine
+│   ├── theme_service.py     # Modular QSS generation, Windows title bar chrome, & styles
+│   ├── icon_service.py      # HiDPI vector rendering, IconBinder, & file_icon_for
+│   ├── i18n_service.py      # Bilingual internationalization (EN/AR) & Qt translators
+│   └── settings_service.py  # QSettings persistence (theme, language, policy, recents)
 ├── ui/
-│   ├── main_window.py       # Main shell with sidebar navigation
+│   ├── main_window.py       # Shell with sidebar navigation, brand header & status bar
 │   ├── builder_page.py      # Tree input, live preview tree, & generation controls
-│   ├── content_page.py      # Single editor, batch smart splitter & queue
-│   ├── settings_page.py     # Theme, language, and behavior preferences
-│   ├── code_editor.py       # Monospace editor with line numbers & syntax styling
-│   ├── toast.py             # Animated floating notification overlay
-│   └── styles.py            # Component styling helpers
+│   ├── content_page.py      # Single editor, batch smart splitter & multi-file queue
+│   ├── settings_page.py     # Self-labelled language & System/Dark/Light theme selector
+│   ├── code_editor.py       # Theme-token code editor with line gutter & syntax colors
+│   ├── toast.py             # Stackable floating toasts with semantic edge & hover pause
+│   ├── styles.py            # SectionHeader (live retranslation) & card helpers
+│   ├── context_menus.py     # Bespoke context menu factories for all inputs, trees, tables
+│   └── widgets/
+│       ├── themed_menu.py   # ThemedMenu with soft shadow, card geometry & bidi shortcuts
+│       └── themed_combo.py  # ThemedComboBox, PathComboBox, & ComboItemDelegate
 └── tests/
-    ├── test_tree_parser.py      # Parser & safety validation tests
-    ├── test_content_splitter.py # Splitter & fuzzy matching tests
-    └── test_file_writer.py      # Atomic write, backup & collision policy tests
+    ├── test_tree_parser.py          # Tree syntax & security validation tests
+    ├── test_content_splitter.py     # Splitter & fuzzy matching tests
+    ├── test_file_writer.py          # Atomic write, backup & collision policy tests
+    ├── test_theme_contrast.py       # WCAG 2.1 AA contrast ratio tests for all tokens
+    ├── test_no_hardcoded_colors.py  # Zero-hex enforcement test across ui/*.py
+    ├── test_i18n_keys.py            # EN/AR dictionary parity and completeness tests
+    ├── test_context_menus.py        # Context menu action mapping & bidi isolates
+    └── test_combos.py               # ComboBox data preservation & MRU deduplication
 ```
 
 ---
@@ -106,11 +119,8 @@ TreeForge/
 - Python 3.11 or higher
 - `pip` package manager
 
-### 1. Clone & Set Up Virtual Environment
+### 1. Set Up Virtual Environment
 ```bash
-git clone https://github.com/your-org/TreeForge.git
-cd TreeForge
-
 # Create and activate virtual environment
 python -m venv .venv
 
@@ -131,13 +141,9 @@ pip install -r requirements.txt
 python main.py
 ```
 
-### 4. Run Test Suite
+### 4. Run Test Suite (22 Tests Passing)
 ```bash
 python -m unittest discover -s tests -p "test_*.py"
-```
-Or with pytest:
-```bash
-pytest
 ```
 
 ---
@@ -147,8 +153,9 @@ pytest
 Using **PyInstaller**:
 
 ```bash
-# Windows Single-File EXE (without terminal window)
+# Windows Single-File EXE with Icon & Assets (without console window)
 pyinstaller --noconsole --onefile --name TreeForge \
+  --icon assets/app.ico \
   --add-data "assets;assets" \
   main.py
 
@@ -158,9 +165,9 @@ pyinstaller --noconsole --onefile --name TreeForge \
   main.py
 ```
 
-The resulting executable will be in the `dist/` directory.
-
 ---
 
-## 📜 License
-MIT License. Built with ❤️ for software engineers and architects.
+## 📜 Credits & Licensing
+- **TreeForge Application**: MIT License.
+- **Icons**: [Lucide Icons](https://lucide.dev) licensed under ISC / MIT (`assets/icons/LICENSE`).
+- **Brand Mark**: Original TreeForge vector artwork (`assets/logo.svg`).
