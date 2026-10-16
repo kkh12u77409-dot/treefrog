@@ -116,12 +116,14 @@ TreeForge/
 ## 🚀 Installation & Running
 
 ### Prerequisites
-- Python 3.11 or higher
+- Python 3.10, 3.11, 3.12, or 3.13 (**Python 3.11 or 3.12 strongly recommended**)
+  *Note: Python 3.14 is not yet supported by PyQt6 C++ wheels on PyPI.*
 - `pip` package manager
+- Windows users: [Microsoft Visual C++ 2015-2022 Redistributable (x64)](https://aka.ms/vs/17/release/vc_redist.x64.exe)
 
 ### 1. Set Up Virtual Environment
 ```bash
-# Create and activate virtual environment
+# Create virtual environment (make sure to specify Python 3.11 or 3.12)
 python -m venv .venv
 
 # On Linux/macOS:
@@ -145,6 +147,11 @@ python main.py
 ```bash
 python -m unittest discover -s tests -p "test_*.py"
 ```
+
+### ⚠️ Troubleshooting on Windows: "DLL load failed while importing QtCore"
+If you encounter `ImportError: DLL load failed while importing QtCore: The specified procedure could not be found`:
+1. **Python Version**: Check your python version with `python --version`. If it is **Python 3.14**, PyQt6 will fail to load because official precompiled wheels are only available for Python 3.8 through 3.13. Install and use **Python 3.11 or 3.12**.
+2. **Missing C++ Runtime**: Install the [Microsoft Visual C++ 2015–2022 Redistributable (x64)](https://aka.ms/vs/17/release/vc_redist.x64.exe) to provide `vcruntime140.dll` and `msvcp140.dll`.
 
 ---
 

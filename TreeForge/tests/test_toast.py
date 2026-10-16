@@ -2,19 +2,32 @@
 
 import sys
 import unittest
-from PyQt6.QtCore import Qt, QSize, QPoint, QEvent
-from PyQt6.QtGui import QResizeEvent
-from PyQt6.QtWidgets import QApplication, QWidget
+try:
+    from PyQt6.QtCore import Qt, QSize, QPoint, QEvent
+    from PyQt6.QtGui import QResizeEvent
+    from PyQt6.QtWidgets import QApplication, QWidget
+    from TreeForge.ui.toast import ToastManager, show_toast, ToastCard
 
-from TreeForge.ui.toast import ToastManager, show_toast, ToastCard
+    PYQT6_AVAILABLE = True
+    PYQT6_IMPORT_ERROR = None
+except (ImportError, Exception) as exc:
+    PYQT6_AVAILABLE = False
+    PYQT6_IMPORT_ERROR = str(exc)
 
 
-# Ensure single offscreen QApplication
-app = QApplication.instance()
-if not app:
-    app = QApplication(sys.argv)
+# Ensure single offscreen QApplication if PyQt6 loaded successfully
+if PYQT6_AVAILABLE:
+    app = QApplication.instance()
+    if not app:
+        app = QApplication(sys.argv)
 
 
+@unittest.skipUnless(
+    PYQT6_AVAILABLE,
+    f"PyQt6 GUI is not available or DLL failed to load ({PYQT6_IMPORT_ERROR}). "
+    "Note: PyQt6 binaries support Python 3.8 to 3.13 (Python 3.11 or 3.12 recommended; Python 3.14 is unsupported). "
+    "On Windows, ensure Microsoft Visual C++ 2015-2022 Redistributable (x64) is installed."
+)
 class TestToastManager(unittest.TestCase):
     """Verifies ToastCard positioning, stacking, deduplication, and window bounds."""
 

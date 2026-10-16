@@ -59,7 +59,7 @@ export const DesktopSuiteTab: React.FC<DesktopSuiteTabProps> = ({ language }) =>
         <div className="space-y-2 max-w-2xl">
           <div className="inline-flex items-center space-x-2 rtl:space-x-reverse px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-semibold">
             <Cpu className="w-3.5 h-3.5" />
-            <span>Python 3.11+ • PyQt6 (6.x) • PyInstaller Ready</span>
+            <span>Python 3.11 / 3.12 (3.10–3.13) • PyQt6 (6.x) • PyInstaller Ready</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
             {isAr ? 'حزمة بايثون المكتبية الكاملة لتطبيق TreeForge' : 'Complete TreeForge PyQt6 Desktop Suite'}
@@ -82,13 +82,19 @@ export const DesktopSuiteTab: React.FC<DesktopSuiteTabProps> = ({ language }) =>
         </a>
       </div>
 
-      {/* Terminal Cheat Sheet */}
-      <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 font-mono text-xs text-slate-300 space-y-2" dir="ltr">
-        <div className="flex items-center space-x-2 text-slate-500 pb-1 border-b border-slate-800">
-          <Terminal className="w-4 h-4 text-emerald-400" />
-          <span className="font-bold text-slate-400">Terminal Quick Start / أوامر التشغيل السريع:</span>
+      {/* Terminal Cheat Sheet & Version Notice */}
+      <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 font-mono text-xs text-slate-300 space-y-3" dir="ltr">
+        <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+          <div className="flex items-center space-x-2 text-slate-400">
+            <Terminal className="w-4 h-4 text-emerald-400" />
+            <span className="font-bold text-slate-300">Terminal Quick Start / أوامر التشغيل السريع:</span>
+          </div>
+          <span className="text-[11px] px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 font-sans">
+            Recommended: Python 3.11 or 3.12
+          </span>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1">
             <span className="text-slate-500 font-semibold"># 1. Install & Run:</span>
             <p className="text-emerald-400">pip install -r requirements.txt</p>
@@ -98,6 +104,19 @@ export const DesktopSuiteTab: React.FC<DesktopSuiteTabProps> = ({ language }) =>
             <span className="text-slate-500 font-semibold"># 2. Run Tests & Build Executable:</span>
             <p className="text-sky-400">python -m unittest discover -s tests # (22 Tests Passing)</p>
             <p className="text-amber-400">pyinstaller --noconsole --onefile --icon assets/app.ico --add-data "assets:assets" main.py</p>
+          </div>
+        </div>
+
+        {/* Windows / Python 3.14 Troubleshooting Callout */}
+        <div className="pt-2 border-t border-slate-800/80 font-sans text-xs flex items-start space-x-2 text-amber-300/90 bg-amber-950/20 p-2.5 rounded-lg border border-amber-500/20">
+          <ShieldCheck className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <span className="font-semibold text-amber-200">
+              Windows DLL load failed while importing QtCore?
+            </span>
+            <p className="text-slate-300 text-[11px] leading-relaxed">
+              PyQt6 wheels officially support <strong>Python 3.8 to 3.13</strong>. If you run <strong>Python 3.14</strong>, Windows will throw <code className="text-amber-300">DLL load failed while importing QtCore</code>. Please install <strong>Python 3.11 or 3.12</strong> and the <strong>Microsoft Visual C++ 2015–2022 Redistributable (x64)</strong>.
+            </p>
           </div>
         </div>
       </div>
