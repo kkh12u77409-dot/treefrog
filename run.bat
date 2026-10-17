@@ -1,94 +1,63 @@
 @echo off
-:: ==============================================================================
-:: TreeForge - ملف التشغيل التلقائي وتثبيت المتطلبات (Windows Batch Script)
-:: ==============================================================================
-chcp 65001 >nul
-setlocal enabledelayedexpansion
+setlocal
+cd /d "%~dp0"
+title TreeForge - Launcher
 
-title TreeForge - تشغيل تطبيق سطح المكتب
-color 0A
-
-echo ==============================================================================
-echo                      TreeForge Desktop Suite (PyQt6)
-echo                تطبيق إنشاء المشاريع وحقن الأكواد الذكية
-echo ==============================================================================
-echo.
-
-:: 1. التحقق من وجود بايثون
-echo [1/4] التحقق من بيئة بايثون (Python)...
+:: Check for python
 where python >nul 2>nul
-if %ERRORLEVEL% neq 0 (
-    color 0C
-    echo [خطأ] لم يتم العثور على بايثون مثبت على جهازك!
-    echo يرجى تحميل وتثبيت Python 3.11 أو 3.12 من: https://www.python.org/downloads/
-    echo وتأكد من تحديد خيار "Add Python to PATH" أثناء التثبيت.
-    echo.
-    pause
-    exit /b 1
+if errorlevel 1 goto :no_python
+
+:: Activate venv if it exists
+if exist "%~dp0venv\Scripts\activate.bat" (
+    call "%~dp0venv\Scripts\activate.bat"
 )
 
-python --version
-echo [✓] بايثون متوفر بنجاح.
+:: Run smart launcher
+if exist "%~dp0run.py" (
+    python "%~dp0run.py" %*
+    if errorlevel 1 goto :failed
+    goto :end
+)
+
+:: Fallback direct execution
+if exist "%~dp0main.py" (
+    python "%~dp0main.py" %*
+    if errorlevel 1 goto :failed
+    goto :end
+)
+
+if exist "%~dp0TreeForge\main.py" (
+    python "%~dp0TreeForge\main.py" %*
+    if errorlevel 1 goto :failed
+    goto :end
+)
+
+goto :no_main
+
+:no_python
+echo ======================================================================
+echo [ERROR] Python is not installed or not added to your system PATH!
+echo [خطأ] لم يتم العثور على بايثون مثبت في مسار النظام!
 echo.
-
-:: 2. إنشاء وتفعيل البيئة الافتراضية (Virtual Environment)
-echo [2/4] إعداد البيئة الافتراضية (venv)...
-if not exist "venv\Scripts\activate.bat" (
-    echo [*] إنشاء بيئة افتراضية جديدة في مجلد venv...
-    python -m venv venv
-    if %ERRORLEVEL% neq 0 (
-        echo [تحذير] تعذر إنشاء venv، سيتم المتابعة باستخدام بيئة بايثون العامة.
-    ) else (
-        echo [✓] تم إنشاء البيئة الافتراضية بنجاح.
-    )
-)
-
-if exist "venv\Scripts\activate.bat" (
-    echo [*] تفعيل البيئة الافتراضية venv...
-    call venv\Scripts\activate.bat
-)
+echo Please install Python 3.11 or 3.12 from:
+echo https://www.python.org/downloads/
 echo.
-
-:: 3. تثبيت وتحديث المكتبات المطلوبة
-echo [3/4] تثبيت وتحديث المتطلبات (PyQt6 وباقي المكتبات)...
-set "REQ_FILE="
-if exist "TreeForge\requirements.txt" set "REQ_FILE=TreeForge\requirements.txt"
-if exist "requirements.txt" set "REQ_FILE=requirements.txt"
-
-if not "!REQ_FILE!"=="" (
-    python -m pip install --upgrade pip --quiet
-    pip install -r "!REQ_FILE!"
-    if %ERRORLEVEL% neq 0 (
-        color 0E
-        echo [تحذير] واجهت عملية تثبيت بعض المكتبات صعوبة، سيتم محاولة تشغيل التطبيق.
-    ) else (
-        echo [✓] تم التحقق من كافة المكتبات وتثبيتها بنجاح.
-    )
-) else (
-    echo [تحذير] لم يتم العثور على requirements.txt، تثبيت PyQt6 مباشرة...
-    pip install PyQt6
-)
+echo IMPORTANT: Make sure to check "Add Python to PATH" during installation.
+echo ======================================================================
 echo.
+pause
+exit /b 1
 
-:: 4. تشغيل البرنامج
-echo [4/4] جارٍ إطلاق TreeForge الآن...
-echo ------------------------------------------------------------------------------
-if exist "main.py" (
-    python main.py
-) else if exist "TreeForge\main.py" (
-    python TreeForge\main.py
-) else (
-    color 0C
-    echo [خطأ] تعذر العثور على ملف التشغيل main.py!
-    pause
-    exit /b 1
-)
+:no_main
+echo [ERROR] Could not find main.py or run.py in %~dp0
+pause
+exit /b 1
 
-if %ERRORLEVEL% neq 0 (
-    color 0C
-    echo.
-    echo [تنبيه] توقف التطبيق مع رمز الخطأ: %ERRORLEVEL%
-    pause
-)
+:failed
+echo.
+echo [!] Application exited with an error code.
+pause
+exit /b 1
 
+:end
 exit /b 0

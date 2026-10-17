@@ -1,58 +1,60 @@
 @echo off
-:: ==============================================================================
-:: TreeForge - ملف التشغيل التلقائي وتثبيت المتطلبات (داخل مجلد TreeForge)
-:: ==============================================================================
-chcp 65001 >nul
-setlocal enabledelayedexpansion
+setlocal
+cd /d "%~dp0"
+title TreeForge - Launcher
 
-title TreeForge - تشغيل التطبيق
-color 0A
-
-echo ==============================================================================
-echo                      TreeForge Desktop Suite (PyQt6)
-echo                تطبيق إنشاء المشاريع وحقن الأكواد الذكية
-echo ==============================================================================
-echo.
-
+:: Check for python
 where python >nul 2>nul
-if %ERRORLEVEL% neq 0 (
-    color 0C
-    echo [خطأ] لم يتم العثور على Python مثبت على جهازك!
-    echo يرجى تحميل Python 3.11 أو 3.12 من: https://www.python.org/downloads/
-    pause
-    exit /b 1
+if errorlevel 1 goto :no_python
+
+:: Activate venv if it exists
+if exist "%~dp0venv\Scripts\activate.bat" (
+    call "%~dp0venv\Scripts\activate.bat"
 )
 
-python --version
+:: Run smart launcher
+if exist "%~dp0run.py" (
+    python "%~dp0run.py" %*
+    if errorlevel 1 goto :failed
+    goto :end
+)
+
+if exist "%~dp0main.py" (
+    python "%~dp0main.py" %*
+    if errorlevel 1 goto :failed
+    goto :end
+)
+
+if exist "%~dp0..\main.py" (
+    python "%~dp0..\main.py" %*
+    if errorlevel 1 goto :failed
+    goto :end
+)
+
+goto :no_main
+
+:no_python
+echo ======================================================================
+echo [ERROR] Python is not installed or not added to your system PATH!
+echo [خطأ] لم يتم العثور على بايثون مثبت في مسار النظام!
 echo.
-
-if not exist "venv\Scripts\activate.bat" (
-    echo [*] إنشاء بيئة افتراضية جديدة في venv...
-    python -m venv venv
-)
-
-if exist "venv\Scripts\activate.bat" (
-    call venv\Scripts\activate.bat
-)
-
-echo [*] التحقق من تثبيت PyQt6 والمكتبات...
-if exist "requirements.txt" (
-    pip install -r requirements.txt
-) else if exist "..\requirements.txt" (
-    pip install -r ..\requirements.txt
-) else (
-    pip install PyQt6
-)
-
+echo Please install Python 3.11 or 3.12 from:
+echo https://www.python.org/downloads/
+echo ======================================================================
 echo.
-echo [*] إطلاق TreeForge...
-if exist "main.py" (
-    python main.py
-) else if exist "..\main.py" (
-    python ..\main.py
-)
+pause
+exit /b 1
 
-if %ERRORLEVEL% neq 0 (
-    pause
-)
+:no_main
+echo [ERROR] Could not find main.py or run.py in %~dp0
+pause
+exit /b 1
+
+:failed
+echo.
+echo [!] Application exited with an error code.
+pause
+exit /b 1
+
+:end
 exit /b 0

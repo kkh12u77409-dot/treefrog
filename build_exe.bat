@@ -1,107 +1,89 @@
 @echo off
-:: ==============================================================================
-:: TreeForge - ملف تحويل التطبيق إلى ملف تنفيذي مستقل (EXE) عبر PyInstaller
-:: ==============================================================================
-chcp 65001 >nul
 setlocal enabledelayedexpansion
+cd /d "%~dp0"
+title TreeForge - Build Executable
 
-title TreeForge - تحويل التطبيق إلى ملف تنفيذي EXE
-color 0B
-
-echo ==============================================================================
-echo                 TreeForge - إنشاء ملف تنفيذي مستقل (EXE)
-echo ==============================================================================
+echo ======================================================================
+echo              TreeForge - Windows EXE Builder (PyInstaller)
+echo ======================================================================
 echo.
 
-:: 1. التحقق من وجود بايثون
-echo [1/5] التحقق من بيئة بايثون...
+:: Check python
 where python >nul 2>nul
-if %ERRORLEVEL% neq 0 (
-    color 0C
-    echo [خطأ] لم يتم العثور على Python مثبت على جهازك!
-    pause
-    exit /b 1
+if errorlevel 1 goto :no_python
+
+:: Activate venv if it exists
+if exist "%~dp0venv\Scripts\activate.bat" (
+    call "%~dp0venv\Scripts\activate.bat"
 )
 
-python --version
-echo.
-
-:: 2. تفعيل البيئة الافتراضية إن وجدت
-echo [2/5] فحص البيئة الافتراضية...
-if exist "venv\Scripts\activate.bat" (
-    echo [*] استخدام بيئة venv المفعلة...
-    call venv\Scripts\activate.bat
-)
-echo.
-
-:: 3. تثبيت PyInstaller والمكتبات اللازمة
-echo [3/5] تثبيت أداة التجميع PyInstaller والمتطلبات...
-pip install --upgrade pip --quiet
+:: Install PyInstaller and PyQt6
+echo [*] Checking and installing PyInstaller ^& PyQt6...
+python -m pip install --upgrade pip --quiet
 pip install pyinstaller PyQt6
 
-set "REQ_FILE="
-if exist "TreeForge\requirements.txt" set "REQ_FILE=TreeForge\requirements.txt"
-if exist "requirements.txt" set "REQ_FILE=requirements.txt"
-if not "!REQ_FILE!"=="" (
-    pip install -r "!REQ_FILE!"
+if exist "%~dp0requirements.txt" (
+    pip install -r "%~dp0requirements.txt"
+) else if exist "%~dp0TreeForge\requirements.txt" (
+    pip install -r "%~dp0TreeForge\requirements.txt"
 )
-echo.
 
-:: 4. تجهيز إعدادات التجميع (أيقونة + أصول)
-echo [4/5] إعداد معلمات البناء والأصول (Assets)...
+:: Icon setup
 set "ICON_ARG="
-if exist "TreeForge\assets\app.ico" (
-    set "ICON_ARG=--icon=TreeForge\assets\app.ico"
-    echo [✓] تم العثور على أيقونة التطبيق: TreeForge\assets\app.ico
-) else if exist "assets\app.ico" (
-    set "ICON_ARG=--icon=assets\app.ico"
-    echo [✓] تم العثور على أيقونة التطبيق: assets\app.ico
+if exist "%~dp0TreeForge\assets\app.ico" (
+    set "ICON_ARG=--icon=%~dp0TreeForge\assets\app.ico"
+) else if exist "%~dp0assets\app.ico" (
+    set "ICON_ARG=--icon=%~dp0assets\app.ico"
 )
 
-:: تنظيف مجلدات البناء السابقة
-if exist "build" rmdir /s /q "build"
-if exist "dist\TreeForge.exe" del /f /q "dist\TreeForge.exe"
+:: Clean previous build
+if exist "%~dp0build" rmdir /s /q "%~dp0build"
+if exist "%~dp0dist\TreeForge.exe" del /f /q "%~dp0dist\TreeForge.exe"
 
-echo.
-echo [5/5] جارٍ بناء الملف التنفيذي المستقل (Single-File Executable)...
-echo الرجاء الانتظار، قد تستغرق هذه العملية دقيقة أو دقيقتين...
-echo.
+set "TARGET_MAIN=%~dp0main.py"
+if not exist "!TARGET_MAIN!" (
+    if exist "%~dp0TreeForge\main.py" set "TARGET_MAIN=%~dp0TreeForge\main.py"
+)
 
-set "DATA_SEP=;"
+echo [*] Target main script: !TARGET_MAIN!
+echo [*] Building standalone executable...
+echo Please wait, this may take 1-2 minutes...
+echo.
 
 pyinstaller --noconsole ^
     --onefile ^
     --clean ^
     --name="TreeForge" ^
     !ICON_ARG! ^
-    --add-data="TreeForge/assets%DATA_SEP%TreeForge/assets" ^
-    --add-data="TreeForge/core%DATA_SEP%TreeForge/core" ^
-    --add-data="TreeForge/services%DATA_SEP%TreeForge/services" ^
-    --add-data="TreeForge/ui%DATA_SEP%TreeForge/ui" ^
-    main.py
+    --add-data="TreeForge/assets;TreeForge/assets" ^
+    --add-data="TreeForge/core;TreeForge/core" ^
+    --add-data="TreeForge/services;TreeForge/services" ^
+    --add-data="TreeForge/ui;TreeForge/ui" ^
+    "!TARGET_MAIN!"
 
-if %ERRORLEVEL% neq 0 (
-    color 0C
-    echo.
-    echo ==============================================================================
-    echo [خطأ] حدث خطأ أثناء تجميع الملف التنفيذي بواسطة PyInstaller!
-    echo ==============================================================================
-    pause
-    exit /b 1
-)
+if errorlevel 1 goto :build_failed
 
 echo.
-echo ==============================================================================
-echo [نجاح] تم إنشاء الملف التنفيذي بنجاح!
-echo مسار الملف الناتج:
-echo %CD%\dist\TreeForge.exe
-echo ==============================================================================
+echo ======================================================================
+echo [SUCCESS] TreeForge.exe built successfully!
+echo Output file: %~dp0dist\TreeForge.exe
+echo ======================================================================
 echo.
 
-:: فتح مجلد dist للمستخدم
-if exist "dist\TreeForge.exe" (
-    explorer "dist"
+if exist "%~dp0dist\TreeForge.exe" (
+    explorer "%~dp0dist"
 )
-
 pause
 exit /b 0
+
+:no_python
+echo [ERROR] Python not found on system PATH.
+echo Please install Python 3.11 or 3.12 from https://www.python.org/downloads/
+pause
+exit /b 1
+
+:build_failed
+echo.
+echo [ERROR] PyInstaller failed to build TreeForge.exe!
+pause
+exit /b 1
