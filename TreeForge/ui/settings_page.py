@@ -157,6 +157,10 @@ class SettingsPage(QWidget):
                     app.setLayoutDirection(Qt.LayoutDirection.RightToLeft)
                 else:
                     app.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
+            theme.apply_theme()
+            main_win = self.window()
+            if main_win and hasattr(main_win, "retranslate_ui"):
+                main_win.retranslate_ui()
             show_toast(self, i18n.t("toast_lang_changed"), "success")
 
     def _reset_defaults(self) -> None:
@@ -168,6 +172,10 @@ class SettingsPage(QWidget):
         app = QApplication.instance()
         if app:
             app.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
+        theme.apply_theme()
+        main_win = self.window()
+        if main_win and hasattr(main_win, "retranslate_ui"):
+            main_win.retranslate_ui()
         self.combo_theme.setCurrentIndex(self.combo_theme.findData("dark"))
         self.combo_lang.setCurrentIndex(self.combo_lang.findData("en"))
         show_toast(self, i18n.t("toast_reset_done"), "info")
