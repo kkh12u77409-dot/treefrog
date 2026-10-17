@@ -143,7 +143,8 @@ class SettingsPage(QWidget):
         if selected_theme:
             settings.set_theme(selected_theme)
             theme.set_theme(selected_theme)
-            show_toast(self, i18n.t("toast_theme_changed", name=selected_theme), "info")
+            theme_label = i18n.t(f"theme_{selected_theme}")
+            show_toast(self, i18n.t("toast_theme_changed", name=theme_label), "info")
 
     def _on_language_activated(self) -> None:
         selected_lang = self.combo_lang.currentData()
@@ -179,9 +180,8 @@ class SettingsPage(QWidget):
         self.combo_theme.retranslate()
         self.lbl_lang.setText(i18n.t("language_label"))
         self.combo_lang.retranslate()
-        self.lbl_about_title.setText(i18n.t("about_title"))
-
         is_rtl = i18n.is_rtl()
+        self.lbl_about_title.setText(f"حول تطبيق {i18n.isolate_ltr('TreeForge')}" if is_rtl else i18n.t("about_title"))
         about_text = i18n.t("about_text")
         if is_rtl:
             self.lbl_about_text.setAlignment(Qt.AlignmentFlag.AlignRight)

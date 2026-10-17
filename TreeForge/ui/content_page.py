@@ -128,7 +128,7 @@ class ContentPage(QWidget):
         self.btn_save_single = QPushButton()
         self.btn_save_single.setObjectName("btnSaveSingle")
         self.btn_save_single.setFixedHeight(36)
-        self.btn_save_single.setIcon(icon_service.icon("save", size=16, role="on_accent"))
+        self.btn_save_single.setIcon(icon_service.icon("save", size=16, role="disabled"))
         set_variant(self.btn_save_single, "primary")
         set_button_text(self.btn_save_single, i18n.t("save_file"))
         self.btn_save_single.setEnabled(False)
@@ -391,10 +391,16 @@ class ContentPage(QWidget):
                 self.editor.setPlainText(content)
                 self.editor_empty_state.setVisible(False)
                 self.editor.setVisible(True)
-                self.btn_save_single.setEnabled(True)
+                self._set_save_single_enabled(True)
                 self.btn_add_queue.setEnabled(True)
             except Exception as e:
                 show_toast(self, i18n.t("toast_read_error", error=str(e)), "error")
+
+    def _set_save_single_enabled(self, enabled: bool) -> None:
+        """Update save button enabled state and icon role so icon color matches text in light and dark themes."""
+        self.btn_save_single.setEnabled(enabled)
+        role = "on_accent" if enabled else "disabled"
+        self.btn_save_single.setIcon(icon_service.icon("save", size=16, role=role))
 
     def _save_single_file(self) -> None:
         if not self.current_root_dir:
@@ -597,7 +603,8 @@ class ContentPage(QWidget):
 
     def _on_theme_changed(self, theme_name: str = "") -> None:
         """Refresh icons and button styles on theme change."""
-        self.btn_save_single.setIcon(icon_service.icon("save", size=16, role="on_accent"))
+        save_role = "on_accent" if self.btn_save_single.isEnabled() else "disabled"
+        self.btn_save_single.setIcon(icon_service.icon("save", size=16, role=save_role))
         self.btn_parse_batch.setIcon(icon_service.icon("split", size=16, role="on_accent"))
         self.btn_save_batch.setIcon(icon_service.icon("save-all", size=16, role="on_accent"))
         self.btn_save_queue.setIcon(icon_service.icon("save-all", size=16, role="on_accent"))
@@ -614,7 +621,8 @@ class ContentPage(QWidget):
         self.tabs.setTabText(2, i18n.t("tab_queue"))
         self.lbl_tree.setText(i18n.t("project_files"))
         set_button_text(self.btn_save_single, i18n.t("save_file"))
-        self.btn_save_single.setIcon(icon_service.icon("save", size=16, role="on_accent"))
+        save_role = "on_accent" if self.btn_save_single.isEnabled() else "disabled"
+        self.btn_save_single.setIcon(icon_service.icon("save", size=16, role=save_role))
         set_button_text(self.btn_add_queue, i18n.t("add_to_queue"))
         self.chk_strip_fences.setText(i18n.t("opt_strip_fences"))
         self.chk_backups.setText(i18n.t("opt_backup"))

@@ -201,6 +201,25 @@ class IconService(QObject):
             hover_pix = hover_pix.transformed(QTransform().scale(-1, 1))
         icon.addPixmap(hover_pix, QIcon.Mode.Active)
 
+        # Explicitly register Disabled mode pixmaps using tokens["disabled_text"]
+        # so button icons automatically match disabled text color across light and dark themes
+        disabled_color = tokens["disabled_text"]
+        disabled_svg = _build_svg_string(svg_text, disabled_color)
+        for dpr in (1.0, 2.0):
+            dis_pix_size = int(size * dpr)
+            dis_renderer = QSvgRenderer(QByteArray(disabled_svg.encode("utf-8")))
+            dis_pix = QPixmap(dis_pix_size, dis_pix_size)
+            dis_pix.fill(Qt.GlobalColor.transparent)
+            dp = QPainter(dis_pix)
+            dis_renderer.render(dp)
+            dp.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceIn)
+            dp.fillRect(dis_pix.rect(), QColor(disabled_color))
+            dp.end()
+            dis_pix.setDevicePixelRatio(dpr)
+            if is_rtl:
+                dis_pix = dis_pix.transformed(QTransform().scale(-1, 1))
+            icon.addPixmap(dis_pix, QIcon.Mode.Disabled)
+
         self._cache[cache_key] = icon
         return icon
 

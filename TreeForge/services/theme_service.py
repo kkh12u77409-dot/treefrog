@@ -243,53 +243,48 @@ class ThemeService(QObject):
             border-left: none;
         }}
 
-        QPushButton[nav="true"][rtl="false"],
+        /* === 3. NAVIGATION SIDEBAR TABS === */
         QPushButton[nav="true"] {{
             background-color: transparent;
             color: {tokens["text_secondary"]};
-            border: none;
-            border-radius: 8px;
-            padding: 10px 14px;
-            font-size: 13px;
+            border: 2px solid transparent;
+            border-radius: 9px;
+            padding: 10px 16px;
+            font-size: 14px;
             font-weight: 500;
             text-align: left;
+            min-height: 24px;
         }}
 
         QPushButton[nav="true"][rtl="true"] {{
-            background-color: transparent;
-            color: {tokens["text_secondary"]};
-            border: none;
-            border-radius: 8px;
-            padding: 10px 14px;
-            font-size: 13px;
-            font-weight: 500;
             text-align: right;
+            padding: 10px 16px;
         }}
 
         QPushButton[nav="true"]:hover {{
             background-color: {tokens["bg_elevated"]};
             color: {tokens["text_primary"]};
+            border: 2px solid {tokens["border"]};
         }}
 
-        QPushButton[nav="true"][rtl="false"]:checked,
-        QPushButton[nav="true"]:checked {{
+        QPushButton[nav="true"]:checked,
+        QPushButton[nav="true"][rtl="true"]:checked,
+        QPushButton[nav="true"][rtl="false"]:checked {{
             background-color: {tokens["accent_soft"]};
             color: {tokens["accent_text"]};
             font-weight: 600;
-            border-left: 3px solid {tokens["accent_solid"]};
-            border-right: none;
-        }}
-
-        QPushButton[nav="true"][rtl="true"]:checked {{
-            background-color: {tokens["accent_soft"]};
-            color: {tokens["accent_text"]};
-            font-weight: 600;
-            border-right: 3px solid {tokens["accent_solid"]};
-            border-left: none;
+            border: 2px solid {tokens["accent_solid"]};
+            border-radius: 9px;
         }}
 
         QPushButton[nav="true"]:focus {{
+            border: 2px solid {tokens["accent_solid"]};
+            outline: none;
+        }}
+
+        QPushButton[nav="true"]:focus:!checked {{
             border: 2px solid {tokens["border_focus"]};
+            outline: none;
         }}
 
         /* === 4. CARDS & PANELS === */

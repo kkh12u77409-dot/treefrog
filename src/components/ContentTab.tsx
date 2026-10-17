@@ -846,9 +846,14 @@ export const ContentTab: React.FC<ContentTabProps> = ({
 
                 <button
                   onClick={handleSaveSingle}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md shadow-emerald-600/25 transition border border-emerald-500/40"
+                  disabled={!selectedFile}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs transition border ${
+                    !selectedFile
+                      ? 'bg-slate-200 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed'
+                      : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-600/25 border-emerald-500/40'
+                  }`}
                 >
-                  <Save className="w-4 h-4 text-white shrink-0" />
+                  <Save className={`w-4 h-4 shrink-0 ${!selectedFile ? 'text-slate-500 dark:text-slate-400' : 'text-white'}`} />
                   <span>{isAr ? 'حفظ الملف (Ctrl+S)' : 'Save File (Ctrl+S)'}</span>
                 </button>
               </div>

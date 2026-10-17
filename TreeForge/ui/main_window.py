@@ -131,12 +131,24 @@ class MainWindow(QMainWindow):
         self.status_bar.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.status_bar.customContextMenuRequested.connect(self._on_status_bar_context_menu)
         self.status_bar.showMessage(i18n.t("ready"))
+        self.retranslate_ui()
+
+    def _update_nav_icons(self) -> None:
+        """Update nav button icons and roles to ensure active icon matches active accent color in light and dark themes."""
+        curr = self.stack.currentIndex()
+        self.btn_nav_builder.setIcon(icon_service.icon("folder-tree", size=20, role="accent" if curr == 0 else "default"))
+        self.btn_nav_builder.setIconSize(QSize(20, 20))
+        self.btn_nav_content.setIcon(icon_service.icon("file-pen-line", size=20, role="accent" if curr == 1 else "default"))
+        self.btn_nav_content.setIconSize(QSize(20, 20))
+        self.btn_nav_settings.setIcon(icon_service.icon("sliders-horizontal", size=20, role="accent" if curr == 2 else "default"))
+        self.btn_nav_settings.setIconSize(QSize(20, 20))
 
     def _switch_page(self, index: int) -> None:
         self.stack.setCurrentIndex(index)
         self.btn_nav_builder.setChecked(index == 0)
         self.btn_nav_content.setChecked(index == 1)
         self.btn_nav_settings.setChecked(index == 2)
+        self._update_nav_icons()
 
     def _on_tree_built(self, root_dir_str: str, root_node) -> None:
         self._active_workspace = root_dir_str
@@ -181,16 +193,20 @@ class MainWindow(QMainWindow):
         """Handle theme change event and propagate to child views."""
         theme.apply_titlebar_theme(self)
         self.logo_lbl.setPixmap(icon_service.icon("folder-tree", size=28, role="accent").pixmap(28, 28))
+        self._update_nav_icons()
         if hasattr(self, "builder_page") and hasattr(self.builder_page, "_on_theme_changed"):
             self.builder_page._on_theme_changed(theme_name)
         if hasattr(self, "content_page") and hasattr(self.content_page, "_on_theme_changed"):
             self.content_page._on_theme_changed(theme_name)
 
     def retranslate_ui(self) -> None:
-        """Live updates for localized texts, brand subtitle, and B7 RTL nav indicator."""
+        """Live updates for localized texts, brand subtitle, and RTL nav layout."""
         is_rtl = i18n.is_rtl()
         rtl_str = "true" if is_rtl else "false"
+        layout_dir = Qt.LayoutDirection.RightToLeft if is_rtl else Qt.LayoutDirection.LeftToRight
+
         self.sidebar.setProperty("rtl", rtl_str)
+        self.sidebar.setLayoutDirection(layout_dir)
         style = self.sidebar.style()
         if style:
             style.unpolish(self.sidebar)
@@ -198,6 +214,7 @@ class MainWindow(QMainWindow):
 
         for btn in (self.btn_nav_builder, self.btn_nav_content, self.btn_nav_settings):
             btn.setProperty("rtl", rtl_str)
+            btn.setLayoutDirection(layout_dir)
             btn_style = btn.style()
             if btn_style:
                 btn_style.unpolish(btn)
@@ -207,6 +224,7 @@ class MainWindow(QMainWindow):
         set_button_text(self.btn_nav_builder, i18n.t("nav_builder"))
         set_button_text(self.btn_nav_content, i18n.t("nav_content"))
         set_button_text(self.btn_nav_settings, i18n.t("nav_settings"))
+        self._update_nav_icons()
         self.lbl_version.setText(i18n.t("version_caption"))
         if not self._active_workspace:
             self.status_bar.showMessage(i18n.t("ready"))
