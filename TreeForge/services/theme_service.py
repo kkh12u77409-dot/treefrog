@@ -261,11 +261,27 @@ class ThemeService(QObject):
             min-height: 24px;
         }}
 
+        QPushButton[nav="true"][rtl="true"] {{
+            text-align: right;
+        }}
+
+        QPushButton[nav="true"][rtl="false"] {{
+            text-align: left;
+        }}
+
         QPushButton[nav="true"]:hover {{
             background-color: {tokens["bg_elevated"]};
             color: {tokens["text_primary"]};
             border: 2px solid {tokens["border"]};
             text-align: {nav_align};
+        }}
+
+        QPushButton[nav="true"][rtl="true"]:hover {{
+            text-align: right;
+        }}
+
+        QPushButton[nav="true"][rtl="false"]:hover {{
+            text-align: left;
         }}
 
         QPushButton[nav="true"]:checked {{
@@ -277,16 +293,40 @@ class ThemeService(QObject):
             text-align: {nav_align};
         }}
 
+        QPushButton[nav="true"][rtl="true"]:checked {{
+            text-align: right;
+        }}
+
+        QPushButton[nav="true"][rtl="false"]:checked {{
+            text-align: left;
+        }}
+
         QPushButton[nav="true"]:focus {{
             border: 2px solid {tokens["accent_solid"]};
             outline: none;
             text-align: {nav_align};
         }}
 
+        QPushButton[nav="true"][rtl="true"]:focus {{
+            text-align: right;
+        }}
+
+        QPushButton[nav="true"][rtl="false"]:focus {{
+            text-align: left;
+        }}
+
         QPushButton[nav="true"]:focus:!checked {{
             border: 2px solid {tokens["border_focus"]};
             outline: none;
             text-align: {nav_align};
+        }}
+
+        QPushButton[nav="true"][rtl="true"]:focus:!checked {{
+            text-align: right;
+        }}
+
+        QPushButton[nav="true"][rtl="false"]:focus:!checked {{
+            text-align: left;
         }}
 
         /* === 4. CARDS & PANELS === */

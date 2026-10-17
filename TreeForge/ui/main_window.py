@@ -20,6 +20,7 @@ from .settings_page import SettingsPage
 from .toast import show_toast
 from .styles import set_button_text
 from .widgets.themed_menu import ThemedMenu
+from .widgets.nav_button import NavTabButton
 
 
 class MainWindow(QMainWindow):
@@ -76,7 +77,7 @@ class MainWindow(QMainWindow):
         sidebar_layout.addSpacing(12)
 
         # Nav buttons (Tagged with nav="true" for QSS styling and escaping '&')
-        self.btn_nav_builder = QPushButton()
+        self.btn_nav_builder = NavTabButton()
         self.btn_nav_builder.setProperty("nav", "true")
         self.btn_nav_builder.setIcon(icon_service.icon("folder-tree", size=18))
         self.btn_nav_builder.setIconSize(QSize(18, 18))
@@ -85,7 +86,7 @@ class MainWindow(QMainWindow):
         self.btn_nav_builder.clicked.connect(lambda: self._switch_page(0))
         sidebar_layout.addWidget(self.btn_nav_builder)
 
-        self.btn_nav_content = QPushButton()
+        self.btn_nav_content = NavTabButton()
         self.btn_nav_content.setProperty("nav", "true")
         self.btn_nav_content.setIcon(icon_service.icon("file-pen-line", size=18))
         self.btn_nav_content.setIconSize(QSize(18, 18))
@@ -95,7 +96,7 @@ class MainWindow(QMainWindow):
 
         sidebar_layout.addStretch()
 
-        self.btn_nav_settings = QPushButton()
+        self.btn_nav_settings = NavTabButton()
         self.btn_nav_settings.setProperty("nav", "true")
         self.btn_nav_settings.setIcon(icon_service.icon("sliders-horizontal", size=18))
         self.btn_nav_settings.setIconSize(QSize(18, 18))
@@ -212,6 +213,10 @@ class MainWindow(QMainWindow):
             style.unpolish(self.sidebar)
             style.polish(self.sidebar)
 
+        align_flag = Qt.AlignmentFlag.AlignRight if is_rtl else Qt.AlignmentFlag.AlignLeft
+        self.brand_sub.setAlignment(align_flag)
+        self.lbl_version.setAlignment(align_flag)
+
         for btn in (self.btn_nav_builder, self.btn_nav_content, self.btn_nav_settings):
             btn.setProperty("rtl", rtl_str)
             btn.setLayoutDirection(layout_dir)
@@ -219,6 +224,7 @@ class MainWindow(QMainWindow):
             if btn_style:
                 btn_style.unpolish(btn)
                 btn_style.polish(btn)
+            btn.update()
 
         self.brand_sub.setText(i18n.t("brand_sub"))
         set_button_text(self.btn_nav_builder, i18n.t("nav_builder"))
