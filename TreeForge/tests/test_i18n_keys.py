@@ -41,6 +41,23 @@ class TestI18nKeys(unittest.TestCase):
                     f"Key '{key}' in '{lang}' has empty translation"
                 )
 
+    def test_arabic_sidebar_texts_free_of_hazma(self):
+        """Verifies that sidebar texts in Arabic do not start with or contain 'حزمة'."""
+        ar = TRANSLATIONS["ar"]
+        self.assertFalse(ar["brand_sub"].startswith("حزمة"), "brand_sub in Arabic must not start with 'حزمة'")
+        self.assertNotIn("حزمة", ar["version_caption"], "version_caption in Arabic must not contain 'حزمة'")
+
+    def test_windows_scripts_exist(self):
+        """Verifies that run.bat, build_exe.bat, and installer .iss exist."""
+        import os
+        from pathlib import Path
+        root = Path(__file__).resolve().parent.parent.parent
+        self.assertTrue((root / "run.bat").exists(), "run.bat must exist at root")
+        self.assertTrue((root / "build_exe.bat").exists(), "build_exe.bat must exist at root")
+        self.assertTrue((root / "TreeForge_Installer.iss").exists(), "TreeForge_Installer.iss must exist at root")
+        self.assertTrue((root / "setup.iss").exists(), "setup.iss must exist at root")
+
 
 if __name__ == "__main__":
     unittest.main()
+

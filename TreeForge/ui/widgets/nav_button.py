@@ -171,33 +171,47 @@ class NavTabButton(QPushButton):
         # Clean display text (strip non-breaking spaces and surrounding spaces)
         clean_text = self.text().replace("\u00A0", "").strip()
 
+        # Accurately measure text width using font metrics
+        fm = painter.fontMetrics()
+        if hasattr(fm, "horizontalAdvance"):
+            text_w = fm.horizontalAdvance(clean_text)
+        elif hasattr(fm, "width"):
+            text_w = fm.width(clean_text)
+        else:
+            text_w = len(clean_text) * 8
+
+        align_center = getattr(Qt.AlignmentFlag, "AlignCenter", 0)
+        align_vcenter = getattr(Qt.AlignmentFlag, "AlignVCenter", 0)
+        align_right = getattr(Qt.AlignmentFlag, "AlignRight", 0)
+        align_left = getattr(Qt.AlignmentFlag, "AlignLeft", 0)
+        align_absolute = getattr(Qt.AlignmentFlag, "AlignAbsolute", 0)
+
         if is_rtl:
-            # === RTL (Arabic): BOTH ICON AND TEXT RIGHT-ALIGNED ===
-            # [ Padding | ... empty space ... | Text | Spacing | Icon | Padding ]
+            # === RTL (Arabic): BOTH ICON AND TEXT RIGHT-ALIGNED TOGETHER ===
+            # [ Padding (empty space) ... | Text (text_w) | Spacing (10px) | Icon (icon_w) | Padding (16px) ]
             icon_x = total_w - padding_h - icon_w
             if has_icon:
                 icon_mode = QIcon.Mode.Normal
                 icon_state = QIcon.State.On if is_checked else QIcon.State.Off
-                icon.paint(painter, icon_x, icon_y, icon_w, icon_h, Qt.AlignmentFlag.AlignCenter, icon_mode, icon_state)
+                icon.paint(painter, icon_x, icon_y, icon_w, icon_h, align_center, icon_mode, icon_state)
 
-            text_right = icon_x - (spacing if has_icon else 0)
-            text_left = padding_h
-            text_rect = QRect(text_left, 0, max(0, text_right - text_left), total_h)
+            text_x = icon_x - (spacing if has_icon else 0) - text_w
+            text_rect = QRect(max(padding_h, text_x), 0, text_w + 4, total_h)
 
             painter.setPen(text_color)
-            painter.drawText(text_rect, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter, clean_text)
+            painter.drawText(text_rect, align_right | align_absolute | align_vcenter, clean_text)
         else:
-            # === LTR (English): BOTH ICON AND TEXT LEFT-ALIGNED ===
-            # [ Padding | Icon | Spacing | Text | ... empty space ... | Padding ]
+            # === LTR (English): BOTH ICON AND TEXT LEFT-ALIGNED TOGETHER ===
+            # [ Padding (16px) | Icon (icon_w) | Spacing (10px) | Text (text_w) | ... Padding (empty space) ]
             icon_x = padding_h
             if has_icon:
                 icon_mode = QIcon.Mode.Normal
                 icon_state = QIcon.State.On if is_checked else QIcon.State.Off
-                icon.paint(painter, icon_x, icon_y, icon_w, icon_h, Qt.AlignmentFlag.AlignCenter, icon_mode, icon_state)
+                icon.paint(painter, icon_x, icon_y, icon_w, icon_h, align_center, icon_mode, icon_state)
 
-            text_left = icon_x + icon_w + (spacing if has_icon else 0)
-            text_right = total_w - padding_h
-            text_rect = QRect(text_left, 0, max(0, text_right - text_left), total_h)
+            text_x = icon_x + icon_w + (spacing if has_icon else 0)
+            text_rect = QRect(text_x, 0, min(text_w + 4, max(0, total_w - padding_h - text_x)), total_h)
 
             painter.setPen(text_color)
-            painter.drawText(text_rect, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter, clean_text)
+            painter.drawText(text_rect, align_left | align_absolute | align_vcenter, clean_text)
+

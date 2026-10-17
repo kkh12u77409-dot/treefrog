@@ -63,15 +63,11 @@ def create_badge(text: str, badge_type: str = "success") -> QLabel:
 
 
 def set_button_text(btn, text: str) -> None:
-    """Sets button text with guaranteed spacing away from the icon so it is never glued.
-    
-    Uses non-breaking spaces (\u00A0) so layout engines and Qt rich text do not collapse
-    the critical whitespace between the icon and the text in either RTL or LTR.
-    """
+    """Sets button text cleanly."""
     if not text:
         btn.setText("")
         return
-    clean = text.strip()
-    btn.setText(f"\u00A0\u00A0\u00A0\u00A0{clean}\u00A0\u00A0\u00A0\u00A0")
+    btn.setText(text.strip())
+
 
 

@@ -94,18 +94,24 @@ export const DesktopSuiteTab: React.FC<DesktopSuiteTabProps> = ({ language }) =>
           </span>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-1">
-            <span className="text-slate-500 font-semibold"># 1. Install & Run:</span>
-            <p className="text-emerald-400">pip install -r requirements.txt</p>
-            <p className="text-emerald-400">python main.py</p>
+            <span className="text-slate-500 font-semibold"># 1. Automatic Run (تشغيل تلقائي):</span>
+            <p className="text-emerald-400 font-bold">run.bat</p>
+            <p className="text-slate-400 text-[11px]">يتحقق من بيئة بايثون ويثبت المتطلبات ويشغل التطبيق</p>
           </div>
           <div className="space-y-1">
-            <span className="text-slate-500 font-semibold"># 2. Run Tests & Build Executable:</span>
-            <p className="text-sky-400">python -m unittest discover -s tests # (22 Tests Passing)</p>
-            <p className="text-amber-400">pyinstaller --noconsole --onefile --icon assets/app.ico --add-data "assets:assets" main.py</p>
+            <span className="text-slate-500 font-semibold"># 2. Build Windows EXE (تجميع exe):</span>
+            <p className="text-amber-400 font-bold">build_exe.bat</p>
+            <p className="text-slate-400 text-[11px]">يبني ملف dist\TreeForge.exe مستقل بضغطة زر</p>
+          </div>
+          <div className="space-y-1">
+            <span className="text-slate-500 font-semibold"># 3. Inno Setup (مثبت ويندوز):</span>
+            <p className="text-sky-400 font-bold">TreeForge_Installer.iss</p>
+            <p className="text-slate-400 text-[11px]">سكربت إنشاء مثبت Setup احترافي باختصارات سطح المكتب</p>
           </div>
         </div>
+
 
         {/* Windows / Python 3.14 Troubleshooting Callout */}
         <div className="pt-2 border-t border-slate-800/80 font-sans text-xs flex items-start space-x-2 text-amber-300/90 bg-amber-950/20 p-2.5 rounded-lg border border-amber-500/20">

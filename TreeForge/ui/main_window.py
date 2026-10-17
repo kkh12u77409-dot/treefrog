@@ -226,7 +226,10 @@ class MainWindow(QMainWindow):
                 btn_style.polish(btn)
             btn.update()
 
-        self.brand_sub.setText(i18n.t("brand_sub"))
+        sub_text = i18n.t("brand_sub")
+        self.brand_sub.setText(sub_text)
+        self.brand_sub.setVisible(bool(sub_text.strip()))
+
         set_button_text(self.btn_nav_builder, i18n.t("nav_builder"))
         set_button_text(self.btn_nav_content, i18n.t("nav_content"))
         set_button_text(self.btn_nav_settings, i18n.t("nav_settings"))

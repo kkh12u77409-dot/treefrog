@@ -239,7 +239,7 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "nav_content": "المحتوى والملفات",
         "nav_settings": "الإعدادات",
         "ready": "جاهز",
-        "version_caption": "الإصدار 1.0.0 • حزمة سطح المكتب",
+        "version_caption": "الإصدار 1.0.0",
         
         # Builder Page
         "builder_title": "من الشجرة النصية إلى نظام الملفات",
@@ -401,7 +401,7 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "confirm_overwrite_msg": "سيتم استبدال محتويات {count} ملف(ات). هل تريد المتابعة؟",
         "btn_overwrite": "استبدال",
         "btn_cancel": "إلغاء",
-        "brand_sub": "حزمة سطح المكتب",
+        "brand_sub": "",
         "close": "إغلاق",
         "toast_theme_changed": "تم تغيير المظهر إلى {name}",
         "toast_lang_changed": "تم تغيير لغة الواجهة بنجاح",
