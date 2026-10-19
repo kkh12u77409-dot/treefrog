@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Optional, Callable, List, Tuple
 from .models import TreeNode, ItemPolicy, BuildStats
 from .file_writer import FileWriter, get_unique_filename
+from .path_safety import safe_target
 
 
 STARTER_TEMPLATES = {
@@ -23,6 +24,8 @@ STARTER_TEMPLATES = {
 def folder_contains_python(node: TreeNode) -> bool:
     """Check recursively if this directory contains any .py files."""
     for child in node.children:
+        if not child.enabled:
+            continue
         if not child.is_dir and child.name.endswith(".py"):
             return True
         if child.is_dir and folder_contains_python(child):
@@ -59,6 +62,8 @@ class TreeBuilder:
         """
         stats = BuildStats()
         destination_dir = destination_dir.resolve()
+        self.writer.destination_dir = destination_dir
+        self.writer.clear_backup_history()
 
         # Collect all enabled nodes
         all_enabled: List[TreeNode] = []
@@ -80,7 +85,7 @@ class TreeBuilder:
 
             # Guard against path escaping destination_dir
             try:
-                target_path.resolve().relative_to(destination_dir)
+                target_path = safe_target(destination_dir, node.relative_path)
             except ValueError:
                 stats.failed_items.append((node.relative_path, "Path escape detected outside destination directory"))
                 continue
@@ -103,7 +108,8 @@ class TreeBuilder:
                     # Auto add __init__.py if this is a python package
                     if self.add_init_py and folder_contains_python(node):
                         init_file = target_path / "__init__.py"
-                        if not init_file.exists():
+                        if not init_file.exists() and not any(c.name == "__init__.py" for c in node.children):
+                            init_file = safe_target(destination_dir, f"{node.relative_path}/__init__.py")
                             init_file.write_text('"""Package initialization."""\n', encoding="utf-8")
                             stats.created_files.append(f"{node.relative_path}/__init__.py")
 
@@ -116,8 +122,8 @@ class TreeBuilder:
                 
                 # Check for starter template
                 if not content_to_write and self.create_starter_content:
-                    suffix = target_path.suffix.lower()
-                    template = STARTER_TEMPLATES.get(suffix, "")
+                    suffix = node.name if node.name == ".gitignore" else target_path.suffix.lower()
+                    template = "# Project dependencies\n" if node.name == "requirements.txt" else STARTER_TEMPLATES.get(suffix, "")
                     if template:
                         content_to_write = template.replace("{project_name}", root_node.name)
                     elif node.name == "requirements.txt":

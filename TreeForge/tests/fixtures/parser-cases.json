@@ -1,0 +1,71 @@
+[
+  {
+    "name": "box tree",
+    "text": "App/\n├── src/\n│   └── main.py\n└── README.md",
+    "files": [
+      "App/src/main.py",
+      "App/README.md"
+    ],
+    "valid": true
+  },
+  {
+    "name": "fenced tree",
+    "text": "```text\nApp/\n└── main.py\n```",
+    "files": [
+      "App/main.py"
+    ],
+    "valid": true
+  },
+  {
+    "name": "inline group",
+    "text": "App/\n└── src/ (one.py, two.py)",
+    "files": [
+      "App/src/one.py",
+      "App/src/two.py"
+    ],
+    "valid": true
+  },
+  {
+    "name": "Arabic",
+    "text": "المشروع/\n└── الرئيسية.py",
+    "files": [
+      "المشروع/الرئيسية.py"
+    ],
+    "valid": true
+  },
+  {
+    "name": "inline traversal",
+    "text": "App/\n└── src/ (../escape.py)",
+    "valid": false
+  },
+  {
+    "name": "reserved child",
+    "text": "App/\n└── src/ (CON.txt)",
+    "valid": false
+  },
+  {
+    "name": "absolute child",
+    "text": "App/\n└── /escape.py",
+    "valid": false
+  },
+  {
+    "name": "drive child",
+    "text": "App/\n└── C:/escape.py",
+    "valid": false
+  },
+  {
+    "name": "reserved root",
+    "text": "CON/\n└── main.py",
+    "valid": false
+  },
+  {
+    "name": "two-space deeply nested",
+    "text": "App/\n  src/\n    services/\n      main.py\n    helper.py\n  README.md",
+    "files": [
+      "App/src/services/main.py",
+      "App/src/helper.py",
+      "App/README.md"
+    ],
+    "valid": true
+  }
+]

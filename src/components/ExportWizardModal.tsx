@@ -1,3 +1,6 @@
+import { getStarterContent } from '../utils/starterTemplates';
+import { generateStandalonePythonInstaller, generateStandaloneBashInstaller, generateStandalonePowerShellInstaller } from '../utils/installerGenerator';
+import { validateRelativePath } from '../utils/pathSafety';
 import React, { useState, useMemo } from 'react';
 import { 
   Wand2, 
@@ -37,14 +40,6 @@ interface ExportWizardModalProps {
 
 export type ExportFormat = 'zip' | 'python_script' | 'bash_script' | 'powershell_script';
 
-const STARTER_TEMPLATES: Record<string, string> = {
-  '.py': '"""Module documentation."""\n\n\ndef main() -> None:\n    """Main entry point."""\n    pass\n\n\nif __name__ == "__main__":\n    main()\n',
-  '.md': '# {projectName}\n\nProject overview, installation, and usage instructions.\n\n## Getting Started\n\n```bash\npip install -r requirements.txt\npython main.py\n```\n',
-  '.gitignore': '__pycache__/\n*.py[cod]\n*$py.class\n.env\n.venv/\nenv/\n.idea/\n.vscode/\n*.bak\n',
-  '.json': '{\n  "version": "1.0.0"\n}\n',
-  '.txt': '# {projectName} notes\n',
-};
-
 export const ExportWizardModal: React.FC<ExportWizardModalProps> = ({
   isOpen,
   onClose,
@@ -62,9 +57,9 @@ export const ExportWizardModal: React.FC<ExportWizardModalProps> = ({
   const [extensionFilter, setExtensionFilter] = useState<string>('all');
 
   // Environment setup flags for scripts
-  const [createVenv, setCreateVenv] = useState<boolean>(true);
-  const [installDeps, setInstallDeps] = useState<boolean>(true);
-  const [initGit, setInitGit] = useState<boolean>(true);
+  const [createVenv, setCreateVenv] = useState<boolean>(false);
+  const [installDeps, setInstallDeps] = useState<boolean>(false);
+  const [initGit, setInitGit] = useState<boolean>(false);
   const [launchApp, setLaunchApp] = useState<boolean>(false);
 
   // Set of selected node paths
@@ -89,7 +84,8 @@ export const ExportWizardModal: React.FC<ExportWizardModalProps> = ({
     if (root && isOpen) {
       const initial = new Set<string>();
       function mark(n: WebTreeNode) {
-        if (n.enabled) initial.add(n.path);
+        if (!n.enabled) return;
+        initial.add(n.path);
         n.children.forEach(mark);
       }
       mark(root);
@@ -131,213 +127,35 @@ export const ExportWizardModal: React.FC<ExportWizardModalProps> = ({
 
   // Helper to get resolved content of a file
   const getFileContent = (n: WebTreeNode): string => {
-    if (n.content) return n.content;
-    if (starterContent) {
-      const ext = '.' + n.name.split('.').pop()?.toLowerCase();
-      const tpl = STARTER_TEMPLATES[ext];
-      if (tpl) return tpl.replace('{projectName}', root.name);
-      if (n.name === 'requirements.txt') return '# Core dependencies\nPyQt6>=6.6.1\npytest>=7.4.4\n';
-    }
+    if (n.content !== undefined) return n.content;
+    if (starterContent) return getStarterContent(n.name, root.name);
     return '';
   };
 
-  // Generate Python Scaffolder Script
-  const generatePythonScript = (): string => {
-    const selectedFiles = allNodesList.filter((n) => !n.isDir && selectedPaths.has(n.path));
-    const selectedDirs = allNodesList.filter((n) => n.isDir && selectedPaths.has(n.path));
-
-    const dirsJson = JSON.stringify(selectedDirs.map((d) => d.path), null, 4);
-    const filesDict: Record<string, string> = {};
-    for (const f of selectedFiles) {
-      filesDict[f.path] = getFileContent(f);
+  const selectedNodes = allNodesList.filter(n => selectedPaths.has(n.path) &&
+    allNodesList.filter(parent => parent.isDir && n.path.startsWith(parent.path + '/')).every(parent => selectedPaths.has(parent.path)));
+  const exportFiles: Record<string, string> = Object.create(null);
+  for (const node of selectedNodes) {
+    validateRelativePath(node.path);
+    if (!node.isDir) exportFiles[node.path] = getFileContent(node);
+  }
+  if (addInitPy) {
+    for (const dir of selectedNodes.filter(n => n.isDir)) {
+      if (!dir.children.some(c => c.name === '__init__.py') && Object.keys(exportFiles).some(p => p.startsWith(dir.path + '/') && p.endsWith('.py')) &&
+          !(dir.path + '/__init__.py' in exportFiles)) exportFiles[dir.path + '/__init__.py'] = '\"\"\"Package initialization.\"\"\"\n';
     }
-    const filesJson = JSON.stringify(filesDict, null, 4);
-
-    return `#!/usr/bin/env python3
-"""TreeForge Project Initiator & Scaffolder.
-Automated setup script for '${root.name}'.
-"""
-
-import os
-import sys
-import subprocess
-from pathlib import Path
-
-PROJECT_NAME = "${root.name}"
-DIRECTORIES = ${dirsJson}
-FILES = ${filesJson}
-
-def init_environment():
-    base_dir = Path.cwd()
-    print(f"🌲 Initiating TreeForge project: {PROJECT_NAME}...")
-
-    # 1. Create directories
-    for d in DIRECTORIES:
-        dir_path = base_dir / d
-        dir_path.mkdir(parents=True, exist_ok=True)
-        print(f"  📁 Created: {d}")
-
-    # 2. Write files
-    for file_path_str, content in FILES.items():
-        file_path = base_dir / file_path_str
-        file_path.parent.mkdir(parents=True, exist_ok=True)
-        file_path.write_text(content, encoding="utf-8")
-        print(f"  📄 Written: {file_path_str}")
-
-    # 3. Add __init__.py if requested
-    ${addInitPy ? `
-    for d in DIRECTORIES:
-        target_dir = base_dir / d
-        if any(f.endswith('.py') for f in os.listdir(target_dir)):
-            init_file = target_dir / "__init__.py"
-            if not init_file.exists():
-                init_file.write_text('"""Package initialization."""\\n', encoding="utf-8")
-                print(f"  🐍 Added __init__.py in: {d}")
-    ` : '# __init__.py auto-generation skipped'}
-
-    ${createVenv ? `
-    # 4. Setup Virtual Environment
-    venv_dir = base_dir / "${root.name}" / ".venv"
-    if not venv_dir.exists():
-        print("📦 Creating virtual environment (.venv)...")
-        subprocess.run([sys.executable, "-m", "venv", str(venv_dir)], check=True)
-        print("✅ Virtual environment created at .venv")
-    ` : ''}
-
-    ${installDeps ? `
-    # 5. Install Dependencies if requirements.txt exists
-    req_file = base_dir / "${root.name}" / "requirements.txt"
-    if req_file.exists():
-        print("⬇️ Installing dependencies from requirements.txt...")
-        pip_bin = str(venv_dir / ("Scripts" if os.name == "nt" else "bin") / "pip")
-        if not Path(pip_bin).exists():
-            pip_bin = "pip"
-        subprocess.run([pip_bin, "install", "-r", str(req_file)])
-    ` : ''}
-
-    ${initGit ? `
-    # 6. Initialize Git
-    if not (base_dir / "${root.name}" / ".git").exists():
-        try:
-            print("🔧 Initializing Git repository...")
-            subprocess.run(["git", "init", str(base_dir / "${root.name}")], check=True)
-            print("✅ Git repository initialized.")
-        except Exception as e:
-            print(f"⚠️ Git init skipped: {e}")
-    ` : ''}
-
-    print("\\n🎉 Project environment ready! Navigate to folder and start coding:")
-    print(f"   cd {PROJECT_NAME}")
-    ${createVenv ? `print("   source .venv/bin/activate  # (or .venv\\\\Scripts\\\\activate on Windows)")` : ''}
-    ${launchApp ? `
-    entry_file = base_dir / "${root.name}" / "main.py"
-    if entry_file.exists():
-        print("🚀 Launching main.py...")
-        subprocess.run([sys.executable, str(entry_file)])
-    ` : ''}
-
-if __name__ == "__main__":
-    init_environment()
-`;
-  };
-
-  // Generate Bash Bootstrap Script (.sh)
-  const generateBashScript = (): string => {
-    const selectedFiles = allNodesList.filter((n) => !n.isDir && selectedPaths.has(n.path));
-    const selectedDirs = allNodesList.filter((n) => n.isDir && selectedPaths.has(n.path));
-
-    let script = `#!/usr/bin/env bash
-# ========================================================
-# TreeForge Local Environment Bootstrap Script
-# Project: ${root.name}
-# ========================================================
-set -e
-
-echo "🌲 Initializing ${root.name} local environment..."
-
-# 1. Create directory structure
-`;
-
-    for (const d of selectedDirs) {
-      script += `mkdir -p "${d.path}"\n`;
-    }
-
-    script += `\necho "📁 Directories created successfully."\n\n# 2. Write project files\n`;
-
-    for (const f of selectedFiles) {
-      const content = getFileContent(f);
-      script += `cat << 'EOF' > "${f.path}"\n${content}\nEOF\necho "  📄 Created: ${f.path}"\n\n`;
-    }
-
-    if (addInitPy) {
-      script += `# Auto-add __init__.py in Python packages\nfind "${root.name}" -type f -name "*.py" -exec dirname {} \\; | sort -u | while read -r pdir; do\n  if [ ! -f "$pdir/__init__.py" ]; then\n    echo '"""Package init."""' > "$pdir/__init__.py"\n  fi\ndone\n\n`;
-    }
-
-    if (createVenv) {
-      script += `# 3. Create & activate Python virtual environment\nif [ ! -d "${root.name}/.venv" ]; then\n  echo "📦 Creating virtual environment (.venv)..."\n  python3 -m venv "${root.name}/.venv"\nfi\nsource "${root.name}/.venv/bin/activate"\n\n`;
-    }
-
-    if (installDeps) {
-      script += `# 4. Install dependencies\nif [ -f "${root.name}/requirements.txt" ]; then\n  echo "⬇️ Installing Python dependencies..."\n  pip install --upgrade pip\n  pip install -r "${root.name}/requirements.txt"\nfi\n\n`;
-    }
-
-    if (initGit) {
-      script += `# 5. Git repository initialization\nif [ ! -d "${root.name}/.git" ]; then\n  echo "🔧 Initializing git repository..."\n  (cd "${root.name}" && git init && git add . && git commit -m "feat: initial commit from TreeForge") || true\nfi\n\n`;
-    }
-
-    script += `echo "🎉 Setup complete! To begin:"\necho "   cd ${root.name}"\n`;
-    if (createVenv) script += `echo "   source .venv/bin/activate"\n`;
-    if (launchApp) script += `python3 "${root.name}/main.py"\n`;
-
-    return script;
-  };
-
-  // Generate PowerShell Bootstrap Script (.ps1)
-  const generatePowerShellScript = (): string => {
-    const selectedFiles = allNodesList.filter((n) => !n.isDir && selectedPaths.has(n.path));
-    const selectedDirs = allNodesList.filter((n) => n.isDir && selectedPaths.has(n.path));
-
-    let script = `# ========================================================
-# TreeForge Local Environment Bootstrap Script (PowerShell)
-# Project: ${root.name}
-# ========================================================
-$ErrorActionPreference = "Stop"
-
-Write-Host "🌲 Initializing ${root.name} local environment..." -ForegroundColor Green
-
-# 1. Create directories
-`;
-
-    for (const d of selectedDirs) {
-      script += `New-Item -ItemType Directory -Force -Path "${d.path.replace(/\//g, '\\')}" | Out-Null\n`;
-    }
-
-    script += `\nWrite-Host "📁 Directories created." -ForegroundColor Cyan\n\n# 2. Write files\n`;
-
-    for (const f of selectedFiles) {
-      const content = getFileContent(f).replace(/"/g, '`"');
-      script += `@"\n${getFileContent(f)}\n"@ | Out-File -FilePath "${f.path.replace(/\//g, '\\')}" -Encoding utf8\n`;
-    }
-
-    if (createVenv) {
-      script += `\n# 3. Create virtual environment\nif (!(Test-Path "${root.name}\\.venv")) {\n  Write-Host "📦 Creating virtual environment (.venv)..." -ForegroundColor Yellow\n  python -m venv "${root.name}\\.venv"\n}\n`;
-    }
-
-    if (installDeps) {
-      script += `\n# 4. Install dependencies\nif (Test-Path "${root.name}\\requirements.txt") {\n  & "${root.name}\\.venv\\Scripts\\pip.exe" install -r "${root.name}\\requirements.txt"\n}\n`;
-    }
-
-    script += `\nWrite-Host "🎉 Setup complete! Navigate to '${root.name}' to begin." -ForegroundColor Green\n`;
-    return script;
-  };
-
-  // Get current generated script text based on selected format
-  const activeScriptContent = useMemo(() => {
-    if (selectedFormat === 'bash_script') return generateBashScript();
-    if (selectedFormat === 'python_script') return generatePythonScript();
-    if (selectedFormat === 'powershell_script') return generatePowerShellScript();
-    return '';
-  }, [selectedFormat, selectedPaths, createVenv, installDeps, initGit, launchApp]);
+  }
+  const installerOptions = { policy, directories: selectedNodes.filter(n => n.isDir).map(n => n.path), createVenv,
+    installDeps: installDeps && createVenv, initGit, launchApp };
+  const generatePythonScript = () => generateStandalonePythonInstaller(exportFiles, root.name, installerOptions);
+  const generateBashScript = () => generateStandaloneBashInstaller(exportFiles, root.name, installerOptions);
+  const generatePowerShellScript = () => generateStandalonePowerShellInstaller(exportFiles, root.name, installerOptions);
+  let activeScriptContent = '';
+  try {
+    if (selectedFormat === 'bash_script') activeScriptContent = generateBashScript();
+    if (selectedFormat === 'python_script') activeScriptContent = generatePythonScript();
+    if (selectedFormat === 'powershell_script') activeScriptContent = generatePowerShellScript();
+  } catch (error) { activeScriptContent = `Invalid export: ${String(error)}`; }
 
   // Execute direct export / download
   const handleExecuteExport = async () => {
@@ -345,11 +163,8 @@ Write-Host "🌲 Initializing ${root.name} local environment..." -ForegroundColo
     try {
       if (selectedFormat === 'zip') {
         const zip = new JSZip();
-        const selectedFiles = allNodesList.filter((n) => !n.isDir && selectedPaths.has(n.path));
-
-        for (const file of selectedFiles) {
-          zip.file(file.path, getFileContent(file));
-        }
+        for (const node of selectedNodes.filter(n => n.isDir)) zip.folder(validateRelativePath(node.path));
+        for (const [path, content] of Object.entries(exportFiles)) zip.file(validateRelativePath(path), content);
 
         const blob = await zip.generateAsync({ type: 'blob' });
         downloadBlob(blob, `${root.name}_custom_export.zip`);
@@ -378,7 +193,7 @@ Write-Host "🌲 Initializing ${root.name} local environment..." -ForegroundColo
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 backdrop-blur-md p-4 animate-fadeIn">
+    <div role="dialog" aria-modal="true" aria-label={isAr ? 'معالج التصدير' : 'Export wizard'} className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 backdrop-blur-md p-4 animate-fadeIn">
       <div className="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-4xl w-full h-[680px] flex flex-col shadow-2xl overflow-hidden">
         {/* Wizard Header */}
         <div className="flex items-center justify-between px-6 py-4 bg-slate-950/70 border-b border-slate-800">

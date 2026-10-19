@@ -1,180 +1,62 @@
-# 🌲 TreeForge — Desktop Project & Code Scaffolder
+# TreeForge Desktop & CLI
 
-**TreeForge** is a modern, high-performance desktop application built with **Python 3.11+** and **PyQt6 (6.x)**. It bridges the gap between text-based architectural plans and physical software projects in two core workflows:
+Bilingual (Arabic/English) Python/PyQt6 project scaffolder and batch file editor.
 
-1. **Tree to Folders & Files**: Turns any pasted project tree (box-drawing characters, ASCII branches, indentation, or inline groups) into real directories and starter files.
-2. **Text to Files (Single & Batch Mode)**: Enables instant single-file editing and bulk multi-file code injection using intelligent marker detection and fuzzy path resolution.
+## Run
 
----
+Python 3.10+ is required; Python 3.11/3.12 is recommended. Create an isolated virtual environment:
 
-## 🌟 Key Features
-
-### 📁 Part 1: Tree to Folders & Files
-- **Rich Syntax Tolerance**:
-  - Box-drawing branches (`├──`, `└──`, `│`)
-  - ASCII trees (`|--`, ``--`, `+--`)
-  - Indentation levels (2 spaces, 4 spaces, tabs, or markdown lists `-`, `*`)
-  - Trailing slash detection (`dir/` is always a folder)
-  - Nested paths on a single line (`assets/icons/` creates each directory)
-  - Inline child groups: `ui/ (main_window.py, spinner.py, styles.py)`
-  - Extensionless files recognized (`LICENSE`, `Makefile`, `Dockerfile`, `.gitignore`)
-  - Full Unicode and Arabic support (`المشروع/ (الرئيسية.py)`)
-- **Strict Safety Engine**:
-  - Blocks path traversal (`..`), absolute paths, and drive letters.
-  - Rejects Windows reserved device names (`CON`, `PRN`, `AUX`, `NUL`, `COM1-9`, `LPT1-9`).
-  - Flags illegal filesystem characters (`< > : " | ? *`).
-  - Reports line numbers for any validation errors.
-- **Generation Options**:
-  - Existing item collision policy: **Skip** (default, strictly non-destructive), **Overwrite**, or **Auto-Rename** (`file (1).py`).
-  - Auto-generate `__init__.py` for Python package folders.
-  - Starter template generation (`.py`, `.md`, `.gitignore`, `.json`, `.toml`).
-  - **Dry-Run mode** for safe simulation without touching disk.
-  - Non-blocking background worker (`QThread`) with live progress and cancel support.
-
-### 📝 Part 2: Text to Files (Single & Batch Mode)
-- **Single Mode**:
-  - File tree browser with custom code editor (monospace font, line number gutter, current line highlight, syntax highlighting for Python/JSON/Markdown).
-  - Quick save with `Ctrl+S`.
-- **Batch Smart Splitter**:
-  - Ingests large multi-file text separated by markers:
-    - `### path/to/file.py`
-    - `=== path/to/file.py ===`
-    - `--- path/to/file.py ---`
-    - `// FILE: path/to/file.py`
-    - `# FILE: path/to/file.py`
-    - Markdown headings or bold names followed by code fences
-    - Fenced code block info strings (````python:path/to/file.py```` or ````python title="path/to/file.py"````)
-  - **3-Tier Matcher Engine**:
-    1. Exact relative path
-    2. Unique filename resolution (e.g., `styles.py` -> `SumMaster/ui/styles.py`)
-    3. Fuzzy string matching (`difflib`) with ambiguous resolution dropdown
-  - Interactive preview table with include checkboxes, status badges, line counts, and size metrics.
-  - **Atomic Writes & Safe Undo**:
-    - Writes to temporary files before replacement.
-    - Automatic `.bak` backups before overwriting.
-    - One-click **"Undo Last Batch"** to restore previous file states.
-  - Configurable line endings (LF, CRLF, Keep original) and optional UTF-8 BOM.
-- **Queue Mode**:
-  - Add files one by one and commit them all in a single batch.
-
-### 🎨 Part 3 & 4: Modern UI/UX & Bilingual Internationalization
-- **Modern Design**: Card-based layouts, responsive splitters, subtle state transitions, status bar, and non-intrusive floating toasts.
-- **Dark & Light Themes**: Central design token palette applied through Qt Fusion style and dynamic QSS.
-- **Bilingual (English + Arabic)**: Instant runtime language toggle without restart. Arabic mode activates true right-to-left layout (`QApplication.setLayoutDirection(Qt.LayoutDirection.RightToLeft)`) while maintaining LTR code editors and file paths for optimal developer ergonomics.
-
----
-
-## 🏗️ Architecture
-
-```
-TreeForge/
-├── main.py                  # Application entry point, icon loading & Qt bootstrapping
-├── make_zip.py              # Distribution packager
-├── requirements.txt         # Pinned dependencies (PyQt6, PyQt6-QtSvg)
-├── README.md                # Documentation & build guide
-├── assets/
-│   ├── logo.svg             # Original TreeForge brand mark & vector icon
-│   └── icons/               # Lucide SVG icon collection & ISC license
-├── core/
-│   ├── models.py            # Typed dataclasses (TreeNode, FileChunk, BuildStats)
-│   ├── tree_parser.py       # Pure Python tree syntax parser & safety validator
-│   ├── tree_builder.py      # Pure Python filesystem generator & templates
-│   ├── content_splitter.py  # Pure Python multi-file marker splitter & fuzzy matcher
-│   ├── file_writer.py       # Pure Python atomic writes, backup & undo engine
-│   └── worker.py            # PyQt6 background QThread workers
-├── services/
-│   ├── theme_tokens.py      # Design tokens (Dark & Light) & WCAG contrast engine
-│   ├── theme_service.py     # Modular QSS generation, Windows title bar chrome, & styles
-│   ├── icon_service.py      # HiDPI vector rendering, IconBinder, & file_icon_for
-│   ├── i18n_service.py      # Bilingual internationalization (EN/AR) & Qt translators
-│   └── settings_service.py  # QSettings persistence (theme, language, policy, recents)
-├── ui/
-│   ├── main_window.py       # Shell with sidebar navigation, brand header & status bar
-│   ├── builder_page.py      # Tree input, live preview tree, & generation controls
-│   ├── content_page.py      # Single editor, batch smart splitter & multi-file queue
-│   ├── settings_page.py     # Self-labelled language & System/Dark/Light theme selector
-│   ├── code_editor.py       # Theme-token code editor with line gutter & syntax colors
-│   ├── toast.py             # Stackable floating toasts with semantic edge & hover pause
-│   ├── styles.py            # SectionHeader (live retranslation) & card helpers
-│   ├── context_menus.py     # Bespoke context menu factories for all inputs, trees, tables
-│   └── widgets/
-│       ├── themed_menu.py   # ThemedMenu with soft shadow, card geometry & bidi shortcuts
-│       └── themed_combo.py  # ThemedComboBox, PathComboBox, & ComboItemDelegate
-└── tests/
-    ├── test_tree_parser.py          # Tree syntax & security validation tests
-    ├── test_content_splitter.py     # Splitter & fuzzy matching tests
-    ├── test_file_writer.py          # Atomic write, backup & collision policy tests
-    ├── test_theme_contrast.py       # WCAG 2.1 AA contrast ratio tests for all tokens
-    ├── test_no_hardcoded_colors.py  # Zero-hex enforcement test across ui/*.py
-    ├── test_i18n_keys.py            # EN/AR dictionary parity and completeness tests
-    ├── test_context_menus.py        # Context menu action mapping & bidi isolates
-    └── test_combos.py               # ComboBox data preservation & MRU deduplication
-```
-
----
-
-## 🚀 Installation & Running
-
-### Prerequisites
-- Python 3.10, 3.11, 3.12, or 3.13 (**Python 3.11 or 3.12 strongly recommended**)
-  *Note: Python 3.14 is not yet supported by PyQt6 C++ wheels on PyPI.*
-- `pip` package manager
-- Windows users: [Microsoft Visual C++ 2015-2022 Redistributable (x64)](https://aka.ms/vs/17/release/vc_redist.x64.exe)
-
-### 1. Set Up Virtual Environment
 ```bash
-# Create virtual environment (make sure to specify Python 3.11 or 3.12)
 python -m venv .venv
-
-# On Linux/macOS:
-source .venv/bin/activate
-
-# On Windows:
-.venv\Scripts\activate
+# Linux/macOS
+. .venv/bin/activate
+# Windows: .venv\Scripts\activate
+python -m pip install -r requirements.txt
+python main.py --gui
 ```
 
-### 2. Install Dependencies
-```bash
-pip install -r requirements.txt
-```
+On Linux, Qt requires system libraries including libGL, libEGL, libxkbcommon and libdbus. On Windows, install the Microsoft Visual C++ Redistributable if Qt reports missing DLLs. Compatibility depends on the pinned wheels and system libraries, not just the Python minor version.
 
-### 3. Run the Desktop Application
-```bash
-python main.py
-```
-
-### 4. Run Test Suite (22 Tests Passing)
-```bash
-python -m unittest discover -s tests -p "test_*.py"
-```
-
-### ⚠️ Troubleshooting on Windows: "DLL load failed while importing QtCore"
-If you encounter `ImportError: DLL load failed while importing QtCore: The specified procedure could not be found`:
-1. **Python Version**: Check your python version with `python --version`. If it is **Python 3.14**, PyQt6 will fail to load because official precompiled wheels are only available for Python 3.8 through 3.13. Install and use **Python 3.11 or 3.12**.
-2. **Missing C++ Runtime**: Install the [Microsoft Visual C++ 2015–2022 Redistributable (x64)](https://aka.ms/vs/17/release/vc_redist.x64.exe) to provide `vcruntime140.dll` and `msvcp140.dll`.
-
----
-
-## 📦 Building a Standalone Executable (Windows / Linux / macOS)
-
-Using **PyInstaller**:
+## Headless CLI (Qt not required)
 
 ```bash
-# Windows Single-File EXE with Icon & Assets (without console window)
-pyinstaller --noconsole --onefile --name TreeForge \
-  --icon assets/app.ico \
-  --add-data "assets;assets" \
-  main.py
-
-# Linux / macOS Binary
-pyinstaller --noconsole --onefile --name TreeForge \
-  --add-data "assets:assets" \
-  main.py
+python main.py --cli tree.txt --out ./workspace --dry-run
+python main.py --cli tree.txt --out ./workspace --content batch.txt
 ```
 
----
+Tree generation defaults to **Skip**. Supplying `--content` explicitly injects/overwrites matched files with backups. Errors and unresolved chunks return a nonzero status. A failed/cancelled operation can leave partial output; use dry-run and a fresh destination first.
 
-## 📜 Credits & Licensing
-- **TreeForge Application**: MIT License.
-- **Icons**: [Lucide Icons](https://lucide.dev) licensed under ISC / MIT (`assets/icons/LICENSE`).
-- **Brand Mark**: Original TreeForge vector artwork (`assets/logo.svg`).
+Trees accept box/ASCII branches, indentation, inline child groups, Unicode names and Markdown fence wrappers. File batches accept `### file.py`, `=== file.py ===`, `--- file.py ---`, `# FILE: file.py`, `// FILE: file.py`, and fenced path metadata. Ambiguous/fuzzy matches require manual confirmation; unmatched paths cannot be written automatically.
+
+## Safety and undo
+
+All application write entry points enforce project-relative paths and reject traversal, drive/device names and existing symlink escapes. Do not use a destination concurrently controlled by an untrusted local process.
+
+Writes use same-directory temporary files and atomic replacement. A batch undo journal preserves the **first** pre-batch copy, handles repeated targets, and removes newly created files/empty directories. Disabling backups disables restoration of overwritten files. Undo is available only in the current session; it is not crash recovery.
+
+Standalone Python installers use encoded data, validate destinations and default to Skip. They do not implement undo. Review any generated code and dependency manifests before running them.
+
+## Tests
+
+```bash
+python main.py --test
+# Linux headless GUI testing
+QT_QPA_PLATFORM=offscreen python main.py --test
+```
+
+GUI tests skip explicitly when the Qt runtime or system libraries are unavailable. Parser/splitter fixtures are shared with the web application in `tests/fixtures/`.
+
+## Windows build
+
+```bat
+python -m pip install -r requirements-dev.txt
+build_exe.bat
+```
+
+Then compile `TreeForge_Installer.iss` using Inno Setup 6. Build/test on Windows before distributing. `python make_zip.py` regenerates the source ZIP.
+
+## Architecture
+
+`core/` contains the headless parsers, safe filesystem writer, transaction undo, tree builder and background workers. `services/` provides themes, translation, icons and settings. `ui/` contains the Qt views. Runtime dependencies are pinned in `requirements.txt`; test/build dependencies are in `requirements-dev.txt`.
+
+MIT license. Icon notices: `assets/icons/LICENSE`.

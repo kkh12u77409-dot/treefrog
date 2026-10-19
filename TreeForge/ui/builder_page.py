@@ -371,7 +371,7 @@ class BuilderPage(QWidget):
             return
 
         result = self.parser.parse(text)
-        if result.root:
+        if result.root and not result.errors:
             self.current_parsed_root = result.root
             self._render_tree_view(result.root)
             self.lbl_stats.setText(i18n.t("items_count", folders=result.total_folders, files=result.total_files))
@@ -427,6 +427,8 @@ class BuilderPage(QWidget):
             update_item(self.tree_view.topLevelItem(i))
 
     def _build_tree(self) -> None:
+        if self.worker and self.worker.isRunning():
+            return
         tree_text = self.tree_input.toPlainText().strip()
         if not tree_text or not self.current_parsed_root:
             show_toast(self, i18n.t("toast_empty_tree"), "warning")
@@ -455,6 +457,8 @@ class BuilderPage(QWidget):
         self.progress_bar.setVisible(True)
         self.progress_bar.setValue(0)
 
+        self.tree_input.setReadOnly(True)
+        self.tree_view.setEnabled(False)
         self.worker = BuilderWorker(builder, self.current_parsed_root, dest_path)
         self.worker.progress.connect(self._on_worker_progress)
         self.worker.finished_build.connect(self._on_worker_finished)
@@ -466,6 +470,8 @@ class BuilderPage(QWidget):
         self.progress_bar.setValue(percent)
 
     def _on_worker_finished(self, stats: BuildStats) -> None:
+        self.tree_input.setReadOnly(False)
+        self.tree_view.setEnabled(True)
         self.btn_build.setEnabled(True)
         self.btn_cancel.setVisible(False)
         self.progress_bar.setVisible(False)
@@ -482,6 +488,8 @@ class BuilderPage(QWidget):
             self.tree_built.emit(str(self.last_built_dir), self.current_parsed_root)
 
     def _on_worker_error(self, err_msg: str) -> None:
+        self.tree_input.setReadOnly(False)
+        self.tree_view.setEnabled(True)
         self.btn_build.setEnabled(True)
         self.btn_cancel.setVisible(False)
         self.progress_bar.setVisible(False)

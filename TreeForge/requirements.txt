@@ -1,5 +1,4 @@
-# TreeForge Desktop Application Dependencies
-PyQt6>=6.6.1
-PyQt6-Qt6>=6.6.1
-pytest>=7.4.4
-pyinstaller>=6.3.0
+# Reproducible desktop runtime (Python 3.10+)
+PyQt6==6.10.2
+PyQt6-Qt6==6.10.2
+PyQt6-sip==13.11.1

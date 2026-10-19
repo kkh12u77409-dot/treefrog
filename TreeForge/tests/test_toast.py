@@ -1,6 +1,7 @@
 """Comprehensive unit tests for ToastManager, placement, stacking, and deduplication."""
 
 import sys
+import os
 import unittest
 try:
     from PyQt6.QtCore import Qt, QSize, QPoint, QEvent
@@ -10,7 +11,9 @@ try:
 
     PYQT6_AVAILABLE = True
     PYQT6_IMPORT_ERROR = None
-except (ImportError, Exception) as exc:
+except ImportError as exc:
+    if os.environ.get("TREEFORGE_REQUIRE_QT") == "true":
+        raise
     PYQT6_AVAILABLE = False
     PYQT6_IMPORT_ERROR = str(exc)
 
@@ -25,7 +28,7 @@ if PYQT6_AVAILABLE:
 @unittest.skipUnless(
     PYQT6_AVAILABLE,
     f"PyQt6 GUI is not available or DLL failed to load ({PYQT6_IMPORT_ERROR}). "
-    "Note: PyQt6 binaries support Python 3.8 to 3.13 (Python 3.11 or 3.12 recommended; Python 3.14 is unsupported). "
+    "Install the pinned Qt runtime and required system libraries. "
     "On Windows, ensure Microsoft Visual C++ 2015-2022 Redistributable (x64) is installed."
 )
 class TestToastManager(unittest.TestCase):

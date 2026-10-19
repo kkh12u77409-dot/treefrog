@@ -19,14 +19,8 @@ if exist "%~dp0venv\Scripts\activate.bat" (
 
 :: Install PyInstaller and PyQt6
 echo [*] Checking and installing PyInstaller ^& PyQt6...
-python -m pip install --upgrade pip --quiet
-pip install pyinstaller PyQt6
-
-if exist "%~dp0requirements.txt" (
-    pip install -r "%~dp0requirements.txt"
-) else if exist "%~dp0TreeForge\requirements.txt" (
-    pip install -r "%~dp0TreeForge\requirements.txt"
-)
+python -m pip install -r "%~dp0TreeForge\requirements-dev.txt"
+if errorlevel 1 goto :build_failed
 
 :: Icon setup
 set "ICON_ARG="

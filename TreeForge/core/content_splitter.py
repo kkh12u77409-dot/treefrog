@@ -5,6 +5,7 @@ in a project tree via exact, unique-name, and fuzzy matching, and handles fence 
 """
 
 import re
+from .path_safety import validate_relative_path
 import difflib
 from typing import List, Dict, Optional, Tuple, Set
 from .models import FileChunk, MatchStatus, TreeNode, NewlineMode
@@ -90,7 +91,7 @@ def sanitize_extracted_path(raw_path: str) -> str:
     # Normalize slashes
     clean = clean.replace('\\', '/')
     # Remove leading ./ or /
-    clean = re.sub(r'^(?:\.\/|\/)+', '', clean)
+    clean = re.sub(r'^(?:\.\/)+', '', clean)
     return clean
 
 
@@ -109,8 +110,20 @@ class ContentSplitter:
         # Find all marker occurrences in text
         matches: List[Tuple[int, int, str, str]] = []  # (start_char, end_char, path, marker_type)
 
+        code_offsets = set()
+        offset = 0
+        inside = False
+        for line in text.splitlines(keepends=True):
+            if inside:
+                code_offsets.add(offset)
+            if line.lstrip().startswith("```"):
+                inside = not inside
+            offset += len(line)
+
         for regex, marker_type in MARKER_REGEXES:
             for m in regex.finditer(text):
+                if m.start() in code_offsets:
+                    continue
                 raw_path = m.group("path")
                 clean_path = sanitize_extracted_path(raw_path)
                 if not clean_path or clean_path.startswith("http") or len(clean_path.splitlines()) > 1:
@@ -135,6 +148,8 @@ class ContentSplitter:
         filtered_matches: List[Tuple[int, int, str, str]] = []
         last_end = -1
         for m in matches:
+            if m[3] == "fence_info" and filtered_matches and not text[last_end:m[0]].strip():
+                continue
             if m[0] >= last_end:
                 filtered_matches.append(m)
                 last_end = m[1]
@@ -169,6 +184,8 @@ class ContentSplitter:
 
             # Strip leading/trailing blank lines
             body_clean = body.strip("\r\n")
+            if self.strip_fences and marker_type == "fence_info":
+                body_clean = re.sub(r"\r?\n```\s*$", "", body_clean)
             if self.strip_fences:
                 body_clean = strip_code_fences(body_clean)
             body_clean = normalize_newlines(body_clean, self.newline_mode)
@@ -176,7 +193,7 @@ class ContentSplitter:
             chunk = FileChunk(
                 id=f"chunk_{i + 1}",
                 raw_target_path=raw_target,
-                resolved_path=raw_target,
+                resolved_path="",
                 content=body_clean,
                 match_status=MatchStatus.NOT_FOUND,
                 line_count=len(body_clean.splitlines()),
@@ -210,6 +227,12 @@ class ContentSplitter:
                 chunk.candidate_paths = candidate_paths[:5]
                 continue
 
+            try:
+                validate_relative_path(raw)
+            except ValueError:
+                chunk.resolved_path = ""
+                chunk.match_status = MatchStatus.NOT_FOUND
+                continue
             raw_lower = raw.lower()
 
             # 1. Exact match (case insensitive relative path)
@@ -227,7 +250,7 @@ class ContentSplitter:
                 elif len(suffix_matches) > 1:
                     chunk.match_status = MatchStatus.AMBIGUOUS
                     chunk.candidate_paths = suffix_matches
-                    chunk.resolved_path = suffix_matches[0]
+                    chunk.resolved_path = ""
                     continue
 
             if matched_exact:
@@ -245,7 +268,7 @@ class ContentSplitter:
             elif len(filename_matches) > 1:
                 chunk.match_status = MatchStatus.AMBIGUOUS
                 chunk.candidate_paths = filename_matches
-                chunk.resolved_path = filename_matches[0]
+                chunk.resolved_path = ""
                 continue
 
             # 3. Fuzzy matching with difflib
@@ -255,13 +278,13 @@ class ContentSplitter:
                 close = difflib.get_close_matches(filename, candidate_paths, n=3, cutoff=0.5)
 
             if len(close) == 1:
-                chunk.match_status = MatchStatus.MATCHED
-                chunk.resolved_path = close[0]
+                chunk.match_status = MatchStatus.AMBIGUOUS
+                chunk.resolved_path = ""
                 chunk.candidate_paths = close
             elif len(close) > 1:
                 chunk.match_status = MatchStatus.AMBIGUOUS
                 chunk.candidate_paths = close
-                chunk.resolved_path = close[0]
+                chunk.resolved_path = ""
             else:
                 chunk.match_status = MatchStatus.NOT_FOUND
                 chunk.candidate_paths = candidate_paths[:5]

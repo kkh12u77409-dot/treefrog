@@ -5,6 +5,7 @@ with strict security validation and comprehensive syntax tolerance.
 """
 
 import re
+from .path_safety import validate_relative_path
 from pathlib import Path
 from typing import List, Tuple, Optional, Set
 from .models import TreeNode, ParseError, ParseResult
@@ -35,7 +36,7 @@ def clean_line_comment(line: str) -> str:
     return line
 
 
-def calculate_depth_and_content(line: str) -> Tuple[int, str]:
+def calculate_depth_and_content(line: str, indent_unit: int = 4) -> Tuple[int, str]:
     """Extract nesting depth level and text content from a tree line.
 
     Supports:
@@ -63,9 +64,10 @@ def calculate_depth_and_content(line: str) -> Tuple[int, str]:
     # Count occurrences of branch indicators or vertical pipes
     branches = len(re.findall(r'(?:│|\||├──|└──|\+\-\-)', indent_part))
     
-    # Calculate equivalent space depth
-    space_depth = len(indent_expanded) // 4
-    depth = max(branches, space_depth)
+    expanded = cleaned.replace("\t", "    ")
+    branch = re.search(r"(?:├──|└──|\|--|`--|\+--|--)", expanded)
+    leading = len(expanded) - len(expanded.lstrip(" "))
+    depth = (branch.start() // 4 + 1) if branch else leading // indent_unit + bool(re.match(r"^[-*>]\s", expanded.lstrip()))
 
     # Clean markdown bullets if any left in content
     content = re.sub(r'^[*\-]\s+', '', content).strip()
@@ -74,6 +76,12 @@ def calculate_depth_and_content(line: str) -> Tuple[int, str]:
 
 def validate_name_segment(segment: str, line_number: int, full_path: str) -> Optional[str]:
     """Validate a single path component for security and filesystem legality."""
+    try:
+        validate_relative_path(segment)
+        if "/" in segment or "\\" in segment:
+            raise ValueError("A name cannot contain separators")
+    except ValueError as exc:
+        return f"Line {line_number}: {exc}"
     if not segment:
         return f"Line {line_number}: Path segment cannot be empty in '{full_path}'"
 
@@ -154,18 +162,19 @@ class TreeParser:
 
         # Filter out empty lines and markdown fences
         clean_entries: List[Tuple[int, int, str]] = []  # (original_line_num, depth, content)
-        in_code_fence = False
+        indents = [len(re.match(r"^[ \t]+", line).group().replace("\t", "    "))
+                   for line in raw_lines if re.match(r"^[ \t]+", line) and not re.search(r"[│├└|]", line)]
+        indent_unit = min(indents) if indents else 4
 
         for idx, line in enumerate(raw_lines, start=1):
             stripped = line.strip()
             # Handle markdown code fences ```
             if stripped.startswith("```"):
-                in_code_fence = not in_code_fence
                 continue
-            if in_code_fence or not stripped:
+            if not stripped:
                 continue
 
-            depth, content = calculate_depth_and_content(line)
+            depth, content = calculate_depth_and_content(line, indent_unit)
             if depth >= 0 and content:
                 clean_entries.append((idx, depth, content))
 
@@ -177,6 +186,9 @@ class TreeParser:
         first_line_num, first_depth, first_content = clean_entries[0]
         has_root_line = False
         root_name = user_root_name or self.default_root_name
+        if validate_name_segment(root_name, 1, root_name):
+            result.errors.append(ParseError(1, root_name, "Invalid default root name"))
+            return result
 
         # Check if first line acts as explicit root (trailing slash or single top-level folder)
         if first_content.endswith('/') or (len(clean_entries) > 1 and first_depth < clean_entries[1][1]):
@@ -209,7 +221,7 @@ class TreeParser:
             parent_text, inline_children = parse_inline_group(content)
 
             # Security checks for parent_text
-            if ".." in parent_text or parent_text.startswith("/") or re.match(r'^[a-zA-Z]:', parent_text):
+            if ".." in parent_text.replace("\\", "/").split("/") or parent_text.startswith(("/", "\\")) or re.match(r'^[a-zA-Z]:', parent_text):
                 result.errors.append(ParseError(
                     line_num, content,
                     f"Line {line_num}: Absolute paths or traversal '..' forbidden: '{parent_text}'"

@@ -60,7 +60,7 @@ def print_banner():
 def check_and_install_dependencies():
     """Ensure PyQt6 and requirements are installed."""
     try:
-        import PyQt6
+        from PyQt6 import QtWidgets
         print("[✓] PyQt6 is already installed (PyQt6 متوفرة ومثبتة).")
         return True
     except ImportError:
@@ -94,17 +94,10 @@ def check_and_install_dependencies():
 def main():
     print_banner()
 
-    # Warn if Python 3.14 is used on Windows
-    if sys.platform == "win32" and sys.version_info >= (3, 14):
-        print("!" * 70)
-        print("WARNING / تنبيه:")
-        print("PyQt6 official wheels support Python 3.8 to 3.13.")
-        print("Running on Python 3.14 may cause 'DLL load failed while importing QtCore'.")
-        print("Recommended: Python 3.11 or Python 3.12.")
-        print("!" * 70)
-
-    # Check dependencies
-    check_and_install_dependencies()
+    # Pure CLI/tests need no GUI dependencies or automatic installation.
+    headless = "--cli" in sys.argv or "--test" in sys.argv
+    if not headless and not check_and_install_dependencies():
+        sys.exit(1)
 
     if not main_script or not main_script.is_file():
         print("[ERROR] Could not find 'main.py' script!")
