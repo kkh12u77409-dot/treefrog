@@ -90,7 +90,7 @@ class BuilderPage(QWidget):
 
         self.btn_load_example = QPushButton()
         self.btn_load_example.setFixedHeight(28)
-        self.btn_load_example.setIcon(icon_service.icon("wand-sparkles", size=14))
+        self.btn_load_example.setIcon(icon_service.icon("wand-sparkles", size=16))
         set_variant(self.btn_load_example, "secondary")
         set_button_text(self.btn_load_example, i18n.t("load_example"))
         self.btn_load_example.setToolTip(i18n.t("load_example"))
@@ -99,7 +99,7 @@ class BuilderPage(QWidget):
 
         self.btn_clear = QPushButton()
         self.btn_clear.setFixedHeight(28)
-        self.btn_clear.setIcon(icon_service.icon("eraser", size=14))
+        self.btn_clear.setIcon(icon_service.icon("eraser", size=16))
         set_variant(self.btn_clear, "secondary")
         set_button_text(self.btn_clear, i18n.t("clear_input"))
         self.btn_clear.setToolTip(i18n.t("clear_input"))
@@ -186,7 +186,7 @@ class BuilderPage(QWidget):
         sel_row = QHBoxLayout()
         self.btn_select_all = QPushButton()
         self.btn_select_all.setFixedHeight(28)
-        self.btn_select_all.setIcon(icon_service.icon("list-checks", size=14))
+        self.btn_select_all.setIcon(icon_service.icon("list-checks", size=16))
         set_variant(self.btn_select_all, "secondary")
         set_button_text(self.btn_select_all, i18n.t("select_all"))
         self.btn_select_all.setToolTip(i18n.t("select_all"))
@@ -194,7 +194,7 @@ class BuilderPage(QWidget):
 
         self.btn_deselect_all = QPushButton()
         self.btn_deselect_all.setFixedHeight(28)
-        self.btn_deselect_all.setIcon(icon_service.icon("square-dashed", size=14))
+        self.btn_deselect_all.setIcon(icon_service.icon("square-dashed", size=16))
         set_variant(self.btn_deselect_all, "secondary")
         set_button_text(self.btn_deselect_all, i18n.t("deselect_all"))
         self.btn_deselect_all.setToolTip(i18n.t("deselect_all"))
@@ -268,20 +268,23 @@ class BuilderPage(QWidget):
         self.btn_build.setObjectName("btnBuild")
         self.btn_build.setFixedHeight(44)
         self.btn_build.setIcon(icon_service.icon("hammer", size=18, role="on_accent"))
-        set_variant(self.btn_build, "primary")
+        set_variant(self.btn_build, "primary_green")
         set_button_text(self.btn_build, i18n.t("build_button"))
         self.btn_build.setEnabled(False)
         self.btn_build.clicked.connect(self._build_tree)
 
         self.btn_cancel = QPushButton()
         self.btn_cancel.setFixedHeight(44)
+        self.btn_cancel.setIcon(icon_service.icon("x", size=16, role="danger"))
         self.btn_cancel.setVisible(False)
-        set_variant(self.btn_cancel, "ghost")
+        set_variant(self.btn_cancel, "danger")
+        set_button_text(self.btn_cancel, i18n.t("cancel"))
         self.btn_cancel.clicked.connect(self._cancel_build)
 
         self.btn_open_folder = QPushButton()
         self.btn_open_folder.setFixedHeight(44)
         self.btn_open_folder.setIcon(icon_service.icon("folder-open", size=16))
+        set_button_text(self.btn_open_folder, i18n.t("open_folder"))
         self.btn_open_folder.setVisible(False)
         self.btn_open_folder.clicked.connect(self._open_created_folder)
 
@@ -505,17 +508,38 @@ class BuilderPage(QWidget):
             QDesktopServices.openUrl(QUrl.fromLocalFile(str(self.last_built_dir)))
 
     def _on_theme_changed(self, theme_name: str = "") -> None:
-        """Refresh icons and button styles on theme change."""
-        self.btn_load_example.setIcon(icon_service.icon("wand-sparkles", size=14))
-        self.btn_clear.setIcon(icon_service.icon("eraser", size=14))
+        """Refresh icons, text spacing, and button styles on theme change."""
+        self.btn_load_example.setIcon(icon_service.icon("wand-sparkles", size=16))
+        self.btn_clear.setIcon(icon_service.icon("eraser", size=16))
         self.btn_browse.setIcon(icon_service.icon("folder-open", size=16))
-        self.btn_select_all.setIcon(icon_service.icon("list-checks", size=14))
-        self.btn_deselect_all.setIcon(icon_service.icon("square-dashed", size=14))
+        self.btn_select_all.setIcon(icon_service.icon("list-checks", size=16))
+        self.btn_deselect_all.setIcon(icon_service.icon("square-dashed", size=16))
         self.btn_build.setIcon(icon_service.icon("hammer", size=18, role="on_accent"))
+        self.btn_cancel.setIcon(icon_service.icon("x", size=16, role="danger"))
         self.btn_open_folder.setIcon(icon_service.icon("folder-open", size=16))
-        set_variant(self.btn_build, "primary")
+        set_variant(self.btn_build, "primary_green")
+
+        # Synchronize uniform icon-text spacing across all buttons
+        for btn in (self.btn_load_example, self.btn_clear, self.btn_browse,
+                    self.btn_select_all, self.btn_deselect_all, self.btn_build,
+                    self.btn_cancel, self.btn_open_folder):
+            if hasattr(btn, "text") and btn.text():
+                set_button_text(btn, btn.text())
+
         if hasattr(self, "preview_empty_state") and hasattr(self.preview_empty_state, "icon_lbl"):
             self.preview_empty_state.icon_lbl.setPixmap(icon_service.icon("folder-tree", size=36, role="disabled").pixmap(36, 36))
+
+        # Refresh preview tree item icons
+        if hasattr(self, "tree_view"):
+            root = self.tree_view.invisibleRootItem()
+            def _refresh_tree_items(parent_item):
+                for i in range(parent_item.childCount()):
+                    child = parent_item.child(i)
+                    node = child.data(0, Qt.ItemDataRole.UserRole)
+                    if node:
+                        child.setIcon(0, icon_service.file_icon_for(node.name, is_dir=node.is_dir))
+                    _refresh_tree_items(child)
+            _refresh_tree_items(root)
 
     def retranslate_ui(self) -> None:
         """Live translation updates for all labels and controls."""

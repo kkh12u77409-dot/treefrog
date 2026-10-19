@@ -127,7 +127,7 @@ class SettingsPage(QWidget):
         # B8: Clear secondary button with borders instead of transparent ghost
         btn_row = QHBoxLayout()
         self.btn_reset = QPushButton()
-        self.btn_reset.setIcon(icon_service.icon("refresh-cw", size=14))
+        self.btn_reset.setIcon(icon_service.icon("refresh-cw", size=16))
         self.btn_reset.setFixedHeight(36)
         set_variant(self.btn_reset, "secondary")
         self.btn_reset.clicked.connect(self._reset_defaults)
@@ -180,6 +180,12 @@ class SettingsPage(QWidget):
         self.combo_lang.setCurrentIndex(self.combo_lang.findData("en"))
         show_toast(self, i18n.t("toast_reset_done"), "info")
 
+    def _on_theme_changed(self, theme_name: str = "") -> None:
+        """Refresh icons, text spacing, and button styles on theme change."""
+        self.btn_reset.setIcon(icon_service.icon("refresh-cw", size=16))
+        if hasattr(self.btn_reset, "text") and self.btn_reset.text():
+            set_button_text(self.btn_reset, self.btn_reset.text())
+
     def retranslate_ui(self) -> None:
         """Live updates for localized texts and proper RTL bidirectional alignment."""
         self.header.set_texts(i18n.t("settings_title"), i18n.t("settings_desc"))
@@ -198,4 +204,5 @@ class SettingsPage(QWidget):
             self.lbl_about_text.setAlignment(Qt.AlignmentFlag.AlignLeft)
             self.lbl_about_text.setText(about_text)
 
+        self.btn_reset.setIcon(icon_service.icon("refresh-cw", size=16))
         set_button_text(self.btn_reset, i18n.t("reset_defaults"))

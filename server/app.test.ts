@@ -79,3 +79,17 @@ test('AI bounds concurrent provider calls', async () => {
     assert.equal(calls, 2);
   });
 });
+
+test('Rate limiter gracefully handles X-Forwarded-For and Forwarded proxy headers without validation errors', async () => {
+  await withServer({}, undefined, async base => {
+    const response = await fetch(`${base}/api/health`, {
+      headers: {
+        'x-forwarded-for': '203.0.113.195',
+        'forwarded': 'for=203.0.113.195;proto=https',
+      },
+    });
+    assert.equal(response.status, 200);
+    const json = await response.json();
+    assert.equal(json.status, 'ok');
+  });
+});

@@ -83,7 +83,7 @@ class ContentPage(QWidget):
         tree_bar.addStretch()
 
         self.btn_refresh_tree = QPushButton()
-        self.btn_refresh_tree.setIcon(icon_service.icon("refresh-cw", size=14))
+        self.btn_refresh_tree.setIcon(icon_service.icon("refresh-cw", size=16))
         self.btn_refresh_tree.setFixedSize(28, 28)
         self.btn_refresh_tree.setToolTip(i18n.t("refresh"))
         set_variant(self.btn_refresh_tree, "ghost")
@@ -409,8 +409,9 @@ class ContentPage(QWidget):
     def _set_save_single_enabled(self, enabled: bool) -> None:
         """Update save button enabled state and icon role so icon color matches text in light and dark themes."""
         self.btn_save_single.setEnabled(enabled)
-        role = "on_accent" if enabled else "disabled"
+        role = "on_blue" if enabled else "disabled"
         self.btn_save_single.setIcon(icon_service.icon("save", size=16, role=role))
+        set_button_text(self.btn_save_single, self.btn_save_single.text())
 
     def _save_single_file(self) -> None:
         if not self.current_root_dir:
@@ -625,16 +626,42 @@ class ContentPage(QWidget):
             show_toast(self, i18n.t("toast_no_backups"), "info")
 
     def _on_theme_changed(self, theme_name: str = "") -> None:
-        """Refresh icons and button styles on theme change."""
-        save_role = "on_accent" if self.btn_save_single.isEnabled() else "disabled"
+        """Refresh icons, text spacing, and button styles on theme change."""
+        save_role = "on_blue" if self.btn_save_single.isEnabled() else "disabled"
+        self.btn_refresh_tree.setIcon(icon_service.icon("refresh-cw", size=16))
         self.btn_save_single.setIcon(icon_service.icon("save", size=16, role=save_role))
-        self.btn_parse_batch.setIcon(icon_service.icon("split", size=16, role="on_accent"))
-        self.btn_save_batch.setIcon(icon_service.icon("save-all", size=16, role="on_accent"))
-        self.btn_save_queue.setIcon(icon_service.icon("save-all", size=16, role="on_accent"))
-        set_variant(self.btn_save_single, "primary")
-        set_variant(self.btn_parse_batch, "primary")
-        set_variant(self.btn_save_batch, "primary")
-        set_variant(self.btn_save_queue, "primary")
+        self.btn_add_queue.setIcon(icon_service.icon("list-plus", size=16))
+        self.btn_parse_batch.setIcon(icon_service.icon("split", size=16, role="on_blue"))
+        self.btn_save_batch.setIcon(icon_service.icon("save-all", size=16, role="on_blue"))
+        self.btn_undo.setIcon(icon_service.icon("undo-2", size=16))
+        self.btn_save_queue.setIcon(icon_service.icon("save-all", size=16, role="on_blue"))
+        self.btn_clear_queue.setIcon(icon_service.icon("trash-2", size=16, role="danger"))
+
+        set_variant(self.btn_save_single, "primary_blue")
+        set_variant(self.btn_parse_batch, "primary_blue")
+        set_variant(self.btn_save_batch, "primary_blue")
+        set_variant(self.btn_save_queue, "primary_blue")
+
+        # Synchronize uniform icon-text spacing across all buttons
+        for btn in (self.btn_save_single, self.btn_add_queue, self.btn_parse_batch,
+                    self.btn_save_batch, self.btn_undo, self.btn_save_queue,
+                    self.btn_clear_queue):
+            if hasattr(btn, "text") and btn.text():
+                set_button_text(btn, btn.text())
+
+        # Refresh project file tree icons
+        if self.current_root_dir and hasattr(self, "single_tree"):
+            root = self.single_tree.invisibleRootItem()
+            def _refresh_tree_items(parent_item):
+                for i in range(parent_item.childCount()):
+                    child = parent_item.child(i)
+                    p_str = child.data(0, Qt.ItemDataRole.UserRole)
+                    if p_str:
+                        from pathlib import Path
+                        p = Path(p_str)
+                        child.setIcon(0, icon_service.file_icon_for(p.name, is_dir=p.is_dir()))
+                    _refresh_tree_items(child)
+            _refresh_tree_items(root)
 
     def retranslate_ui(self) -> None:
         """Live updates for localized texts and headers."""
@@ -643,29 +670,45 @@ class ContentPage(QWidget):
         self.tabs.setTabText(1, i18n.t("tab_batch"))
         self.tabs.setTabText(2, i18n.t("tab_queue"))
         self.lbl_tree.setText(i18n.t("project_files"))
+        self.btn_refresh_tree.setIcon(icon_service.icon("refresh-cw", size=16))
+        self.btn_refresh_tree.setToolTip(i18n.t("refresh"))
+
         set_button_text(self.btn_save_single, i18n.t("save_file"))
-        save_role = "on_accent" if self.btn_save_single.isEnabled() else "disabled"
+        save_role = "on_blue" if self.btn_save_single.isEnabled() else "disabled"
         self.btn_save_single.setIcon(icon_service.icon("save", size=16, role=save_role))
+
         set_button_text(self.btn_add_queue, i18n.t("add_to_queue"))
+        self.btn_add_queue.setIcon(icon_service.icon("list-plus", size=16))
+
         self.chk_strip_fences.setText(i18n.t("opt_strip_fences"))
         self.chk_backups.setText(i18n.t("opt_backup"))
         self.chk_bom.setText(i18n.t("bom_toggle"))
         self.combo_newline.retranslate()
+
         set_button_text(self.btn_parse_batch, i18n.t("split_and_match"))
-        self.btn_parse_batch.setIcon(icon_service.icon("split", size=16, role="on_accent"))
+        self.btn_parse_batch.setIcon(icon_service.icon("split", size=16, role="on_blue"))
+
         self.table.setHorizontalHeaderLabels([
             i18n.t("col_include"), i18n.t("col_target"), i18n.t("col_status"),
             i18n.t("col_lines"), i18n.t("col_size"), i18n.t("col_marker")
         ])
+
         set_button_text(self.btn_save_batch, i18n.t("save_selected"))
-        self.btn_save_batch.setIcon(icon_service.icon("save-all", size=16, role="on_accent"))
+        self.btn_save_batch.setIcon(icon_service.icon("save-all", size=16, role="on_blue"))
+
         set_button_text(self.btn_undo, i18n.t("undo_batch"))
+        self.btn_undo.setIcon(icon_service.icon("undo-2", size=16))
+
         self.queue_table.setHorizontalHeaderLabels([
             i18n.t("col_target"), i18n.t("col_lines"), i18n.t("col_size")
         ])
+
         set_button_text(self.btn_save_queue, i18n.t("save_queue"))
-        self.btn_save_queue.setIcon(icon_service.icon("save-all", size=16, role="on_accent"))
+        self.btn_save_queue.setIcon(icon_service.icon("save-all", size=16, role="on_blue"))
+
         set_button_text(self.btn_clear_queue, i18n.t("clear_queue"))
+        self.btn_clear_queue.setIcon(icon_service.icon("trash-2", size=16, role="danger"))
+
         self.batch_input.setPlaceholderText(i18n.t("batch_input_placeholder"))
         if self.lbl_current_file.text() in ("No file selected", "لم يتم اختيار أي ملف"):
             self.lbl_current_file.setText(i18n.t("no_file_selected"))

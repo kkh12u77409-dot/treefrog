@@ -455,6 +455,19 @@ class I18nService(QObject):
         if lang_code in TRANSLATIONS and lang_code != self._current_lang:
             self._current_lang = lang_code
             self._install_qt_translations(lang_code)
+            app = QApplication.instance()
+            if app:
+                try:
+                    from PyQt6.QtCore import Qt
+                    layout_dir = Qt.LayoutDirection.RightToLeft if self.is_rtl() else Qt.LayoutDirection.LeftToRight
+                    app.setLayoutDirection(layout_dir)
+                except Exception:
+                    pass
+            try:
+                from .icon_service import icon_service
+                icon_service.clear()
+            except Exception:
+                pass
             self.language_changed.emit(lang_code)
 
     def _install_qt_translations(self, lang_code: str) -> None:

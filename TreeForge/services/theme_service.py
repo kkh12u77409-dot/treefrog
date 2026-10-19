@@ -6,9 +6,62 @@ system color scheme synchronization, and Windows dark mode window chrome.
 
 import sys
 from typing import Dict, Any, Optional
-from PyQt6.QtCore import QObject, pyqtSignal, Qt
-from PyQt6.QtGui import QPalette, QColor, QFont, QGuiApplication
-from PyQt6.QtWidgets import QApplication, QWidget
+
+try:
+    from PyQt6.QtCore import QObject, pyqtSignal, Qt
+    from PyQt6.QtGui import QPalette, QColor, QFont, QGuiApplication
+    from PyQt6.QtWidgets import QApplication, QWidget
+except ImportError:
+    class QObject:
+        def __init__(self, *args, **kwargs): pass
+    def pyqtSignal(*args, **kwargs):
+        class Signal:
+            def connect(self, slot): pass
+            def emit(self, *args): pass
+        return Signal()
+    class Qt:
+        class ColorScheme:
+            Dark = 0
+            Light = 1
+    class QPalette:
+        class ColorGroup:
+            Active = 0
+            Inactive = 1
+            Disabled = 2
+        class ColorRole:
+            Window = 0
+            WindowText = 1
+            Base = 2
+            AlternateBase = 3
+            Text = 4
+            PlaceholderText = 5
+            Button = 6
+            ButtonText = 7
+            Highlight = 8
+            HighlightedText = 9
+            ToolTipBase = 10
+            ToolTipText = 11
+            Link = 12
+            BrightText = 13
+        def setColor(self, *args): pass
+    class QColor:
+        def __init__(self, *args): pass
+    class QFont:
+        class StyleHint:
+            SansSerif = 0
+        def __init__(self, *args): pass
+        def setStyleHint(self, *args): pass
+    class QGuiApplication:
+        @staticmethod
+        def styleHints(): return None
+    class QApplication:
+        @staticmethod
+        def instance(): return None
+    class QWidget:
+        def __init__(self, *args, **kwargs): pass
+        def setProperty(self, *args): pass
+        def style(self): return None
+        def update(self): pass
 
 from .theme_tokens import DARK_TOKENS, LIGHT_TOKENS, get_theme_tokens, METRICS
 

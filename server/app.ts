@@ -19,13 +19,20 @@ interface AppOptions {
 
 export function createApp({ root, env = process.env, generate }: AppOptions) {
   const app = express();
+  app.set('trust proxy', 1);
   app.disable('x-powered-by');
   // CSP is enabled in production; dev Vite needs inline transforms and WebSockets.
   app.use(helmet({ contentSecurityPolicy: env.NODE_ENV === 'production' ? { directives: {
     'script-src': ["'self'"], 'style-src': ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
     'font-src': ["'self'", 'https://fonts.gstatic.com'], 'img-src': ["'self'", 'data:', 'blob:'],
   } } : false, crossOriginEmbedderPolicy: false, frameguard: false }));
-  app.use('/api', rateLimit({ windowMs: 60_000, limit: 60, standardHeaders: 'draft-8', legacyHeaders: false }));
+  app.use('/api', rateLimit({
+    windowMs: 60_000,
+    limit: 60,
+    standardHeaders: 'draft-8',
+    legacyHeaders: false,
+    validate: { xForwardedForHeader: false, forwardedHeader: false },
+  }));
   app.use(express.json({ limit: '32kb' }));
   let cache: { expires: number; files: SourceFile[] } | null = null;
   let pending: Promise<SourceFile[]> | null = null;
@@ -66,7 +73,13 @@ export function createApp({ root, env = process.env, generate }: AppOptions) {
   });
   let active = 0;
   let daily = { day: Math.floor(Date.now() / 86_400_000), count: 0 };
-  app.post('/api/generate-ai-tree', rateLimit({ windowMs: 60_000, limit: 5, standardHeaders: 'draft-8', legacyHeaders: false }), async (req, res) => {
+  app.post('/api/generate-ai-tree', rateLimit({
+    windowMs: 60_000,
+    limit: 5,
+    standardHeaders: 'draft-8',
+    legacyHeaders: false,
+    validate: { xForwardedForHeader: false, forwardedHeader: false },
+  }), async (req, res) => {
     const origin = req.get('origin');
     if (origin) {
       try {

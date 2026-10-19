@@ -112,8 +112,8 @@ class MainWindow(QMainWindow):
 
         self.btn_nav_settings = NavTabButton()
         self.btn_nav_settings.setProperty("nav", "true")
-        self.btn_nav_settings.setIcon(icon_service.icon("sliders-horizontal", size=18))
-        self.btn_nav_settings.setIconSize(QSize(18, 18))
+        self.btn_nav_settings.setIcon(icon_service.icon("sliders-horizontal", size=20))
+        self.btn_nav_settings.setIconSize(QSize(20, 20))
         self.btn_nav_settings.setCheckable(True)
         self.btn_nav_settings.clicked.connect(lambda: self._switch_page(2))
         sidebar_layout.addWidget(self.btn_nav_settings)
@@ -224,6 +224,8 @@ class MainWindow(QMainWindow):
 
         self.sidebar.setProperty("rtl", rtl_str)
         self.sidebar.setLayoutDirection(layout_dir)
+        self.setLayoutDirection(layout_dir)
+        self.stack.setLayoutDirection(layout_dir)
         style = self.sidebar.style()
         if style:
             style.unpolish(self.sidebar)

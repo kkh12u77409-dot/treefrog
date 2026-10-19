@@ -75,6 +75,73 @@ class TestThemeContrast(unittest.TestCase):
         cr_disabled = calculate_contrast(LIGHT_TOKENS["disabled_text"], LIGHT_TOKENS["disabled_bg"])
         self.assertGreaterEqual(cr_disabled, 4.5, f"Light disabled text contrast too low: {cr_disabled:.2f}")
 
+        # On blue text on blue_solid (>= 4.5:1)
+        cr_blue = calculate_contrast(LIGHT_TOKENS["on_blue"], LIGHT_TOKENS["blue_solid"])
+        self.assertGreaterEqual(cr_blue, 4.5, f"Light on-blue button text contrast too low: {cr_blue:.2f}")
+
+    def test_green_and_blue_primary_tokens(self):
+        """Assert both Green and Blue palettes meet WCAG AA requirements across surfaces."""
+        for name, tokens in [("dark", DARK_TOKENS), ("light", LIGHT_TOKENS)]:
+            # Green solid contrast with on_accent text
+            cr_green_solid = calculate_contrast(tokens["on_accent"], tokens["accent_solid"])
+            self.assertGreaterEqual(cr_green_solid, 4.5, f"{name} on_accent on accent_solid too low: {cr_green_solid:.2f}")
+
+            # Blue solid contrast with on_blue text
+            cr_blue_solid = calculate_contrast(tokens["on_blue"], tokens["blue_solid"])
+            self.assertGreaterEqual(cr_blue_solid, 4.5, f"{name} on_blue on blue_solid too low: {cr_blue_solid:.2f}")
+
+            # Green text contrast on card surface
+            cr_green_text = calculate_contrast(tokens["accent_text"], tokens["bg_card"])
+            self.assertGreaterEqual(cr_green_text, 4.5, f"{name} accent_text on bg_card too low: {cr_green_text:.2f}")
+
+            # Blue text contrast on card surface
+            cr_blue_text = calculate_contrast(tokens["blue_text"], tokens["bg_card"])
+            self.assertGreaterEqual(cr_blue_text, 4.5, f"{name} blue_text on bg_card too low: {cr_blue_text:.2f}")
+
+    def test_icon_svg_stroke_width_uniformity(self):
+        """Assert all Lucide SVGs define uniform 2px stroke width."""
+        from TreeForge.services.icon_service import LUCIDE_SVGS
+        self.assertGreater(len(LUCIDE_SVGS), 25, "LUCIDE_SVGS dictionary should contain all icons")
+        for icon_name, svg_content in LUCIDE_SVGS.items():
+            self.assertIn('stroke-width="2"', svg_content, f"Icon '{icon_name}' does not have uniform stroke-width=2")
+            self.assertIn('viewBox="0 0 24 24"', svg_content, f"Icon '{icon_name}' does not have 24x24 viewBox")
+
+    def test_button_spacing_directional_alignment(self):
+        """Assert set_button_text provides consistent non-breaking spacing respecting RTL and LTR."""
+        from TreeForge.ui.styles import set_button_text
+        from TreeForge.services.i18n_service import i18n
+
+        class MockButton:
+            def __init__(self):
+                self._text = ""
+                self._has_icon = True
+            def icon(self):
+                return self
+            def isNull(self):
+                return not self._has_icon
+            def setText(self, t):
+                self._text = t
+            def text(self):
+                return self._text
+
+        btn = MockButton()
+
+        # In Arabic (RTL), space should be added at the end before icon on the right
+        i18n.set_language("ar")
+        set_button_text(btn, "بناء المشروع")
+        self.assertTrue(btn.text().endswith("\u00A0\u00A0"), "RTL button text should end with fixed spacing")
+        self.assertEqual(btn.text().replace("\u00A0", "").strip(), "بناء المشروع")
+
+        # In English (LTR), space should be added at the beginning after icon on the left
+        i18n.set_language("en")
+        set_button_text(btn, "Build Project")
+        self.assertTrue(btn.text().startswith("\u00A0\u00A0"), "LTR button text should start with fixed spacing")
+        self.assertEqual(btn.text().replace("\u00A0", "").strip(), "Build Project")
+
+        # Reset language to Arabic default
+        i18n.set_language("ar")
+
 
 if __name__ == "__main__":
     unittest.main()
+

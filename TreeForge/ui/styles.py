@@ -5,8 +5,32 @@ All styling is mediated through theme tokens, object names, and QSS dynamic prop
 """
 
 from typing import Optional
-from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QFrame, QLabel, QVBoxLayout, QHBoxLayout, QWidget
+
+try:
+    from PyQt6.QtCore import Qt
+    from PyQt6.QtWidgets import QFrame, QLabel, QVBoxLayout, QHBoxLayout, QWidget
+except ImportError:
+    class Qt:
+        pass
+    class QWidget:
+        def __init__(self, *args, **kwargs): pass
+    class QFrame(QWidget):
+        def setProperty(self, *args): pass
+        def setObjectName(self, *args): pass
+    class QLabel(QWidget):
+        def setProperty(self, *args): pass
+        def setObjectName(self, *args): pass
+        def setText(self, *args): pass
+        def setVisible(self, *args): pass
+        def setWordWrap(self, *args): pass
+    class QVBoxLayout:
+        def __init__(self, *args, **kwargs): pass
+        def setContentsMargins(self, *args): pass
+        def setSpacing(self, *args): pass
+        def addWidget(self, *args): pass
+    class QHBoxLayout:
+        def __init__(self, *args, **kwargs): pass
+        def addWidget(self, *args): pass
 
 from ..services.theme_service import set_variant
 
@@ -67,7 +91,7 @@ def set_button_text(btn, text: str) -> None:
     if not text:
         btn.setText("")
         return
-    clean = text.strip()
+    clean = text.replace("\u00A0", "").strip()
     has_icon = False
     try:
         has_icon = hasattr(btn, "icon") and bool(btn.icon() and not btn.icon().isNull())
@@ -96,12 +120,12 @@ def set_button_text(btn, text: str) -> None:
 def set_button_icon(btn, icon_name: str, role: str = "default", size: int = 16, mirror_in_rtl: bool = False) -> None:
     """Sets button icon, binds it for automatic theme recoloring, and synchronizes icon-text spacing."""
     from ..services.icon_service import icon_service
-    from PyQt6.QtCore import QSize
-    icon_service.bind_icon(btn, icon_name, role=role, size=size, mirror_in_rtl=mirror_in_rtl)
     try:
+        from PyQt6.QtCore import QSize
         btn.setIconSize(QSize(size, size))
     except Exception:
         pass
+    icon_service.bind_icon(btn, icon_name, role=role, size=size, mirror_in_rtl=mirror_in_rtl)
     if hasattr(btn, "text") and btn.text():
         raw_text = btn.text().replace("\u00A0", "").strip()
         set_button_text(btn, raw_text)
