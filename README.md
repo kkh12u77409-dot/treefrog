@@ -28,7 +28,7 @@ AI is **disabled by default**. Configure `GEMINI_API_KEY` and `AI_ACCESS_TOKEN` 
 
 `ALLOW_PUBLIC_AI=true` explicitly enables unauthenticated use; this is not recommended on public deployments. The server validates inputs/outputs, limits prompts to 6,000 characters, bounds output tokens and request time, allows at most two concurrent generations, and defaults to 100 AI requests per UTC day. Rate limits and the daily budget are **per process and reset on restart**. Multi-instance deployments need a shared limiter/budget store and a reverse proxy with appropriate trusted-proxy configuration. An AI access token is a shared access gate, not a multi-user account system. Use HTTPS in production.
 
-`PUBLIC_ORIGIN` optionally specifies the exact browser origin when a trusted reverse proxy rewrites the Host header. No wildcard CORS is enabled.
+`GEMINI_FALLBACK_MODEL` selects a distinct second model used when the primary model errors or returns invalid JSON; it defaults to `gemini-2.5-flash-lite`. Availability and permissions for either model depend on your Google AI account and must be checked in the target deployment. `PUBLIC_ORIGIN` optionally specifies the exact browser origin when a trusted reverse proxy rewrites the Host header. No wildcard CORS is enabled.
 
 ### Data and export semantics
 
