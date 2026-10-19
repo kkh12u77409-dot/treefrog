@@ -119,14 +119,14 @@ export const AiArchitectTab: React.FC<AiArchitectTabProps> = ({ language, onAppl
         />
       )}
       {/* Intro Hero Banner */}
-      <div className="bg-gradient-to-r from-purple-900/40 via-indigo-900/40 to-slate-900 border border-purple-500/30 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+      <div className="bg-gradient-to-r from-emerald-950/40 via-sky-950/40 to-slate-900 border border-emerald-500/30 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
-          <BrainCircuit className="w-48 h-48 text-purple-400" />
+          <BrainCircuit className="w-48 h-48 text-sky-400" />
         </div>
 
         <div className="relative z-10 max-w-3xl space-y-3">
-          <div className="inline-flex items-center space-x-2 rtl:space-x-reverse px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 text-xs font-semibold">
-            <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30 text-xs font-semibold">
+            <Sparkles className="w-4 h-4 text-sky-400" />
             <span>{isAr ? 'الذكاء الاصطناعي بنمط التفكير العميق (Thinking Mode)' : 'Deep Thinking AI Architecture'}</span>
           </div>
 
@@ -143,17 +143,22 @@ export const AiArchitectTab: React.FC<AiArchitectTabProps> = ({ language, onAppl
       </div>
 
       {/* Input Box & Quick Ideas */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+      <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs space-y-4">
         <div className="space-y-2">
-          <div className="flex items-center justify-between text-xs font-semibold text-slate-300">
+          <div className="flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-300">
             <span>{isAr ? 'اكتب فكرة التطبيق أو المتطلبات:' : 'Describe your project requirements:'}</span>
-            <span className="text-slate-500">{isAr ? 'يدعم العربية والإنجليزية' : 'Arabic & English supported'}</span>
+            <span className="text-slate-500 dark:text-slate-400">{isAr ? 'يدعم العربية والإنجليزية' : 'Arabic & English supported'}</span>
           </div>
 
-          <label className="block text-xs text-slate-300">
-            {isAr ? 'رمز الوصول لخدمة الذكاء الاصطناعي (لا يُحفظ)' : 'AI access token (not persisted)'}
-            <input type="password" autoComplete="off" value={accessToken} onChange={e => setAccessToken(e.target.value)}
-              className="block w-full mt-2 p-2 bg-slate-950 border border-slate-700 rounded" />
+          <label className="block text-xs text-slate-600 dark:text-slate-300">
+            {isAr ? 'رمز الوصول لخدمة الذكاء الاصطناعي (اختياري / لا يُحفظ)' : 'AI access token (optional / not persisted)'}
+            <input 
+              type="password" 
+              autoComplete="off" 
+              value={accessToken} 
+              onChange={e => setAccessToken(e.target.value)}
+              className="block w-full mt-1.5 p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 text-xs focus:outline-none focus:border-emerald-500" 
+            />
           </label>
           <textarea
             maxLength={6000}
@@ -164,14 +169,14 @@ export const AiArchitectTab: React.FC<AiArchitectTabProps> = ({ language, onAppl
                 ? 'مثال: تطبيق بايثون مكتبي لإدارة عيادة طبية مع جداول مواعيد وسجلات مرضى وقاعدة بيانات SQLite...'
                 : 'Example: A Python desktop clinic management app with patient records, appointments, and SQLite...'
             }
-            className="w-full h-28 bg-slate-950/70 border border-slate-800 rounded-xl p-3.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-purple-500 resize-none leading-relaxed"
+            className="w-full h-28 bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-emerald-500 resize-none leading-relaxed shadow-inner"
           />
         </div>
 
         {/* Quick suggestions */}
         <div className="space-y-1.5">
-          <div className="flex items-center space-x-1.5 rtl:space-x-reverse text-[11px] font-semibold text-slate-400">
-            <Lightbulb className="w-3.5 h-3.5 text-amber-400" />
+          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+            <Lightbulb className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400 shrink-0" />
             <span>{isAr ? 'اقتراحات سريعة للبدء:' : 'Quick ideas:'}</span>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -179,7 +184,7 @@ export const AiArchitectTab: React.FC<AiArchitectTabProps> = ({ language, onAppl
               <button
                 key={idx}
                 onClick={() => setPrompt(q)}
-                className="text-left rtl:text-right text-[11px] px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/80 transition"
+                className="text-left rtl:text-right text-[11px] px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/80 transition"
               >
                 {q}
               </button>
@@ -192,16 +197,16 @@ export const AiArchitectTab: React.FC<AiArchitectTabProps> = ({ language, onAppl
           <button
             onClick={handleGenerate}
             disabled={loading || !prompt.trim()}
-            className="flex items-center space-x-2 rtl:space-x-reverse px-6 py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-400 hover:to-indigo-400 text-white font-bold text-xs shadow-lg shadow-purple-500/25 transition disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-sky-600 hover:from-emerald-500 hover:to-sky-500 text-white font-bold text-xs shadow-lg shadow-emerald-600/20 transition disabled:opacity-50"
           >
             {loading ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin shrink-0" />
                 <span>{isAr ? 'جارٍ التفكير والتصميم...' : 'Thinking & Synthesizing...'}</span>
               </>
             ) : (
               <>
-                <Sparkles className="w-4 h-4" />
+                <Sparkles className="w-4 h-4 shrink-0" />
                 <span>{isAr ? 'توليد الهيكل والأكواد بالذكاء الاصطناعي' : 'Generate Project with Thinking AI'}</span>
               </>
             )}
@@ -209,7 +214,7 @@ export const AiArchitectTab: React.FC<AiArchitectTabProps> = ({ language, onAppl
         </div>
 
         {error && (
-          <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-xs text-red-300">
+          <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-xs text-red-700 dark:text-red-300">
             {error}
           </div>
         )}
@@ -217,37 +222,37 @@ export const AiArchitectTab: React.FC<AiArchitectTabProps> = ({ language, onAppl
 
       {/* Generated Result Showcase */}
       {result && (
-        <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-5 animate-fadeIn">
+        <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-xl space-y-5 animate-fadeIn">
           {/* Top Result Banner */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200 dark:border-slate-800">
             <div>
-              <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                <span className="text-base font-extrabold text-white">{result.projectName}</span>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold">
+              <div className="flex items-center gap-2">
+                <span className="text-base font-extrabold text-slate-900 dark:text-white">{result.projectName}</span>
+                <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 font-semibold">
                   {isAr ? 'جاهز للحقن' : 'Ready to Forge'}
                 </span>
               </div>
-              <p className="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-2xl leading-relaxed">
                 {result.summary}
               </p>
             </div>
 
             <button
               onClick={handleApply}
-              className="flex items-center space-x-2 rtl:space-x-reverse px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs shadow-md shadow-emerald-500/20 transition shrink-0"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-slate-950 font-extrabold text-xs shadow-md shadow-emerald-600/20 transition shrink-0"
             >
               <span>{isAr ? 'تحميل الشجرة والكود في التطبيق' : 'Apply to Builder & Injector'}</span>
-              <ArrowRight className="w-4 h-4 rtl:rotate-180" />
+              <ArrowRight className="w-4 h-4 rtl:rotate-180 shrink-0" />
             </button>
           </div>
 
           {/* 2-Column Result Preview */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Tree View */}
-            <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 flex flex-col h-80">
-              <div className="flex items-center justify-between pb-2 border-b border-slate-800/80 mb-2">
-                <div className="flex items-center space-x-1.5 rtl:space-x-reverse text-xs font-bold text-slate-300">
-                  <FolderTree className="w-4 h-4 text-emerald-400" />
+            <div className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-4 flex flex-col h-80">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800/80 mb-2">
+                <div className="flex items-center gap-2 text-xs font-bold text-slate-800 dark:text-slate-300">
+                  <FolderTree className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                   <span>{isAr ? 'شجرة المشروع المولدة' : 'Synthesized Tree'}</span>
                 </div>
                 <button
@@ -256,35 +261,35 @@ export const AiArchitectTab: React.FC<AiArchitectTabProps> = ({ language, onAppl
                     setCopiedTree(true);
                     setTimeout(() => setCopiedTree(false), 2000);
                   }}
-                  className="p-1 text-slate-400 hover:text-white"
+                  className="p-1 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                   title="Copy tree"
                 >
-                  {copiedTree ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copiedTree ? <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" /> : <Copy className="w-3.5 h-3.5 shrink-0" />}
                 </button>
               </div>
-              <pre className="flex-1 overflow-auto text-xs font-mono text-emerald-400 leading-relaxed" dir="ltr">
+              <pre className="flex-1 overflow-auto text-xs font-mono text-emerald-800 dark:text-emerald-400 leading-relaxed" dir="ltr">
                 {result.treeText}
               </pre>
             </div>
 
             {/* Batch Code View */}
-            <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 flex flex-col h-80">
-              <div className="flex items-center justify-between pb-2 border-b border-slate-800/80 mb-2">
-                <div className="flex items-center space-x-1.5 rtl:space-x-reverse text-xs font-bold text-slate-300">
-                  <FileCode className="w-4 h-4 text-sky-400" />
+            <div className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-4 flex flex-col h-80">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800/80 mb-2">
+                <div className="flex items-center gap-2 text-xs font-bold text-slate-800 dark:text-slate-300">
+                  <FileCode className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0" />
                   <span>{isAr ? 'أكواد الملفات الأولية' : 'Starter Code Chunks'}</span>
                 </div>
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(result.batchCode);
                   }}
-                  className="p-1 text-slate-400 hover:text-white"
+                  className="p-1 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                   title="Copy code"
                 >
-                  <Copy className="w-3.5 h-3.5" />
+                  <Copy className="w-3.5 h-3.5 shrink-0" />
                 </button>
               </div>
-              <pre className="flex-1 overflow-auto text-xs font-mono text-slate-300 leading-relaxed" dir="ltr">
+              <pre className="flex-1 overflow-auto text-xs font-mono text-slate-700 dark:text-slate-300 leading-relaxed" dir="ltr">
                 {result.batchCode}
               </pre>
             </div>

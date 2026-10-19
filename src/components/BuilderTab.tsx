@@ -473,7 +473,7 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
     return (
       <div key={node.id} className="select-none group">
         <div
-          className={`flex items-center space-x-2 rtl:space-x-reverse py-1.5 px-2 rounded-md transition text-xs font-mono hover:bg-slate-800/80 ${
+          className={`flex items-center gap-2 py-1.5 px-2 rounded-md transition text-xs font-mono hover:bg-slate-100 dark:hover:bg-slate-800/80 ${
             !node.enabled ? 'opacity-40' : ''
           } ${isDirectMatch ? 'bg-amber-500/10 border border-amber-500/20' : ''}`}
           style={{ paddingInlineStart: `${depth * 18 + 8}px` }}
@@ -481,44 +481,44 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
           {/* Inclusion checkbox */}
           <button
             onClick={() => toggleNodeDisabled(node.path, node.name)}
-            className="text-slate-400 hover:text-emerald-400 focus:outline-none transition shrink-0"
+            className="text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 focus:outline-none transition shrink-0"
             title={node.enabled ? (isAr ? 'استبعاد' : 'Exclude') : (isAr ? 'تضمين' : 'Include')}
           >
             {node.enabled ? (
-              <CheckSquare className="w-4 h-4 text-emerald-400" />
+              <CheckSquare className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             ) : (
-              <Square className="w-4 h-4 text-slate-500" />
+              <Square className="w-4 h-4 text-slate-400 dark:text-slate-500" />
             )}
           </button>
 
           {/* Node icon */}
           {node.isDir ? (
-            <Folder className="w-4 h-4 text-amber-400 shrink-0" />
+            <Folder className="w-4 h-4 text-amber-500 dark:text-amber-400 shrink-0" />
           ) : isPy ? (
-            <FileCode className="w-4 h-4 text-emerald-400 shrink-0" />
+            <FileCode className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
           ) : (
-            <FileText className="w-4 h-4 text-sky-400 shrink-0" />
+            <FileText className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0" />
           )}
 
           {/* Name */}
-          <span className={`truncate ${node.isDir ? 'font-bold text-slate-200' : 'text-slate-300'}`}>
+          <span className={`truncate ${node.isDir ? 'font-bold text-slate-800 dark:text-slate-200' : 'text-slate-700 dark:text-slate-300'}`}>
             {renderHighlightedName(node.name, treeSearchQuery)}
             {node.isDir && '/'}
           </span>
 
           {/* Badges and Remove action */}
-          <div className="ms-auto flex items-center space-x-2 rtl:space-x-reverse">
-            <span className="text-[10px] text-slate-500">
+          <div className="ms-auto flex items-center gap-2">
+            <span className="text-[10px] text-slate-500 dark:text-slate-400">
               {node.isDir ? (isAr ? 'مجلد' : 'Folder') : (isAr ? 'ملف' : 'File')}
             </span>
 
             {/* Quick delete node button (pushes undoable state) */}
             <button
               onClick={() => removeItemFromTree(node.path)}
-              className="opacity-0 group-hover:opacity-100 p-1 text-slate-500 hover:text-red-400 transition"
+              className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition"
               title={isAr ? `حذف ${node.name}` : `Remove ${node.name}`}
             >
-              <Trash2 className="w-3 h-3" />
+              <Trash2 className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
@@ -543,10 +543,10 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
       )}
 
       {/* Preset Templates Bar & State Management Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-900/60 border border-slate-800/80 p-3 rounded-2xl">
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 p-3 rounded-2xl shadow-xs">
         {/* Preset buttons */}
-        <div className="flex items-center space-x-2 rtl:space-x-reverse overflow-x-auto text-xs">
-          <span className="font-semibold text-slate-400 shrink-0">
+        <div className="flex items-center gap-2 overflow-x-auto text-xs">
+          <span className="font-semibold text-slate-500 dark:text-slate-400 shrink-0">
             {isAr ? 'قوالب جاهزة:' : 'Presets:'}
           </span>
           {Object.entries(PRESET_TEMPLATES).map(([key, item]) => (
@@ -559,7 +559,7 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
                   `تحميل قالب ${item.nameAr}`
                 )
               }
-              className="px-3 py-1.5 rounded-lg bg-slate-800/90 hover:bg-slate-700 text-slate-300 border border-slate-700 whitespace-nowrap transition"
+              className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/90 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 whitespace-nowrap transition text-xs font-medium"
             >
               {isAr ? item.nameAr : item.nameEn}
             </button>
@@ -567,18 +567,18 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
         </div>
 
         {/* State Management Controls: Undo, Redo, History Timeline */}
-        <div className="flex items-center space-x-2 rtl:space-x-reverse">
+        <div className="flex items-center gap-2">
           {/* Undo Button */}
           <button
             onClick={handleUndo}
             disabled={!canUndo}
-            className="flex items-center space-x-1.5 rtl:space-x-reverse px-3 py-1.5 rounded-xl text-xs font-semibold border transition disabled:opacity-30 disabled:cursor-not-allowed bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700 hover:text-emerald-400"
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold border transition disabled:opacity-30 disabled:cursor-not-allowed bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-emerald-600 dark:hover:text-emerald-400"
             title={isAr ? 'تراجع (Ctrl+Z)' : 'Undo (Ctrl+Z)'}
           >
-            <Undo2 className="w-3.5 h-3.5" />
+            <Undo2 className="w-4 h-4 shrink-0" />
             <span>{isAr ? 'تراجع' : 'Undo'}</span>
             {currentIndex > 0 && (
-              <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-slate-700 text-slate-300">
+              <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
                 {currentIndex}
               </span>
             )}
@@ -588,13 +588,13 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
           <button
             onClick={handleRedo}
             disabled={!canRedo}
-            className="flex items-center space-x-1.5 rtl:space-x-reverse px-3 py-1.5 rounded-xl text-xs font-semibold border transition disabled:opacity-30 disabled:cursor-not-allowed bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700 hover:text-emerald-400"
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold border transition disabled:opacity-30 disabled:cursor-not-allowed bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-emerald-600 dark:hover:text-emerald-400"
             title={isAr ? 'إعادة (Ctrl+Y أو Ctrl+Shift+Z)' : 'Redo (Ctrl+Y or Ctrl+Shift+Z)'}
           >
-            <Redo2 className="w-3.5 h-3.5" />
+            <Redo2 className="w-4 h-4 shrink-0" />
             <span>{isAr ? 'إعادة' : 'Redo'}</span>
             {history.length - 1 - currentIndex > 0 && (
-              <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-slate-700 text-slate-300">
+              <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
                 {history.length - 1 - currentIndex}
               </span>
             )}
@@ -603,12 +603,12 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
           {/* History Timeline Drawer Trigger */}
           <button
             onClick={() => setShowHistoryModal(!showHistoryModal)}
-            className="flex items-center space-x-1.5 rtl:space-x-reverse px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800/80 border border-slate-700 text-slate-300 hover:bg-slate-700 transition"
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold bg-sky-50 hover:bg-sky-100 dark:bg-slate-800/80 dark:hover:bg-slate-700 border border-sky-200 dark:border-slate-700 text-sky-700 dark:text-sky-300 transition"
             title={isAr ? 'سجل التعديلات الكامل' : 'Edit History Timeline'}
           >
-            <History className="w-3.5 h-3.5 text-purple-400" />
+            <History className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0" />
             <span>{isAr ? 'السجل' : 'Timeline'}</span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
+            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-sky-100 dark:bg-sky-500/20 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-500/30">
               {history.length}
             </span>
           </button>
@@ -617,23 +617,23 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
 
       {/* History Timeline Drawer / Modal */}
       {showHistoryModal && (
-        <div className="bg-slate-900 border border-purple-500/30 rounded-2xl p-4 shadow-2xl space-y-3 animate-fadeIn">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-            <div className="flex items-center space-x-2 rtl:space-x-reverse">
-              <Clock className="w-4 h-4 text-purple-400" />
-              <span className="font-bold text-sm text-white">
+        <div className="bg-white dark:bg-slate-900 border border-sky-200 dark:border-sky-500/30 rounded-2xl p-4 shadow-xl space-y-3 animate-fadeIn">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0" />
+              <span className="font-bold text-sm text-slate-900 dark:text-white">
                 {isAr ? 'سجل العمليات والتعديلات (Undo / Redo History)' : 'Directory Edit History & Checkpoints'}
               </span>
             </div>
             <button
               onClick={() => setShowHistoryModal(false)}
-              className="p-1 text-slate-400 hover:text-white"
+              className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-white transition"
             >
-              <X className="w-4 h-4" />
+              <X className="w-4 h-4 shrink-0" />
             </button>
           </div>
 
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             {isAr
               ? 'انقر على أي نقطة زمنية سابقة للرجوع إليها فوراً مع الاحتفاظ بكافة فروع التعديلات:'
               : 'Click on any past checkpoint to instantly jump back or forward to that exact state:'}
@@ -657,26 +657,26 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
                   }}
                   className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-mono text-left rtl:text-right transition ${
                     isActive
-                      ? 'bg-purple-500/20 border border-purple-500/50 text-purple-300 font-bold'
-                      : 'bg-slate-950/60 border border-slate-800/80 text-slate-400 hover:text-white hover:bg-slate-800'
+                      ? 'bg-sky-50 dark:bg-sky-500/20 border border-sky-300 dark:border-sky-500/50 text-sky-800 dark:text-sky-300 font-bold'
+                      : 'bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                   }`}
                 >
-                  <div className="flex items-center space-x-2.5 rtl:space-x-reverse">
+                  <div className="flex items-center gap-2.5">
                     <span
                       className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
                         isActive
-                          ? 'bg-purple-500 text-white'
-                          : 'bg-slate-800 text-slate-400'
+                          ? 'bg-sky-600 dark:bg-sky-500 text-white'
+                          : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                       }`}
                     >
                       {idx + 1}
                     </span>
                     <span>{isAr ? snapshot.descriptionAr : snapshot.description}</span>
                   </div>
-                  <div className="flex items-center space-x-2 text-[10px] text-slate-500">
+                  <div className="flex items-center gap-2 text-[10px] text-slate-500 dark:text-slate-400">
                     <span>{new Date(snapshot.timestamp).toLocaleTimeString()}</span>
                     {isActive && (
-                      <span className="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-semibold">
+                      <span className="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-semibold">
                         {isAr ? 'الحالي' : 'Current'}
                       </span>
                     )}
@@ -692,18 +692,18 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column: Text Input & Editor Controls (6 cols) */}
         <div className="lg:col-span-6 space-y-4">
-          <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col h-[640px]">
+          <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs flex flex-col h-[640px]">
             {/* Header Actions */}
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-              <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                <span className="font-bold text-slate-200 text-sm">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-slate-800 dark:text-slate-200 text-sm">
                   {isAr ? 'مدخل شجرة المشروع النصية' : 'Text Project Tree Input'}
                 </span>
-                <span className="text-[11px] px-2 py-0.5 rounded-md bg-slate-800 text-slate-400">
+                <span className="text-[11px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-medium">
                   {isAr ? 'تتبع التغييرات نشط' : 'Undo Tracking Active'}
                 </span>
               </div>
-              <div className="flex items-center space-x-1.5 rtl:space-x-reverse">
+              <div className="flex items-center gap-1.5">
                 <button
                   onClick={() => {
                     resetTree(
@@ -717,18 +717,18 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
                       isAr ? 'تحميل نموذج' : 'Example Loaded'
                     );
                   }}
-                  className="flex items-center space-x-1.5 rtl:space-x-reverse px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500 hover:text-slate-950 border border-emerald-500/30 transition shadow-sm"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-600 dark:hover:bg-emerald-500 hover:text-white dark:hover:text-slate-950 border border-emerald-200 dark:border-emerald-500/30 transition shadow-xs"
                   title={isAr ? 'تحميل النموذج الافتراضي (Load Example)' : 'Load Example Tree'}
                 >
-                  <Sparkles className="w-3.5 h-3.5" />
+                  <Sparkles className="w-3.5 h-3.5 shrink-0" />
                   <span>{isAr ? 'تحميل نموذج' : 'Load Example'}</span>
                 </button>
                 <button
                   onClick={handleCopyTree}
-                  className="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition"
+                  className="inline-flex items-center justify-center p-1.5 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition"
                   title="Copy text"
                 >
-                  <Copy className="w-4 h-4" />
+                  <Copy className="w-4 h-4 shrink-0" />
                 </button>
                 <button
                   onClick={() =>
@@ -738,10 +738,10 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
                       'مسح شجرة المجلدات بالكامل'
                     )
                   }
-                  className="p-1.5 rounded-md text-slate-400 hover:text-red-400 hover:bg-slate-800 transition"
+                  className="inline-flex items-center justify-center p-1.5 rounded-xl text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
                   title="Clear input"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-4 h-4 shrink-0" />
                 </button>
               </div>
             </div>
@@ -751,22 +751,22 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
               value={treeText}
               onChange={(e) => setTreeText(e.target.value)}
               placeholder={isAr ? 'الصق هيكل المجلدات هنا...' : 'Paste your tree structure here...'}
-              className="w-full flex-1 my-3 bg-slate-950/70 border border-slate-800/90 rounded-xl p-4 text-xs font-mono text-emerald-300 placeholder-slate-600 focus:outline-none focus:border-emerald-500/70 resize-none leading-relaxed tracking-wide"
+              className="w-full flex-1 my-3 bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800/90 rounded-xl p-4 text-xs font-mono text-emerald-800 dark:text-emerald-300 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-emerald-500/70 resize-none leading-relaxed tracking-wide shadow-inner"
               dir="ltr"
               spellCheck={false}
             />
 
             {/* Bottom Input Bar: Quick Add Node */}
-            <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between">
-              <div className="flex items-center space-x-2 rtl:space-x-reverse">
+            <div className="pt-2 border-t border-slate-200 dark:border-slate-800/80 flex items-center justify-between">
+              <div className="flex items-center gap-2">
                 <button
                   onClick={() => {
                     setQuickItemType('file');
                     setShowAddModal(true);
                   }}
-                  className="flex items-center space-x-1 rtl:space-x-reverse px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 transition"
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-sky-50 dark:bg-slate-800 hover:bg-sky-100 dark:hover:bg-slate-700 text-xs font-semibold text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-slate-700 transition"
                 >
-                  <FilePlus className="w-3.5 h-3.5 text-sky-400" />
+                  <FilePlus className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0" />
                   <span>{isAr ? 'إضافة ملف' : '+ File'}</span>
                 </button>
                 <button
@@ -774,14 +774,14 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
                     setQuickItemType('folder');
                     setShowAddModal(true);
                   }}
-                  className="flex items-center space-x-1 rtl:space-x-reverse px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 transition"
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-50 dark:bg-slate-800 hover:bg-amber-100 dark:hover:bg-slate-700 text-xs font-semibold text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-slate-700 transition"
                 >
-                  <FolderPlus className="w-3.5 h-3.5 text-amber-400" />
+                  <FolderPlus className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
                   <span>{isAr ? 'إضافة مجلد' : '+ Folder'}</span>
                 </button>
               </div>
 
-              <div className="text-[11px] text-slate-500">
+              <div className="text-[11px] text-slate-500 dark:text-slate-400">
                 {isAr ? 'ملاحظة: اختصارات Ctrl+Z و Ctrl+Y مفعلة' : 'Tip: Ctrl+Z & Ctrl+Y shortcuts active'}
               </div>
             </div>
@@ -789,8 +789,8 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
             {/* Validation & Syntax Errors */}
             {parseResult.errors.length > 0 && (
               <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl max-h-24 overflow-y-auto space-y-1 text-xs text-red-300 mt-2">
-                <div className="flex items-center space-x-1.5 rtl:space-x-reverse font-semibold text-red-400">
-                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                <div className="flex items-center gap-2 font-semibold text-red-400">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
                   <span>
                     {isAr
                       ? `تم اكتشاف ${parseResult.errors.length} خطأ في التسميات أو البنية:`
@@ -809,14 +809,14 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
 
         {/* Right Column: Live Tree Preview & Generation Options (6 cols) */}
         <div className="lg:col-span-6 space-y-4">
-          <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col min-h-[660px]">
+          <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs flex flex-col min-h-[660px]">
             {/* Header, Item Counter & View Mode Switcher */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-800 gap-2">
-              <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                <span className="font-bold text-slate-200 text-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800 gap-2">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-slate-800 dark:text-slate-200 text-sm">
                   {isAr ? 'معاينة الشجرة' : 'Tree Preview'}
                 </span>
-                <span className="text-[11px] px-2 py-0.5 rounded-full font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <span className="text-[11px] px-2 py-0.5 rounded-full font-semibold bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20">
                   {isAr
                     ? `${parseResult.totalFolders} مجلد • ${parseResult.totalFiles} ملف`
                     : `${parseResult.totalFolders} Folders • ${parseResult.totalFiles} Files`}
@@ -824,67 +824,67 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
               </div>
 
               {/* View Switcher: Diagram vs Explorer */}
-              <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                <div className="flex items-center bg-slate-950 p-0.5 rounded-lg border border-slate-800">
+              <div className="flex items-center gap-2">
+                <div className="flex items-center bg-slate-100 dark:bg-slate-950 p-0.5 rounded-xl border border-slate-200 dark:border-slate-800">
                   <button
                     onClick={() => setPreviewMode('diagram')}
-                    className={`flex items-center space-x-1 rtl:space-x-reverse px-2.5 py-1 rounded-md text-[11px] font-semibold transition ${
+                    className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition ${
                       previewMode === 'diagram'
-                        ? 'bg-emerald-500 text-slate-950 shadow-sm'
-                        : 'text-slate-400 hover:text-white'
+                        ? 'bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                     title={isAr ? 'عرض مخطط العقد والخطوط التفاعلي' : 'Visual Nodes & Lines Diagram'}
                   >
-                    <Workflow className="w-3.5 h-3.5" />
+                    <Workflow className="w-4 h-4 shrink-0" />
                     <span>{isAr ? 'عقد وخطوط' : 'Nodes & Lines'}</span>
                   </button>
 
                   <button
                     onClick={() => setPreviewMode('explorer')}
-                    className={`flex items-center space-x-1 rtl:space-x-reverse px-2.5 py-1 rounded-md text-[11px] font-semibold transition ${
+                    className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition ${
                       previewMode === 'explorer'
-                        ? 'bg-emerald-500 text-slate-950 shadow-sm'
-                        : 'text-slate-400 hover:text-white'
+                        ? 'bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                     title={isAr ? 'عرض الشجرة التفاعلية (سحب وإفلات، إعادة تسمية، قائمة النقر الأيمن)' : 'Interactive Visual Tree (Drag & Drop, Rename, Right-Click)'}
                   >
-                    <FolderTree className="w-3.5 h-3.5" />
+                    <FolderTree className="w-4 h-4 shrink-0" />
                     <span>{isAr ? 'شجرة تفاعلية (DnD)' : 'Interactive Tree (DnD)'}</span>
                   </button>
 
                   <button
                     onClick={() => setShowVisualPreviewModal(true)}
                     disabled={!parseResult.root}
-                    className="flex items-center space-x-1 rtl:space-x-reverse px-2.5 py-1 rounded-md text-[11px] font-semibold text-emerald-400 hover:bg-emerald-500/20 hover:text-emerald-300 transition border border-emerald-500/30 ms-1 disabled:opacity-40"
+                    className="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 bg-emerald-50 dark:bg-transparent transition border border-emerald-200 dark:border-emerald-500/30 ms-1 disabled:opacity-40"
                     title={isAr ? 'فتح نافذة المعاينة المرئية والتحقق بالرموز' : 'Open Visual Preview & Verification Modal'}
                   >
-                    <Eye className="w-3.5 h-3.5" />
+                    <Eye className="w-4 h-4 shrink-0" />
                     <span>{isAr ? 'معاينة مرئية' : 'Preview Modal'}</span>
                   </button>
 
                   <button
                     onClick={handleExportJson}
                     disabled={!parseResult.root}
-                    className="flex items-center space-x-1 rtl:space-x-reverse px-2.5 py-1 rounded-md text-[11px] font-semibold text-amber-400 hover:bg-amber-500/20 hover:text-amber-300 transition border border-amber-500/30 ms-1 disabled:opacity-40"
+                    className="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg text-[11px] font-semibold text-sky-700 dark:text-sky-400 hover:bg-sky-100 dark:hover:bg-sky-500/20 bg-sky-50 dark:bg-transparent transition border border-sky-200 dark:border-sky-500/30 ms-1 disabled:opacity-40"
                     title={isAr ? 'تصدير هيكل الشجرة والإعدادات كملف JSON' : 'Export Tree Structure as JSON'}
                   >
-                    <FileJson className="w-3.5 h-3.5" />
+                    <FileJson className="w-4 h-4 shrink-0" />
                     <span>{isAr ? 'تصدير JSON' : 'Export JSON'}</span>
                   </button>
                 </div>
 
-                <div className="flex items-center space-x-1 rtl:space-x-reverse text-xs">
+                <div className="flex items-center gap-1 text-xs">
                   <button
                     onClick={() => setAllNodesDisabled(false, allNodePaths)}
-                    className="px-1.5 py-1 rounded text-slate-400 hover:text-emerald-400 hover:bg-slate-800 transition text-[11px]"
+                    className="px-1.5 py-1 rounded-md text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition text-[11px] font-medium"
                     title="Include All"
                   >
                     {isAr ? 'تحديد' : 'All'}
                   </button>
-                  <span className="text-slate-600">|</span>
+                  <span className="text-slate-300 dark:text-slate-700">|</span>
                   <button
                     onClick={() => setAllNodesDisabled(true, allNodePaths)}
-                    className="px-1.5 py-1 rounded text-slate-400 hover:text-red-400 hover:bg-slate-800 transition text-[11px]"
+                    className="px-1.5 py-1 rounded-md text-slate-600 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition text-[11px] font-medium"
                     title="Deselect All"
                   >
                     {isAr ? 'إلغاء' : 'None'}
@@ -896,7 +896,7 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
             {/* Search Input to filter visual tree structure */}
             <div className="mt-3 relative">
               <div className="relative flex items-center">
-                <Search className="w-4 h-4 text-slate-500 absolute left-3 rtl:right-3 pointer-events-none" />
+                <Search className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 rtl:right-3 pointer-events-none shrink-0" />
                 <input
                   type="text"
                   value={treeSearchQuery}
@@ -906,7 +906,7 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
                       ? 'بحث وتصفية بالاسم في هيكل الشجرة (مثل .py أو src أو test)...'
                       : 'Filter tree structure by file or folder name (e.g. .py, src, test)...'
                   }
-                  className="w-full bg-slate-950/80 border border-slate-800 focus:border-emerald-500/80 rounded-xl pl-9 rtl:pr-9 pr-24 rtl:pl-24 py-2 text-xs font-mono text-slate-200 placeholder-slate-500 focus:outline-none transition shadow-inner"
+                  className="w-full bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 focus:border-emerald-500 dark:focus:border-emerald-500/80 rounded-xl pl-9 rtl:pr-9 pr-24 rtl:pl-24 py-2 text-xs font-mono text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none transition shadow-inner"
                 />
                 {treeSearchQuery && (
                   <div className="absolute right-2.5 rtl:left-2.5 flex items-center space-x-1.5 rtl:space-x-reverse">
@@ -1050,9 +1050,9 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
               <button
                 onClick={handleDownloadZip}
                 disabled={!parseResult.root || downloading}
-                className="flex-1 min-w-[160px] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-600/25 border border-emerald-500/40 disabled:opacity-50 transition"
+                className="flex-1 min-w-[160px] inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-slate-950 font-bold text-xs shadow-md shadow-emerald-600/20 border border-emerald-500/40 disabled:opacity-50 transition"
               >
-                <Download className="w-4 h-4 text-white shrink-0" />
+                <Download className="w-4 h-4 shrink-0" />
                 <span>
                   {downloading
                     ? isAr
@@ -1072,10 +1072,10 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
               <button
                 onClick={() => setShowVisualPreviewModal(true)}
                 disabled={!parseResult.root}
-                className="flex items-center space-x-1.5 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-slate-700 text-xs font-semibold disabled:opacity-50 transition shrink-0"
+                className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 text-emerald-700 dark:text-emerald-400 border border-slate-200 dark:border-slate-700 text-xs font-semibold disabled:opacity-50 transition shrink-0 shadow-xs"
                 title={isAr ? 'معاينة شجرة الملفات بالرموز المرئية والتحقق منها قبل المتابعة' : 'Visual preview of file system tree before proceeding'}
               >
-                <Eye className="w-4 h-4 text-emerald-400" />
+                <Eye className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 <span>{isAr ? 'معاينة الهيكل' : 'Preview Tree'}</span>
               </button>
 
@@ -1083,10 +1083,10 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
               <button
                 onClick={handleExportJson}
                 disabled={!parseResult.root}
-                className="flex items-center space-x-1.5 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 hover:border-amber-500/40 text-xs font-semibold disabled:opacity-50 transition shrink-0 shadow-sm"
+                className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 text-sky-700 dark:text-sky-400 border border-slate-200 dark:border-slate-700 hover:border-sky-300 dark:hover:border-sky-500/40 text-xs font-semibold disabled:opacity-50 transition shrink-0 shadow-xs"
                 title={isAr ? 'تصدير هيكل شجرة الملفات والإعدادات الحالية كملف JSON محلياً' : 'Export current file system tree structure as a JSON file'}
               >
-                <FileJson className="w-4 h-4 text-amber-400" />
+                <FileJson className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0" />
                 <span>{isAr ? 'تصدير JSON' : 'Export JSON'}</span>
               </button>
 
@@ -1094,21 +1094,21 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
               <button
                 onClick={() => setShowExportWizard(true)}
                 disabled={!parseResult.root}
-                className="flex items-center space-x-1.5 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs shadow-md shadow-purple-600/20 disabled:opacity-50 transition shrink-0"
+                className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-bold text-xs shadow-md shadow-sky-600/20 disabled:opacity-50 transition shrink-0"
                 title={isAr ? 'معالج التصدير الذكي (.py / .sh / .zip)' : 'Smart Export Wizard (.py / .sh / .zip)'}
               >
-                <Wand2 className="w-4 h-4 text-purple-200" />
+                <Wand2 className="w-4 h-4 text-white shrink-0" />
                 <span>{isAr ? 'معالج التصدير' : 'Export Wizard'}</span>
               </button>
 
               <button
                 onClick={handleSendToContent}
                 disabled={!parseResult.root}
-                className="flex items-center space-x-1.5 rtl:space-x-reverse px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold disabled:opacity-50 transition shrink-0"
+                className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-semibold disabled:opacity-50 transition shrink-0 shadow-xs"
                 title={isAr ? 'إرسال هذه الملفات إلى مساحة حقن الأكواد' : 'Send files to Content workspace'}
               >
                 <span>{isAr ? 'حقن الأكواد' : 'Inject Code'}</span>
-                <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180 text-emerald-400" />
+                <ArrowRight className="w-4 h-4 rtl:rotate-180 text-emerald-600 dark:text-emerald-400 shrink-0" />
               </button>
             </div>
           </div>
@@ -1117,10 +1117,10 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
 
       {/* Quick Add Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 max-w-sm w-full space-y-4 shadow-2xl animate-fadeIn">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-              <span className="font-bold text-sm text-white">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-xs p-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 max-w-sm w-full space-y-4 shadow-2xl animate-fadeIn">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+              <span className="font-bold text-sm text-slate-900 dark:text-white">
                 {isAr
                   ? quickItemType === 'folder'
                     ? 'إضافة مجلد جديد إلى الشجرة'
@@ -1131,14 +1131,14 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
               </span>
               <button
                 onClick={() => setShowAddModal(false)}
-                className="text-slate-400 hover:text-white"
+                className="text-slate-400 hover:text-slate-700 dark:hover:text-white transition"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs text-slate-400">
+              <label className="text-xs text-slate-600 dark:text-slate-400 font-medium">
                 {isAr ? 'اسم العنصر:' : 'Item Name (relative or with extension):'}
               </label>
               <input
@@ -1146,7 +1146,7 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
                 value={quickItemName}
                 onChange={(e) => setQuickItemName(e.target.value)}
                 placeholder={quickItemType === 'folder' ? 'new_module/' : 'script.py'}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-emerald-400 focus:outline-none focus:border-emerald-500"
+                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 dark:text-emerald-400 focus:outline-none focus:border-emerald-500"
                 autoFocus
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') handleAddQuickItem();
@@ -1154,17 +1154,17 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
               />
             </div>
 
-            <div className="flex items-center justify-end space-x-2 rtl:space-x-reverse pt-2">
+            <div className="flex items-center justify-end gap-2 pt-2">
               <button
                 onClick={() => setShowAddModal(false)}
-                className="px-3 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800"
+                className="px-3 py-1.5 rounded-lg text-xs text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
               >
                 {isAr ? 'إلغاء' : 'Cancel'}
               </button>
               <button
                 onClick={handleAddQuickItem}
                 disabled={!quickItemName.trim()}
-                className="px-4 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs disabled:opacity-40"
+                className="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-slate-950 font-bold text-xs disabled:opacity-40 transition shadow-xs"
               >
                 {isAr ? 'إضافة إلى الشجرة' : 'Add to Tree'}
               </button>

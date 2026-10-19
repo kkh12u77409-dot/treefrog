@@ -134,36 +134,36 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800 py-6 mt-12 bg-slate-950/80 text-xs text-slate-500">
+      <footer className="border-t border-slate-200 dark:border-slate-800 py-6 mt-12 bg-white dark:bg-slate-950/80 text-xs text-slate-500 dark:text-slate-400">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center space-x-2.5 rtl:space-x-reverse">
+          <div className="flex items-center gap-2.5">
             <img
               src={logoUrl}
               alt="TreeForge"
-              className="w-5 h-5 rounded-md object-cover border border-emerald-500/30"
+              className="w-5 h-5 rounded-md object-cover border border-emerald-500/40"
               referrerPolicy="no-referrer"
             />
-            <span className="font-extrabold text-slate-300">TreeForge</span>
+            <span className="font-extrabold text-slate-800 dark:text-slate-200">TreeForge</span>
             <span>•</span>
             <span>{language === 'ar' ? 'تطبيق مكتبي متكامل بلغة بايثون و PyQt6' : 'Desktop & Web Project Scaffolding Suite'}</span>
           </div>
 
-          <div className="flex items-center space-x-4 rtl:space-x-reverse">
+          <div className="flex items-center gap-4">
             <button
               onClick={() => setActiveTab('tech-docs')}
-              className="hover:text-emerald-400 transition"
+              className="text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition"
             >
               {language === 'ar' ? 'المواصفات التقنية' : 'Tech Specs'}
             </button>
             <button
               onClick={() => setActiveTab('desktop-suite')}
-              className="hover:text-emerald-400 transition"
+              className="text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition"
             >
               {language === 'ar' ? 'الكود المصدري' : 'Source Code'}
             </button>
             <a
               href="/api/download-zip"
-              className="text-emerald-400 font-semibold hover:underline"
+              className="text-emerald-600 dark:text-emerald-400 font-semibold hover:underline"
             >
               TreeForge.zip
             </a>

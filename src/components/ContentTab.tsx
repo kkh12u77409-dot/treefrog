@@ -409,23 +409,23 @@ export const ContentTab: React.FC<ContentTabProps> = ({
   const getStatusBadge = (status: MatchStatus) => {
     if (status === 'matched') {
       return (
-        <span className="inline-flex items-center space-x-1 rtl:space-x-reverse text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-          <CheckCircle className="w-3 h-3 shrink-0" />
+        <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-500/20">
+          <CheckCircle className="w-3.5 h-3.5 shrink-0" />
           <span>{isAr ? 'متطابق' : 'Matched'}</span>
         </span>
       );
     }
     if (status === 'ambiguous') {
       return (
-        <span className="inline-flex items-center space-x-1 rtl:space-x-reverse text-[11px] font-semibold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
-          <AlertTriangle className="w-3 h-3 shrink-0" />
+        <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-500/20">
+          <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
           <span>{isAr ? 'متعدد الاحتمالات' : 'Ambiguous'}</span>
         </span>
       );
     }
     return (
-      <span className="inline-flex items-center space-x-1 rtl:space-x-reverse text-[11px] font-semibold text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full border border-red-500/20">
-        <XCircle className="w-3 h-3 shrink-0" />
+      <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 px-2.5 py-0.5 rounded-full border border-rose-200 dark:border-rose-500/20">
+        <XCircle className="w-3.5 h-3.5 shrink-0" />
         <span>{isAr ? 'غير موجود' : 'Unmatched'}</span>
       </span>
     );
@@ -445,41 +445,41 @@ export const ContentTab: React.FC<ContentTabProps> = ({
       )}
 
       {/* Sub Mode Navigation Tabs & Export Suite */}
-      <div className="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-3">
-        <div className="flex items-center space-x-2 rtl:space-x-reverse">
+      <div className="flex flex-wrap items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 gap-3">
+        <div className="flex items-center gap-2">
           <button
             onClick={() => setSubTab('batch')}
-            className={`flex items-center space-x-2 rtl:space-x-reverse px-4 py-2 rounded-xl text-xs font-bold transition ${
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition ${
               subTab === 'batch'
-                ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-                : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700'
+                ? 'bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 shadow-md shadow-emerald-600/20'
+                : 'bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
-            <Split className="w-3.5 h-3.5" />
+            <Split className="w-4 h-4 shrink-0" />
             <span>{isAr ? 'التقسيم الذكي للملفات (Batch)' : 'Smart Batch Splitter'}</span>
           </button>
 
           <button
             onClick={() => setSubTab('single')}
-            className={`flex items-center space-x-2 rtl:space-x-reverse px-4 py-2 rounded-xl text-xs font-bold transition ${
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition ${
               subTab === 'single'
-                ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-                : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700'
+                ? 'bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 shadow-md shadow-emerald-600/20'
+                : 'bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
-            <FileCode2 className="w-3.5 h-3.5" />
+            <FileCode2 className="w-4 h-4 shrink-0" />
             <span>{isAr ? 'محرر الملف الفردي (Single)' : 'Single File Editor'}</span>
           </button>
 
           <button
             onClick={() => setSubTab('queue')}
-            className={`flex items-center space-x-2 rtl:space-x-reverse px-4 py-2 rounded-xl text-xs font-bold transition ${
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition ${
               subTab === 'queue'
-                ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-                : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700'
+                ? 'bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 shadow-md shadow-emerald-600/20'
+                : 'bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
-            <ListOrdered className="w-3.5 h-3.5" />
+            <ListOrdered className="w-4 h-4 shrink-0" />
             <span>
               {isAr ? `طابور الحفظ (${queue.length})` : `Save Queue (${queue.length})`}
             </span>
@@ -487,13 +487,13 @@ export const ContentTab: React.FC<ContentTabProps> = ({
         </div>
 
         {/* Action Controls: Smart Generator & Export Menu */}
-        <div className="flex items-center space-x-2 rtl:space-x-reverse relative">
+        <div className="flex items-center gap-2 relative">
           {/* Smart Code Generator Trigger */}
           <button
             onClick={() => setShowGeneratorModal(true)}
-            className="flex items-center space-x-1.5 rtl:space-x-reverse px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-purple-500/20 to-emerald-500/20 text-purple-300 hover:text-white border border-purple-500/40 text-xs font-bold transition shadow-sm hover:border-purple-400"
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-sky-50 dark:bg-sky-500/20 text-sky-700 dark:text-sky-300 hover:bg-sky-100 dark:hover:bg-sky-500/30 border border-sky-300 dark:border-sky-500/40 text-xs font-bold transition shadow-xs"
           >
-            <Wand2 className="w-3.5 h-3.5 text-purple-400" />
+            <Wand2 className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0" />
             <span>{isAr ? 'مولد الأكواد الذكي ⚡' : 'Smart Code Generator ⚡'}</span>
           </button>
 
@@ -501,61 +501,61 @@ export const ContentTab: React.FC<ContentTabProps> = ({
           <div className="relative" ref={exportMenuRef}>
             <button
               onClick={() => setShowExportMenu(!showExportMenu)}
-              className="flex items-center space-x-1.5 rtl:space-x-reverse px-3.5 py-1.5 rounded-lg bg-emerald-500 text-slate-950 font-bold text-xs shadow-md shadow-emerald-500/20 hover:bg-emerald-400 transition"
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-slate-950 font-bold text-xs shadow-md shadow-emerald-600/20 transition"
             >
-              <Download className="w-3.5 h-3.5" />
+              <Download className="w-4 h-4 shrink-0" />
               <span>{isAr ? 'أدوات التصدير' : 'Export Suite'}</span>
-              <ChevronDown className={`w-3 h-3 ml-0.5 transition-transform duration-200 ${showExportMenu ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${showExportMenu ? 'rotate-180' : ''}`} />
             </button>
 
             {showExportMenu && (
-              <div className="absolute ltr:right-0 rtl:left-0 top-full mt-2 w-64 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl py-2 z-50 text-xs divide-y divide-slate-800 animate-fadeIn">
-                <div className="px-3 py-1.5 text-[10px] font-semibold uppercase text-slate-400">
+              <div className="absolute ltr:right-0 rtl:left-0 top-full mt-2 w-64 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl py-2 z-50 text-xs divide-y divide-slate-100 dark:divide-slate-800 animate-fadeIn">
+                <div className="px-3 py-1.5 text-[10px] font-semibold uppercase text-slate-500 dark:text-slate-400">
                   {isAr ? 'خيارات التصدير الجاهزة' : 'Export Formats'}
                 </div>
                 <div className="py-1">
                   <button
                     onClick={handleExportAllZip}
                     disabled={Object.keys(virtualFiles).length === 0}
-                    className="w-full px-3 py-2 text-left rtl:text-right hover:bg-slate-800 text-slate-200 flex items-center space-x-2 rtl:space-x-reverse disabled:opacity-40"
+                    className="w-full px-3 py-2 text-left rtl:text-right hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 inline-flex items-center gap-2 disabled:opacity-40"
                   >
-                    <Download className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <Download className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                     <div>
-                      <p className="font-semibold text-slate-100">{isAr ? 'أرشيف مضغوط (.ZIP)' : 'Compressed ZIP Archive'}</p>
-                      <p className="text-[10px] text-slate-400">{Object.keys(virtualFiles).length} {isAr ? 'ملف محقون' : 'injected files'}</p>
+                      <p className="font-semibold text-slate-900 dark:text-slate-100">{isAr ? 'أرشيف مضغوط (.ZIP)' : 'Compressed ZIP Archive'}</p>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400">{Object.keys(virtualFiles).length} {isAr ? 'ملف محقون' : 'injected files'}</p>
                     </div>
                   </button>
 
                   <button
                     onClick={handleExportStandalonePython}
-                    className="w-full px-3 py-2 text-left rtl:text-right hover:bg-slate-800 text-slate-200 flex items-center space-x-2 rtl:space-x-reverse"
+                    className="w-full px-3 py-2 text-left rtl:text-right hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 inline-flex items-center gap-2"
                   >
-                    <Terminal className="w-4 h-4 text-sky-400 shrink-0" />
+                    <Terminal className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0" />
                     <div>
-                      <p className="font-semibold text-slate-100">create_project.py</p>
-                      <p className="text-[10px] text-slate-400">{isAr ? 'سكربت بايثون مستقل ينشئ كافة الملفات' : 'Self-extracting single Python script'}</p>
+                      <p className="font-semibold text-slate-900 dark:text-slate-100">create_project.py</p>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400">{isAr ? 'سكربت بايثون مستقل ينشئ كافة الملفات' : 'Self-extracting single Python script'}</p>
                     </div>
                   </button>
 
                   <button
                     onClick={handleExportStandaloneBash}
-                    className="w-full px-3 py-2 text-left rtl:text-right hover:bg-slate-800 text-slate-200 flex items-center space-x-2 rtl:space-x-reverse"
+                    className="w-full px-3 py-2 text-left rtl:text-right hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 inline-flex items-center gap-2"
                   >
-                    <FileText className="w-4 h-4 text-amber-400 shrink-0" />
+                    <FileText className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                     <div>
-                      <p className="font-semibold text-slate-100">install_project.sh</p>
-                      <p className="text-[10px] text-slate-400">{isAr ? 'سكربت طرفية شل لإنشاء الهيكل' : 'Shell installation script'}</p>
+                      <p className="font-semibold text-slate-900 dark:text-slate-100">install_project.sh</p>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400">{isAr ? 'سكربت طرفية شل لإنشاء الهيكل' : 'Shell installation script'}</p>
                     </div>
                   </button>
 
                   <button
                     onClick={handleExportJsonManifest}
-                    className="w-full px-3 py-2 text-left rtl:text-right hover:bg-slate-800 text-slate-200 flex items-center space-x-2 rtl:space-x-reverse"
+                    className="w-full px-3 py-2 text-left rtl:text-right hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 inline-flex items-center gap-2"
                   >
-                    <FileJson className="w-4 h-4 text-purple-400 shrink-0" />
+                    <FileJson className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0" />
                     <div>
-                      <p className="font-semibold text-slate-100">treeforge_manifest.json</p>
-                      <p className="text-[10px] text-slate-400">{isAr ? 'ملف بيانات موحد لخطوط CI/CD' : 'Structured JSON data manifest'}</p>
+                      <p className="font-semibold text-slate-900 dark:text-slate-100">treeforge_manifest.json</p>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400">{isAr ? 'ملف بيانات موحد لخطوط CI/CD' : 'Structured JSON data manifest'}</p>
                     </div>
                   </button>
                 </div>
@@ -569,16 +569,16 @@ export const ContentTab: React.FC<ContentTabProps> = ({
       {subTab === 'batch' && (
         <div className="space-y-6">
           {/* Top Card: Multi-file Paste Area */}
-          <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+          <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <h3 className="text-sm font-bold text-white flex items-center space-x-2 rtl:space-x-reverse">
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                   <span>{isAr ? 'الصق الكود متعدد الملفات' : 'Paste Multi-File Code Here'}</span>
-                  <span className="text-[11px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-normal">
+                  <span className="text-[11px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-normal">
                     ###, ===, ---, // FILE:, # FILE:, ```
                   </span>
                 </h3>
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                   {isAr
                     ? 'يتعرف النظام تلقائياً على علامات الفواصل، ويفصل الأكواد، ويطابقها مع شجرة المشروع'
                     : 'Recognizes multiple separator conventions and fuzzy matches them to your project tree'}
@@ -586,26 +586,26 @@ export const ContentTab: React.FC<ContentTabProps> = ({
               </div>
 
               {/* Batch Helper Actions */}
-              <div className="flex items-center space-x-2 rtl:space-x-reverse text-xs flex-wrap gap-y-1">
+              <div className="flex items-center gap-2 text-xs flex-wrap gap-y-1">
                 <button
                   onClick={() => setShowSearchReplaceModal(true)}
-                  className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 flex items-center space-x-1"
+                  className="px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 inline-flex items-center gap-1.5 transition"
                   title="Search & Replace"
                 >
-                  <Replace className="w-3.5 h-3.5 text-sky-400" />
+                  <Replace className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400 shrink-0" />
                   <span>{isAr ? 'بحث واستبدال' : 'Find/Replace'}</span>
                 </button>
 
                 <button
                   onClick={() => handlePrependLicense('MIT')}
-                  className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 flex items-center space-x-1"
+                  className="px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 inline-flex items-center gap-1.5 transition"
                   title="Add MIT Header"
                 >
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                   <span>MIT License</span>
                 </button>
 
-                <label className="flex items-center space-x-1.5 rtl:space-x-reverse text-slate-300 cursor-pointer pl-1">
+                <label className="inline-flex items-center gap-1.5 text-slate-700 dark:text-slate-300 cursor-pointer pl-1 text-xs">
                   <input
                     type="checkbox"
                     checked={stripFences}
@@ -621,22 +621,22 @@ export const ContentTab: React.FC<ContentTabProps> = ({
               value={batchInput}
               onChange={(e) => setBatchInput(e.target.value)}
               placeholder={isAr ? 'الصق نصوص الملفات المجمعة هنا...' : 'Paste combined file text with markers...'}
-              className="w-full h-56 bg-slate-950/70 border border-slate-800/90 rounded-xl p-4 text-xs font-mono text-emerald-300 placeholder-slate-600 focus:outline-none focus:border-emerald-500/70 resize-none leading-relaxed tracking-wide"
+              className="w-full h-56 bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800/90 rounded-xl p-4 text-xs font-mono text-emerald-800 dark:text-emerald-300 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-emerald-500/70 resize-none leading-relaxed tracking-wide shadow-inner"
               dir="ltr"
               spellCheck={false}
             />
 
             <div className="flex items-center justify-between pt-1">
-              <span className="text-xs text-slate-500">
+              <span className="text-xs text-slate-500 dark:text-slate-400">
                 {isAr
                   ? `الشجرة المستهدفة تحتوي على ${filesList.length} ملفاً للمطابقة`
                   : `Active tree has ${filesList.length} candidate files for matching`}
               </span>
               <button
                 onClick={() => handleSplitBatch()}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-600/25 transition border border-emerald-500/40"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-slate-950 font-bold text-xs shadow-md shadow-emerald-600/20 transition border border-emerald-500/40"
               >
-                <Split className="w-4 h-4 text-white shrink-0" />
+                <Split className="w-4 h-4 shrink-0" />
                 <span>{isAr ? 'تقسيم ومطابقة الملفات' : 'Split & Match Files'}</span>
               </button>
             </div>
@@ -644,35 +644,35 @@ export const ContentTab: React.FC<ContentTabProps> = ({
 
           {/* Bottom Card: Match Table Preview */}
           {chunks.length > 0 && (
-            <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
-              <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+            <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs space-y-4">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
                 <div>
-                  <h4 className="text-sm font-bold text-white">
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-white">
                     {isAr ? 'معاينة الملفات المستخرجة وجدول المطابقة' : 'Extracted Chunks & Match Results'}
                   </h4>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     {isAr
                       ? 'يمكنك تعديل الملف المستهدف في الحالات غير المؤكدة قبل الحفظ'
                       : 'You can adjust candidate target files for ambiguous or unmatched chunks before saving'}
                   </p>
                 </div>
 
-                <div className="flex items-center space-x-2 rtl:space-x-reverse">
+                <div className="flex items-center gap-2">
                   {backupHistory && (
                     <button
                       onClick={handleUndoBatch}
-                      className="flex items-center space-x-1 rtl:space-x-reverse px-3 py-1.5 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/30 text-xs font-semibold hover:bg-amber-500 hover:text-slate-950 transition"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/30 text-xs font-semibold hover:bg-amber-500 hover:text-white transition"
                     >
-                      <Undo2 className="w-3.5 h-3.5" />
+                      <Undo2 className="w-4 h-4 shrink-0" />
                       <span>{isAr ? 'تراجع عن الحزمة السابقة' : 'Undo Last Batch'}</span>
                     </button>
                   )}
 
                   <button
                     onClick={handleSaveSelectedBatch}
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md shadow-emerald-600/25 transition border border-emerald-500/40"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-slate-950 font-bold text-xs shadow-md shadow-emerald-600/20 transition border border-emerald-500/40"
                   >
-                    <Save className="w-4 h-4 text-white shrink-0" />
+                    <Save className="w-4 h-4 shrink-0" />
                     <span>
                       {isAr
                         ? `حفظ الملفات المحددة دفعة واحدة (${chunks.filter((c) => c.included).length})`
@@ -683,9 +683,9 @@ export const ContentTab: React.FC<ContentTabProps> = ({
               </div>
 
               {/* Table */}
-              <div className="overflow-x-auto border border-slate-800 rounded-xl">
+              <div className="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-xl">
                 <table className="w-full text-xs text-left rtl:text-right">
-                  <thead className="bg-slate-950 text-slate-400 font-semibold border-b border-slate-800">
+                  <thead className="bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-400 font-semibold border-b border-slate-200 dark:border-slate-800">
                     <tr>
                       <th className="p-3 w-12 text-center">
                         <input
@@ -695,7 +695,7 @@ export const ContentTab: React.FC<ContentTabProps> = ({
                             const val = e.target.checked;
                             setChunks((prev) => prev.map((c) => ({ ...c, included: val })));
                           }}
-                          className="rounded border-slate-700 bg-slate-800 text-emerald-500"
+                          className="rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-emerald-600 focus:ring-0"
                         />
                       </th>
                       <th className="p-3">{isAr ? 'المسار المستخرج من النص' : 'Extracted Raw Marker'}</th>
@@ -705,7 +705,7 @@ export const ContentTab: React.FC<ContentTabProps> = ({
                       <th className="p-3 text-center">{isAr ? 'معاينة' : 'Inspect'}</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-800/60 font-mono">
+                  <tbody className="divide-y divide-slate-200 dark:divide-slate-800/60 font-mono">
                     {chunks.map((chunk) => (
                       <tr
                         key={chunk.id}
@@ -785,12 +785,12 @@ export const ContentTab: React.FC<ContentTabProps> = ({
       {subTab === 'single' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* File Selector Tree (4 cols) */}
-          <div className="lg:col-span-4 bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col h-[580px]">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-              <span className="font-bold text-slate-200 text-xs uppercase tracking-wider">
+          <div className="lg:col-span-4 bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs flex flex-col h-[580px]">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+              <span className="font-bold text-slate-800 dark:text-slate-200 text-xs uppercase tracking-wider">
                 {isAr ? 'ملفات المشروع المستهدفة' : 'Candidate Target Files'}
               </span>
-              <span className="text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+              <span className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-500/20">
                 {filesList.length}
               </span>
             </div>
@@ -805,18 +805,18 @@ export const ContentTab: React.FC<ContentTabProps> = ({
                     onClick={() => setSelectedFile(file)}
                     className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-mono transition text-left rtl:text-right ${
                       isSelected
-                        ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
-                        : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
+                        ? 'bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 font-bold shadow-md shadow-emerald-600/20'
+                        : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
-                    <div className="flex items-center space-x-2 rtl:space-x-reverse min-w-0">
-                      <FileCode2 className="w-3.5 h-3.5 shrink-0 opacity-70" />
+                    <div className="flex items-center gap-2 min-w-0">
+                      <FileCode2 className="w-4 h-4 shrink-0 opacity-80" />
                       <span className="truncate">{file}</span>
                     </div>
                     {hasVirtual && (
                       <span
                         className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                          isSelected ? 'bg-slate-950/20 text-slate-950' : 'bg-emerald-500/20 text-emerald-400'
+                          isSelected ? 'bg-white/20 dark:bg-slate-950/20 text-white dark:text-slate-950' : 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-400'
                         }`}
                         title="Saved in memory"
                       >
@@ -830,54 +830,54 @@ export const ContentTab: React.FC<ContentTabProps> = ({
           </div>
 
           {/* Editor & Actions (8 cols) */}
-          <div className="lg:col-span-8 bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col h-[580px]">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-              <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                <span className="font-bold text-white font-mono text-xs">{selectedFile}</span>
+          <div className="lg:col-span-8 bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs flex flex-col h-[580px]">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-slate-900 dark:text-white font-mono text-xs">{selectedFile}</span>
                 {virtualFiles[selectedFile] && (
-                  <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/20 font-semibold">
+                  <span className="text-[10px] bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-500/20 font-semibold">
                     {isAr ? 'محفوظ في الذاكرة' : 'Saved in memory'}
                   </span>
                 )}
               </div>
 
-              <div className="flex items-center space-x-2 rtl:space-x-reverse">
+              <div className="flex items-center gap-2">
                 {/* Compare / Diff button */}
                 <button
                   onClick={() => setShowDiffModal(true)}
                   disabled={!virtualFiles[selectedFile]}
-                  className="flex items-center space-x-1 rtl:space-x-reverse px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition disabled:opacity-40"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition disabled:opacity-40"
                   title="View Diff with Memory version"
                 >
-                  <Diff className="w-3.5 h-3.5 text-sky-400" />
+                  <Diff className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0" />
                   <span>{isAr ? 'مقارنة الفروقات (Diff)' : 'Diff'}</span>
                 </button>
 
                 <button
                   onClick={handleAddToQueue}
-                  className="flex items-center space-x-1 rtl:space-x-reverse px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition"
                 >
-                  <ListOrdered className="w-3.5 h-3.5" />
+                  <ListOrdered className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                   <span>{isAr ? 'إضافة للطابور' : '+ Queue'}</span>
                 </button>
 
                 <button
                   onClick={handleSaveSingle}
                   disabled={!selectedFile}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs transition border ${
+                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs transition border ${
                     !selectedFile
-                      ? 'bg-slate-200 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed'
-                      : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-600/25 border-emerald-500/40'
+                      ? 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed'
+                      : 'bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-slate-950 shadow-md shadow-emerald-600/20 border-emerald-500/40'
                   }`}
                 >
-                  <Save className={`w-4 h-4 shrink-0 ${!selectedFile ? 'text-slate-500 dark:text-slate-400' : 'text-white'}`} />
+                  <Save className={`w-4 h-4 shrink-0 ${!selectedFile ? 'text-slate-400 dark:text-slate-500' : 'currentColor'}`} />
                   <span>{isAr ? 'حفظ الملف (Ctrl+S)' : 'Save File (Ctrl+S)'}</span>
                 </button>
               </div>
             </div>
 
             {/* Prism Code Editor */}
-            <div className="flex-1 my-3 overflow-hidden rounded-xl border border-slate-800 bg-slate-950">
+            <div className="flex-1 my-3 overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-950">
               <PrismCodeEditor
                 value={singleEditorContent}
                 onChange={text => { setSingleEditorContent(text); setDrafts(prev => ({ ...prev, [selectedFile]: text })); }}
@@ -886,7 +886,7 @@ export const ContentTab: React.FC<ContentTabProps> = ({
               />
             </div>
 
-            <div className="flex items-center justify-between text-xs text-slate-500 font-mono">
+            <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-mono">
               <span>{singleEditorContent.split('\n').length} lines</span>
               <span>{new Blob([singleEditorContent]).size} bytes</span>
             </div>
@@ -896,42 +896,42 @@ export const ContentTab: React.FC<ContentTabProps> = ({
 
       {/* MODE 3: SAVE QUEUE */}
       {subTab === 'queue' && (
-        <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
             <div>
-              <h4 className="text-sm font-bold text-white">
+              <h4 className="text-sm font-bold text-slate-900 dark:text-white">
                 {isAr ? 'طابور الحفظ المؤقت (Staging Queue)' : 'Staging Save Queue'}
               </h4>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 {isAr
                   ? 'الملفات التي أضفتها هنا تنتظر الحفظ الجماعي بضغطة زر واحدة'
                   : 'Files queued here are awaiting one-click batch commitment to storage'}
               </p>
             </div>
 
-            <div className="flex items-center space-x-2 rtl:space-x-reverse">
+            <div className="flex items-center gap-2">
               <button
                 onClick={() => setQueue([])}
                 disabled={queue.length === 0}
-                className="flex items-center space-x-1 rtl:space-x-reverse px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 border border-red-500/30 text-xs font-semibold hover:bg-red-500 hover:text-white transition disabled:opacity-40"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-500/30 text-xs font-semibold hover:bg-rose-600 hover:text-white transition disabled:opacity-40"
               >
-                <Trash2 className="w-3.5 h-3.5" />
+                <Trash2 className="w-4 h-4 shrink-0" />
                 <span>{isAr ? 'إفراغ الطابور' : 'Clear Queue'}</span>
               </button>
 
               <button
                 onClick={handleSaveQueue}
                 disabled={queue.length === 0}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md shadow-emerald-600/25 transition border border-emerald-500/40 disabled:opacity-40"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-slate-950 font-bold text-xs shadow-md shadow-emerald-600/20 transition border border-emerald-500/40 disabled:opacity-40"
               >
-                <Save className="w-4 h-4 text-white shrink-0" />
+                <Save className="w-4 h-4 shrink-0" />
                 <span>{isAr ? 'حفظ جميع ملفات الطابور' : 'Save All Queue Files'}</span>
               </button>
             </div>
           </div>
 
           {queue.length === 0 ? (
-            <div className="p-12 text-center text-slate-500 text-xs">
+            <div className="p-12 text-center text-slate-500 dark:text-slate-400 text-xs">
               {isAr ? 'لا توجد ملفات في الطابور حالياً' : 'No files in queue. Add some from the Single File Editor!'}
             </div>
           ) : (
@@ -939,12 +939,12 @@ export const ContentTab: React.FC<ContentTabProps> = ({
               {queue.map((item, idx) => (
                 <div
                   key={idx}
-                  className="flex items-center justify-between p-3 bg-slate-950/80 border border-slate-800 rounded-xl"
+                  className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-xl"
                 >
-                  <div className="flex items-center space-x-2 rtl:space-x-reverse font-mono text-xs">
-                    <span className="text-slate-500">#{idx + 1}</span>
-                    <span className="text-emerald-400 font-semibold">{item.path}</span>
-                    <span className="text-slate-500 text-[11px]">
+                  <div className="flex items-center gap-2 font-mono text-xs">
+                    <span className="text-slate-400 dark:text-slate-500">#{idx + 1}</span>
+                    <span className="text-emerald-700 dark:text-emerald-400 font-semibold">{item.path}</span>
+                    <span className="text-slate-500 dark:text-slate-400 text-[11px]">
                       ({item.content.split('\n').length} lines)
                     </span>
                   </div>

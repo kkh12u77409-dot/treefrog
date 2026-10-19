@@ -127,27 +127,27 @@ export const ThemedSelect: React.FC<ThemedSelectProps> = ({
           compact ? 'px-2.5 py-1.5 text-xs' : 'px-3.5 py-2 text-xs sm:text-sm'
         } ${
           isOpen
-            ? 'bg-slate-800/95 border-emerald-500 shadow-md shadow-emerald-500/10 ring-1 ring-emerald-500/30'
-            : 'bg-slate-800/80 hover:bg-slate-800 border-slate-700 hover:border-slate-600 text-slate-200'
+            ? 'bg-emerald-50/70 dark:bg-slate-800/95 border-emerald-500 text-emerald-950 dark:text-slate-100 shadow-md shadow-emerald-500/10 ring-1 ring-emerald-500/30'
+            : 'bg-white dark:bg-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 text-slate-800 dark:text-slate-200 shadow-xs'
         }`}
       >
         <div className="flex items-center gap-2 min-w-0 flex-1">
           {SelectedIcon && (
-            <SelectedIcon className={`${compact ? 'w-3.5 h-3.5' : 'w-4 h-4'} text-emerald-400 shrink-0`} />
+            <SelectedIcon className={`${compact ? 'w-3.5 h-3.5' : 'w-4 h-4'} text-emerald-600 dark:text-emerald-400 shrink-0`} />
           )}
-          <span className="truncate font-semibold text-slate-100">
+          <span className="truncate font-semibold text-slate-800 dark:text-slate-100">
             {selectedOption ? selectedOption.label : placeholder}
           </span>
           {selectedOption?.badge && (
-            <span className="text-[10px] px-1.5 py-0.5 rounded-full font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shrink-0">
+            <span className="text-[10px] px-1.5 py-0.5 rounded-full font-bold bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30 shrink-0">
               {selectedOption.badge}
             </span>
           )}
         </div>
 
         <ChevronDown
-          className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 shrink-0 ${
-            isOpen ? 'rotate-180 text-emerald-400' : ''
+          className={`w-3.5 h-3.5 text-slate-500 dark:text-slate-400 transition-transform duration-200 shrink-0 ${
+            isOpen ? 'rotate-180 text-emerald-600 dark:text-emerald-400' : ''
           }`}
         />
       </button>
@@ -158,7 +158,7 @@ export const ThemedSelect: React.FC<ThemedSelectProps> = ({
           ref={menuRef}
           role="listbox"
           tabIndex={-1}
-          className={`absolute z-50 min-w-full w-max max-w-sm bg-slate-900 border border-slate-700/90 rounded-xl shadow-2xl p-1.5 text-xs backdrop-blur-xl animate-fadeIn ${
+          className={`absolute z-50 min-w-full w-max max-w-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/90 rounded-xl shadow-2xl p-1.5 text-xs backdrop-blur-xl animate-fadeIn ${
             openUpward
               ? 'bottom-full mb-1.5 origin-bottom'
               : 'top-full mt-1.5 origin-top'
@@ -184,15 +184,15 @@ export const ThemedSelect: React.FC<ThemedSelectProps> = ({
                   }}
                   className={`w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-start transition-colors ${
                     isSelected
-                      ? 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-semibold'
-                      : 'hover:bg-slate-800 text-slate-200 border border-transparent'
+                      ? 'bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-300 font-semibold'
+                      : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-transparent'
                   }`}
                 >
                   <div className="flex items-center gap-2.5 min-w-0 flex-1">
                     {OptionIcon && (
                       <OptionIcon
                         className={`w-4 h-4 shrink-0 ${
-                          isSelected ? 'text-emerald-400' : 'text-slate-400'
+                          isSelected ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-400'
                         }`}
                       />
                     )}
@@ -203,8 +203,8 @@ export const ThemedSelect: React.FC<ThemedSelectProps> = ({
                           <span
                             className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold uppercase ${
                               isSelected
-                                ? 'bg-emerald-500/30 text-emerald-300'
-                                : 'bg-slate-800 text-slate-400 border border-slate-700'
+                                ? 'bg-emerald-100 dark:bg-emerald-500/30 text-emerald-800 dark:text-emerald-300'
+                                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700'
                             }`}
                           >
                             {opt.badge}
@@ -212,7 +212,7 @@ export const ThemedSelect: React.FC<ThemedSelectProps> = ({
                         )}
                       </div>
                       {opt.description && (
-                        <p className="text-[11px] text-slate-400 font-normal mt-0.5 line-clamp-1">
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 font-normal mt-0.5 line-clamp-1">
                           {opt.description}
                         </p>
                       )}
@@ -220,7 +220,7 @@ export const ThemedSelect: React.FC<ThemedSelectProps> = ({
                   </div>
 
                   {isSelected && (
-                    <Check className="w-4 h-4 text-emerald-400 shrink-0 ms-2" />
+                    <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 ms-2" />
                   )}
                 </button>
               );

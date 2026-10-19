@@ -55,10 +55,10 @@ export const DesktopSuiteTab: React.FC<DesktopSuiteTabProps> = ({ language }) =>
   return (
     <div className="space-y-6">
       {/* Top Hero Banner */}
-      <div className="bg-gradient-to-r from-emerald-950/60 via-slate-900 to-slate-900 border border-emerald-500/30 rounded-2xl p-6 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-gradient-to-r from-emerald-950/70 via-slate-900 to-slate-900 border border-emerald-500/30 rounded-2xl p-6 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-2 max-w-2xl">
-          <div className="inline-flex items-center space-x-2 rtl:space-x-reverse px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-semibold">
-            <Cpu className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-semibold">
+            <Cpu className="w-4 h-4 text-emerald-400 shrink-0" />
             <span>Python 3.11 / 3.12 (3.10–3.13) • PyQt6 (6.x) • PyInstaller Ready</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
@@ -75,46 +75,45 @@ export const DesktopSuiteTab: React.FC<DesktopSuiteTabProps> = ({ language }) =>
         <a
           href="/api/download-zip"
           download="TreeForge_PyQt6_App.zip"
-          className="flex items-center justify-center space-x-2.5 rtl:space-x-reverse px-6 py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-sm shadow-xl shadow-emerald-500/25 transition shrink-0"
+          className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-sm shadow-xl shadow-emerald-500/25 transition shrink-0"
         >
-          <Download className="w-5 h-5" />
+          <Download className="w-5 h-5 shrink-0" />
           <span>{isAr ? 'تحميل التطبيق المكتبي كاملاً (ZIP)' : 'Download Full Desktop App (.ZIP)'}</span>
         </a>
       </div>
 
       {/* Terminal Cheat Sheet & Version Notice */}
-      <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 font-mono text-xs text-slate-300 space-y-3" dir="ltr">
+      <div className="bg-slate-900 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 font-mono text-xs text-slate-200 dark:text-slate-300 space-y-3" dir="ltr">
         <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-          <div className="flex items-center space-x-2 text-slate-400">
-            <Terminal className="w-4 h-4 text-emerald-400" />
-            <span className="font-bold text-slate-300">Terminal Quick Start / أوامر التشغيل السريع:</span>
+          <div className="flex items-center gap-2 text-slate-400">
+            <Terminal className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span className="font-bold text-slate-200 dark:text-slate-300">Terminal Quick Start / أوامر التشغيل السريع:</span>
           </div>
-          <span className="text-[11px] px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 font-sans">
+          <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800 font-sans font-semibold">
             Recommended: Python 3.11 or 3.12
           </span>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-1">
-            <span className="text-slate-500 font-semibold"># 1. Automatic Run (تشغيل تلقائي):</span>
+            <span className="text-slate-400 font-semibold"># 1. Automatic Run (تشغيل تلقائي):</span>
             <p className="text-emerald-400 font-bold">run.bat</p>
             <p className="text-slate-400 text-[11px]">يتحقق من بيئة بايثون ويثبت المتطلبات ويشغل التطبيق</p>
           </div>
           <div className="space-y-1">
-            <span className="text-slate-500 font-semibold"># 2. Build Windows EXE (تجميع exe):</span>
+            <span className="text-slate-400 font-semibold"># 2. Build Windows EXE (تجميع exe):</span>
             <p className="text-amber-400 font-bold">build_exe.bat</p>
             <p className="text-slate-400 text-[11px]">يبني ملف dist\TreeForge.exe مستقل بضغطة زر</p>
           </div>
           <div className="space-y-1">
-            <span className="text-slate-500 font-semibold"># 3. Inno Setup (مثبت ويندوز):</span>
+            <span className="text-slate-400 font-semibold"># 3. Inno Setup (مثبت ويندوز):</span>
             <p className="text-sky-400 font-bold">TreeForge_Installer.iss</p>
             <p className="text-slate-400 text-[11px]">سكربت إنشاء مثبت Setup احترافي باختصارات سطح المكتب</p>
           </div>
         </div>
 
-
         {/* Windows / Python 3.14 Troubleshooting Callout */}
-        <div className="pt-2 border-t border-slate-800/80 font-sans text-xs flex items-start space-x-2 text-amber-300/90 bg-amber-950/20 p-2.5 rounded-lg border border-amber-500/20">
+        <div className="pt-2 border-t border-slate-800/80 font-sans text-xs flex items-start gap-2 text-amber-300/90 bg-amber-950/20 p-2.5 rounded-xl border border-amber-500/20">
           <ShieldCheck className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
           <div className="space-y-1">
             <span className="font-semibold text-amber-200">
@@ -130,12 +129,12 @@ export const DesktopSuiteTab: React.FC<DesktopSuiteTabProps> = ({ language }) =>
       {/* 2-Column Codebase Explorer */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left: File Tree (4 cols) */}
-        <div className="lg:col-span-4 bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col h-[600px]">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-            <span className="font-bold text-slate-200 text-xs uppercase tracking-wider">
+        <div className="lg:col-span-4 bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs flex flex-col h-[600px]">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+            <span className="font-bold text-slate-800 dark:text-slate-200 text-xs uppercase tracking-wider">
               {isAr ? 'ملفات المشروع المصدري' : 'Project Source Files'}
             </span>
-            <span className="text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+            <span className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-500/20">
               {files.length} {isAr ? 'ملف' : 'files'}
             </span>
           </div>
@@ -148,16 +147,16 @@ export const DesktopSuiteTab: React.FC<DesktopSuiteTabProps> = ({ language }) =>
                 <button
                   key={file.path}
                   onClick={() => setSelectedFile(file)}
-                  className={`w-full flex items-center space-x-2 rtl:space-x-reverse px-3 py-2 rounded-lg text-xs font-mono text-left rtl:text-right transition ${
+                  className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-mono text-left rtl:text-right transition ${
                     isSelected
-                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-800/80'
+                      ? 'bg-emerald-50 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/40 font-bold'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80'
                   }`}
                 >
                   {isPy ? (
-                    <FileCode className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                    <FileCode className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                   ) : (
-                    <FileText className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                    <FileText className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0" />
                   )}
                   <span className="truncate">{file.path}</span>
                 </button>
@@ -167,31 +166,31 @@ export const DesktopSuiteTab: React.FC<DesktopSuiteTabProps> = ({ language }) =>
         </div>
 
         {/* Right: Code Viewer (8 cols) */}
-        <div className="lg:col-span-8 bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col h-[600px]">
+        <div className="lg:col-span-8 bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs flex flex-col h-[600px]">
           {selectedFile ? (
             <>
-              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-                <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                  <span className="font-mono text-xs font-bold text-emerald-400">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-xs font-bold text-emerald-700 dark:text-emerald-400">
                     TreeForge/{selectedFile.path}
                   </span>
-                  <span className="text-[10px] text-slate-500">
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
                     ({selectedFile.content.split('\n').length} lines)
                   </span>
                 </div>
 
                 <button
                   onClick={handleCopyCode}
-                  className="flex items-center space-x-1.5 rtl:space-x-reverse px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-medium transition"
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-semibold transition"
                 >
                   {copied ? (
                     <>
-                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                       <span>{isAr ? 'تم النسخ!' : 'Copied!'}</span>
                     </>
                   ) : (
                     <>
-                      <Copy className="w-3.5 h-3.5 text-slate-400" />
+                      <Copy className="w-4 h-4 text-slate-500 dark:text-slate-400 shrink-0" />
                       <span>{isAr ? 'نسخ الكود' : 'Copy Code'}</span>
                     </>
                   )}
@@ -207,7 +206,7 @@ export const DesktopSuiteTab: React.FC<DesktopSuiteTabProps> = ({ language }) =>
               </div>
             </>
           ) : (
-            <div className="h-full flex items-center justify-center text-slate-500 text-xs">
+            <div className="h-full flex items-center justify-center text-slate-500 dark:text-slate-400 text-xs">
               {isAr ? 'اختر ملفاً لعرض الشيفرة البرمجية' : 'Select a file to inspect its code'}
             </div>
           )}

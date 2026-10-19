@@ -156,7 +156,7 @@ export const ModernToast: React.FC<ModernToastProps> = ({
           />
 
           <div
-            className={`relative overflow-hidden rounded-2xl border bg-slate-950/92 dark:bg-slate-950/95 backdrop-blur-2xl shadow-2xl transition-all duration-200 ${current.cardBorder}`}
+            className={`relative overflow-hidden rounded-2xl border bg-white/95 dark:bg-slate-950/95 backdrop-blur-2xl shadow-2xl transition-all duration-200 ${current.cardBorder}`}
           >
             {/* Top Luminous Highlight Bar */}
             <div className={`h-[2px] w-full bg-gradient-to-r ${current.headerGlow}`} />
@@ -175,11 +175,11 @@ export const ModernToast: React.FC<ModernToastProps> = ({
                   <span className={`text-[11px] font-bold uppercase tracking-wider ${current.titleColor}`}>
                     {displayTitle}
                   </span>
-                  <span className="text-[10px] text-slate-500 font-mono">·</span>
-                  <span className="text-[10px] text-slate-400 font-mono">TreeForge</span>
+                  <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">·</span>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">TreeForge</span>
                 </div>
 
-                <p className="text-xs sm:text-sm font-medium text-slate-100 leading-relaxed break-words">
+                <p className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-100 leading-relaxed break-words">
                   {message}
                 </p>
               </div>

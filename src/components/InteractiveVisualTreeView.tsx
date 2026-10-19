@@ -280,16 +280,16 @@ export const InteractiveVisualTreeView: React.FC<InteractiveVisualTreeViewProps>
           onContextMenu={(e) => handleContextMenu(e, node)}
           className={`group flex items-center justify-between py-1.5 px-2.5 rounded-xl border text-xs font-mono transition-all duration-150 cursor-pointer my-0.5 ${
             isBeingDragged
-              ? 'opacity-30 border-dashed border-emerald-500 bg-slate-900'
+              ? 'opacity-30 border-dashed border-emerald-500 bg-slate-100 dark:bg-slate-900'
               : isDragOver
-              ? 'border-2 border-emerald-400 bg-emerald-500/20 shadow-lg shadow-emerald-500/20 scale-[1.01]'
+              ? 'border-2 border-emerald-500 bg-emerald-50 dark:bg-emerald-500/20 shadow-md scale-[1.01]'
               : isRoot
-              ? 'bg-slate-900/90 border-emerald-500/40 text-white shadow-md'
+              ? 'bg-slate-100 dark:bg-slate-900/90 border-emerald-500/40 text-slate-900 dark:text-white shadow-xs'
               : !node.enabled
-              ? 'opacity-40 bg-slate-950/60 border-slate-900 text-slate-500'
+              ? 'opacity-40 bg-slate-100 dark:bg-slate-950/60 border-slate-200 dark:border-slate-900 text-slate-400 dark:text-slate-500'
               : matchesSearch
-              ? 'bg-amber-500/15 border-amber-500/50 text-amber-200 ring-1 ring-amber-400'
-              : 'hover:bg-slate-800/70 border-slate-800/80 text-slate-200'
+              ? 'bg-amber-50 dark:bg-amber-500/15 border-amber-300 dark:border-amber-500/50 text-amber-900 dark:text-amber-200 ring-1 ring-amber-400'
+              : 'hover:bg-slate-100 dark:hover:bg-slate-800/70 border-slate-200 dark:border-slate-800/80 text-slate-800 dark:text-slate-200'
           }`}
           style={{
             marginInlineStart: `${depth * 18}px`,
@@ -299,21 +299,21 @@ export const InteractiveVisualTreeView: React.FC<InteractiveVisualTreeViewProps>
           }}
         >
           {/* Left part: Chevron, Checkbox, Icon, Name/Editor */}
-          <div className="flex items-center space-x-2 rtl:space-x-reverse min-w-0 flex-1">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
             {/* Expand/Collapse Chevron for folders */}
             {isDir ? (
               <button
                 onClick={(e) => toggleCollapse(node.path, e)}
-                className="p-0.5 text-slate-400 hover:text-white transition"
+                className="p-0.5 text-slate-400 hover:text-slate-700 dark:hover:text-white transition"
               >
                 {isCollapsed ? (
-                  <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+                  <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                 ) : (
-                  <ChevronDown className="w-3.5 h-3.5 text-emerald-400" />
+                  <ChevronDown className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 )}
               </button>
             ) : (
-              <span className="w-3.5" />
+              <span className="w-3.5 shrink-0" />
             )}
 
             {/* Checkbox (toggle enabled state) */}
@@ -322,33 +322,33 @@ export const InteractiveVisualTreeView: React.FC<InteractiveVisualTreeViewProps>
                 e.stopPropagation();
                 onToggleNode(node.path, node.name);
               }}
-              className="text-slate-400 hover:text-emerald-400 transition"
+              className="text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition shrink-0"
               title={node.enabled ? (isAr ? 'استبعاد' : 'Exclude') : (isAr ? 'تفعيل' : 'Include')}
             >
               {node.enabled ? (
-                <CheckSquare className="w-3.5 h-3.5 text-emerald-400" />
+                <CheckSquare className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
               ) : (
-                <Square className="w-3.5 h-3.5 text-slate-600" />
+                <Square className="w-3.5 h-3.5 text-slate-400 dark:text-slate-600 shrink-0" />
               )}
             </button>
 
             {/* Icon */}
             {isDir ? (
               isCollapsed ? (
-                <Folder className="w-4 h-4 text-amber-400 shrink-0" />
+                <Folder className="w-4 h-4 text-amber-500 dark:text-amber-400 shrink-0" />
               ) : (
-                <FolderOpen className="w-4 h-4 text-amber-300 shrink-0" />
+                <FolderOpen className="w-4 h-4 text-amber-500 dark:text-amber-300 shrink-0" />
               )
             ) : node.name.endsWith('.py') ? (
-              <FileCode className="w-4 h-4 text-emerald-400 shrink-0" />
+              <FileCode className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
             ) : (
-              <FileText className="w-4 h-4 text-sky-400 shrink-0" />
+              <FileText className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0" />
             )}
 
             {/* Name or Inline Rename Input */}
             {isEditing ? (
               <div
-                className="flex items-center space-x-1 rtl:space-x-reverse flex-1"
+                className="flex items-center gap-1.5 flex-1"
                 onClick={(e) => e.stopPropagation()}
               >
                 <input
@@ -360,17 +360,17 @@ export const InteractiveVisualTreeView: React.FC<InteractiveVisualTreeViewProps>
                     if (e.key === 'Enter') handleCommitRename(node.path);
                     if (e.key === 'Escape') setEditingPath(null);
                   }}
-                  className="bg-slate-950 border border-emerald-500 rounded px-2 py-0.5 text-xs text-white focus:outline-none w-48 font-mono"
+                  className="bg-white dark:bg-slate-950 border border-emerald-500 rounded px-2 py-0.5 text-xs text-slate-900 dark:text-white focus:outline-none w-48 font-mono shadow-inner"
                 />
                 <button
                   onClick={() => handleCommitRename(node.path)}
-                  className="p-1 text-emerald-400 hover:bg-emerald-500/20 rounded"
+                  className="p-1 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/20 rounded"
                 >
                   <Check className="w-3.5 h-3.5" />
                 </button>
                 <button
                   onClick={() => setEditingPath(null)}
-                  className="p-1 text-slate-400 hover:bg-slate-800 rounded"
+                  className="p-1 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -383,7 +383,7 @@ export const InteractiveVisualTreeView: React.FC<InteractiveVisualTreeViewProps>
                   setEditingName(node.name);
                 }}
                 className={`truncate ${
-                  isRoot ? 'font-black text-white text-sm' : isDir ? 'font-bold text-slate-100' : 'text-slate-300'
+                  isRoot ? 'font-black text-slate-900 dark:text-white text-sm' : isDir ? 'font-bold text-slate-900 dark:text-slate-100' : 'text-slate-700 dark:text-slate-300'
                 }`}
                 title={isAr ? `انقر مرتين أو اضغط بزر الماوس الأيمن للتعديل: ${node.path}` : `Double click or right-click to edit: ${node.path}`}
               >
@@ -395,7 +395,7 @@ export const InteractiveVisualTreeView: React.FC<InteractiveVisualTreeViewProps>
 
           {/* Right Action Controls on Hover */}
           <div
-            className="flex items-center space-x-1 rtl:space-x-reverse opacity-0 group-hover:opacity-100 transition-opacity ml-2"
+            className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity ms-2"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Quick Add File / Folder inside this directory */}
@@ -406,7 +406,7 @@ export const InteractiveVisualTreeView: React.FC<InteractiveVisualTreeViewProps>
                     setAddingToParent({ parentPath: node.path, isDir: false });
                     setNewChildName('');
                   }}
-                  className="p-1 rounded bg-slate-800 hover:bg-emerald-500/20 text-slate-400 hover:text-emerald-400 transition"
+                  className="p-1 rounded bg-slate-100 hover:bg-emerald-50 dark:bg-slate-800 dark:hover:bg-emerald-500/20 text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 border border-slate-200 dark:border-slate-700 transition"
                   title={isAr ? `إضافة ملف داخل ${node.name}` : `Add file inside ${node.name}`}
                 >
                   <FilePlus className="w-3.5 h-3.5" />
@@ -417,7 +417,7 @@ export const InteractiveVisualTreeView: React.FC<InteractiveVisualTreeViewProps>
                     setAddingToParent({ parentPath: node.path, isDir: true });
                     setNewChildName('');
                   }}
-                  className="p-1 rounded bg-slate-800 hover:bg-amber-500/20 text-slate-400 hover:text-amber-400 transition"
+                  className="p-1 rounded bg-slate-100 hover:bg-amber-50 dark:bg-slate-800 dark:hover:bg-amber-500/20 text-slate-600 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 border border-slate-200 dark:border-slate-700 transition"
                   title={isAr ? `إضافة مجلد داخل ${node.name}` : `Add folder inside ${node.name}`}
                 >
                   <FolderPlus className="w-3.5 h-3.5" />
@@ -432,7 +432,7 @@ export const InteractiveVisualTreeView: React.FC<InteractiveVisualTreeViewProps>
                   setEditingPath(node.path);
                   setEditingName(node.name);
                 }}
-                className="p-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-sky-400 transition"
+                className="p-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-sky-600 dark:hover:text-sky-400 border border-slate-200 dark:border-slate-700 transition"
                 title={isAr ? 'إعادة تسمية' : 'Rename'}
               >
                 <Edit2 className="w-3 h-3" />
@@ -443,7 +443,7 @@ export const InteractiveVisualTreeView: React.FC<InteractiveVisualTreeViewProps>
             {!isRoot && (
               <button
                 onClick={() => onRemoveNode(node.path)}
-                className="p-1 rounded bg-slate-800 hover:bg-red-500/20 text-slate-400 hover:text-red-400 transition"
+                className="p-1 rounded bg-slate-100 hover:bg-red-50 dark:bg-slate-800 dark:hover:bg-red-500/20 text-slate-600 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 border border-slate-200 dark:border-slate-700 transition"
                 title={isAr ? 'حذف العنصر' : 'Delete'}
               >
                 <Trash2 className="w-3 h-3" />
@@ -453,7 +453,7 @@ export const InteractiveVisualTreeView: React.FC<InteractiveVisualTreeViewProps>
             {/* Context menu trigger button */}
             <button
               onClick={(e) => handleContextMenu(e, node)}
-              className="p-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition"
+              className="p-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-700 transition"
               title={isAr ? 'المزيد من الخيارات' : 'More Options'}
             >
               <MoreVertical className="w-3 h-3" />
@@ -519,7 +519,7 @@ export const InteractiveVisualTreeView: React.FC<InteractiveVisualTreeViewProps>
   return (
     <div
       ref={containerRef}
-      className="flex flex-col h-full bg-slate-950/70 border border-slate-800/90 rounded-2xl overflow-hidden relative shadow-inner"
+      className="flex flex-col h-full bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800/90 rounded-2xl overflow-hidden relative shadow-inner"
       onDragOver={(e) => {
         e.preventDefault();
         if (draggedNodePath && dragOverPath !== root.path) {
@@ -537,27 +537,27 @@ export const InteractiveVisualTreeView: React.FC<InteractiveVisualTreeViewProps>
       }}
     >
       {/* Interactive Top Toolbar */}
-      <div className="flex items-center justify-between px-3.5 py-2.5 bg-slate-900/95 border-b border-slate-800 text-xs">
-        <div className="flex items-center space-x-2 rtl:space-x-reverse">
-          <span className="font-bold text-slate-300">
+      <div className="flex items-center justify-between px-3.5 py-2.5 bg-white dark:bg-slate-900/95 border-b border-slate-200 dark:border-slate-800 text-xs">
+        <div className="flex items-center gap-2">
+          <span className="font-bold text-slate-800 dark:text-slate-200">
             {isAr ? 'مستعرض الشجرة التفاعلي' : 'Interactive Tree Explorer'}
           </span>
-          <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 font-semibold">
+          <span className="text-[10px] text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-500/20 font-semibold">
             {isAr ? 'سحب وإفلات • نقر يميني' : 'Drag & Drop • Right-Click'}
           </span>
         </div>
 
-        <div className="flex items-center space-x-1.5 rtl:space-x-reverse">
+        <div className="flex items-center gap-1.5">
           <button
             onClick={expandAll}
-            className="px-2 py-1 rounded-md text-[11px] bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition"
+            className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/60 transition"
             title={isAr ? 'توسيع الكل' : 'Expand All'}
           >
             {isAr ? 'توسيع' : 'Expand'}
           </button>
           <button
             onClick={collapseAll}
-            className="px-2 py-1 rounded-md text-[11px] bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition"
+            className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/60 transition"
             title={isAr ? 'طي الكل' : 'Collapse All'}
           >
             {isAr ? 'طي' : 'Collapse'}
@@ -572,14 +572,14 @@ export const InteractiveVisualTreeView: React.FC<InteractiveVisualTreeViewProps>
 
       {/* Drop Zone Indicator for Root */}
       {draggedNodePath && (
-        <div className="p-2.5 bg-emerald-500/10 border-t border-dashed border-emerald-500/50 flex items-center justify-center space-x-2 text-xs font-mono text-emerald-300 animate-pulse">
+        <div className="p-2.5 bg-emerald-50 dark:bg-emerald-500/10 border-t border-dashed border-emerald-400 dark:border-emerald-500/50 flex items-center justify-center gap-2 text-xs font-mono text-emerald-700 dark:text-emerald-300 animate-pulse">
           <Move className="w-3.5 h-3.5" />
           <span>{isAr ? 'أفلت هنا للنقل إلى المجلد الرئيسي للمشروع' : 'Drop here to move into root project folder'}</span>
         </div>
       )}
 
       {/* Bottom Hint Banner */}
-      <div className="px-3.5 py-1.5 bg-slate-900/90 border-t border-slate-800 text-[10px] text-slate-500 flex items-center justify-between">
+      <div className="px-3.5 py-2 bg-slate-100/80 dark:bg-slate-900/90 border-t border-slate-200 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-400 flex items-center justify-between">
         <span>
           {isAr
             ? '💡 اسحب الملفات للإفلات داخل المجلدات • انقر بالزر الأيمن أو مرتين لإعادة التسمية والإضافة'
@@ -590,12 +590,12 @@ export const InteractiveVisualTreeView: React.FC<InteractiveVisualTreeViewProps>
       {/* CUSTOM FLOATING CONTEXT MENU */}
       {contextMenu.visible && contextMenu.targetNode && (
         <div
-          className="fixed z-50 w-52 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl py-1.5 text-xs text-slate-200 animate-fadeIn divide-y divide-slate-800 backdrop-blur-md"
+          className="fixed z-50 w-52 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl py-1.5 text-xs text-slate-800 dark:text-slate-200 animate-fadeIn divide-y divide-slate-100 dark:divide-slate-800 backdrop-blur-md"
           style={{ top: `${contextMenu.y}px`, left: `${contextMenu.x}px` }}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header with target name */}
-          <div className="px-3 py-1.5 font-bold font-mono text-[11px] text-emerald-400 truncate">
+          <div className="px-3 py-1.5 font-bold font-mono text-[11px] text-emerald-700 dark:text-emerald-400 truncate">
             {contextMenu.targetNode.name}
             {contextMenu.targetNode.isDir ? '/' : ''}
           </div>
@@ -608,9 +608,9 @@ export const InteractiveVisualTreeView: React.FC<InteractiveVisualTreeViewProps>
                   setAddingToParent({ parentPath: contextMenu.targetNode!.path, isDir: false });
                   setContextMenu((prev) => ({ ...prev, visible: false }));
                 }}
-                className="w-full px-3 py-1.5 text-left rtl:text-right hover:bg-slate-800 flex items-center space-x-2 rtl:space-x-reverse text-slate-200 hover:text-emerald-400"
+                className="w-full px-3 py-1.5 text-left rtl:text-right hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2 text-slate-700 dark:text-slate-200 hover:text-emerald-700 dark:hover:text-emerald-400 transition"
               >
-                <FilePlus className="w-3.5 h-3.5 text-sky-400" />
+                <FilePlus className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400 shrink-0" />
                 <span>{isAr ? 'ملف جديد هنا' : 'New File here'}</span>
               </button>
 
@@ -619,9 +619,9 @@ export const InteractiveVisualTreeView: React.FC<InteractiveVisualTreeViewProps>
                   setAddingToParent({ parentPath: contextMenu.targetNode!.path, isDir: true });
                   setContextMenu((prev) => ({ ...prev, visible: false }));
                 }}
-                className="w-full px-3 py-1.5 text-left rtl:text-right hover:bg-slate-800 flex items-center space-x-2 rtl:space-x-reverse text-slate-200 hover:text-amber-400"
+                className="w-full px-3 py-1.5 text-left rtl:text-right hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2 text-slate-700 dark:text-slate-200 hover:text-amber-700 dark:hover:text-amber-400 transition"
               >
-                <FolderPlus className="w-3.5 h-3.5 text-amber-400" />
+                <FolderPlus className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400 shrink-0" />
                 <span>{isAr ? 'مجلد فرعي جديد' : 'New Subfolder'}</span>
               </button>
             </div>
@@ -635,9 +635,9 @@ export const InteractiveVisualTreeView: React.FC<InteractiveVisualTreeViewProps>
                 setEditingName(contextMenu.targetNode!.name);
                 setContextMenu((prev) => ({ ...prev, visible: false }));
               }}
-              className="w-full px-3 py-1.5 text-left rtl:text-right hover:bg-slate-800 flex items-center space-x-2 rtl:space-x-reverse text-slate-200"
+              className="w-full px-3 py-1.5 text-left rtl:text-right hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2 text-slate-700 dark:text-slate-200 transition"
             >
-              <Edit2 className="w-3.5 h-3.5 text-emerald-400" />
+              <Edit2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
               <span>{isAr ? 'إعادة تسمية (F2)' : 'Rename (F2)'}</span>
             </button>
 
@@ -647,9 +647,9 @@ export const InteractiveVisualTreeView: React.FC<InteractiveVisualTreeViewProps>
                   onDuplicateNode(contextMenu.targetNode!.path);
                   setContextMenu((prev) => ({ ...prev, visible: false }));
                 }}
-                className="w-full px-3 py-1.5 text-left rtl:text-right hover:bg-slate-800 flex items-center space-x-2 rtl:space-x-reverse text-slate-200"
+                className="w-full px-3 py-1.5 text-left rtl:text-right hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2 text-slate-700 dark:text-slate-200 transition"
               >
-                <Copy className="w-3.5 h-3.5 text-purple-400" />
+                <Copy className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400 shrink-0" />
                 <span>{isAr ? 'تكرار العنصر (Duplicate)' : 'Duplicate Item'}</span>
               </button>
             )}
@@ -659,16 +659,16 @@ export const InteractiveVisualTreeView: React.FC<InteractiveVisualTreeViewProps>
                 onToggleNode(contextMenu.targetNode!.path, contextMenu.targetNode!.name);
                 setContextMenu((prev) => ({ ...prev, visible: false }));
               }}
-              className="w-full px-3 py-1.5 text-left rtl:text-right hover:bg-slate-800 flex items-center space-x-2 rtl:space-x-reverse text-slate-200"
+              className="w-full px-3 py-1.5 text-left rtl:text-right hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2 text-slate-700 dark:text-slate-200 transition"
             >
               {contextMenu.targetNode.enabled ? (
                 <>
-                  <Square className="w-3.5 h-3.5 text-amber-400" />
+                  <Square className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400 shrink-0" />
                   <span>{isAr ? 'استبعاد من البناء' : 'Exclude from build'}</span>
                 </>
               ) : (
                 <>
-                  <CheckSquare className="w-3.5 h-3.5 text-emerald-400" />
+                  <CheckSquare className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                   <span>{isAr ? 'تضمين في البناء' : 'Include in build'}</span>
                 </>
               )}
@@ -681,9 +681,9 @@ export const InteractiveVisualTreeView: React.FC<InteractiveVisualTreeViewProps>
                 setContextMenu((prev) => ({ ...prev, visible: false }));
                 setTimeout(() => setCopiedPath(null), 2000);
               }}
-              className="w-full px-3 py-1.5 text-left rtl:text-right hover:bg-slate-800 flex items-center space-x-2 rtl:space-x-reverse text-slate-200"
+              className="w-full px-3 py-1.5 text-left rtl:text-right hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2 text-slate-700 dark:text-slate-200 transition"
             >
-              <Copy className="w-3.5 h-3.5 text-slate-400" />
+              <Copy className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 shrink-0" />
               <span>{isAr ? 'نسخ المسار النسبي' : 'Copy Relative Path'}</span>
             </button>
           </div>
@@ -696,9 +696,9 @@ export const InteractiveVisualTreeView: React.FC<InteractiveVisualTreeViewProps>
                   onRemoveNode(contextMenu.targetNode!.path);
                   setContextMenu((prev) => ({ ...prev, visible: false }));
                 }}
-                className="w-full px-3 py-1.5 text-left rtl:text-right hover:bg-red-500/20 text-red-400 hover:text-red-300 flex items-center space-x-2 rtl:space-x-reverse font-semibold"
+                className="w-full px-3 py-1.5 text-left rtl:text-right hover:bg-red-50 dark:hover:bg-red-500/20 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 flex items-center gap-2 font-semibold transition"
               >
-                <Trash2 className="w-3.5 h-3.5" />
+                <Trash2 className="w-3.5 h-3.5 shrink-0" />
                 <span>{isAr ? 'حذف العنصر' : 'Delete'}</span>
               </button>
             </div>
