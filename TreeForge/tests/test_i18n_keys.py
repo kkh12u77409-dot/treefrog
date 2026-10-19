@@ -49,8 +49,9 @@ class TestI18nKeys(unittest.TestCase):
 
     def test_windows_scripts_exist(self):
         """Verifies that run.bat, build_exe.bat, and installer .iss exist."""
+        import os
         from pathlib import Path
-        root = Path(__file__).resolve().parent.parent
+        root = Path(__file__).resolve().parent.parent.parent
         self.assertTrue((root / "run.bat").exists(), "run.bat must exist at root")
         self.assertTrue((root / "build_exe.bat").exists(), "build_exe.bat must exist at root")
         self.assertTrue((root / "TreeForge_Installer.iss").exists(), "TreeForge_Installer.iss must exist at root")

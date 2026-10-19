@@ -1,4 +1,3 @@
-import logoUrl from '../assets/images/treeforge-logo.webp';
 import React from 'react';
 import { 
   FolderTree, 
@@ -75,7 +74,7 @@ export const Header: React.FC<HeaderProps> = ({
               <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-tr from-emerald-500/50 to-teal-400/50 blur-[2px] opacity-75 group-hover:opacity-100 transition duration-300"></div>
               <div className="relative w-10 h-10 rounded-xl overflow-hidden bg-slate-900 border border-emerald-500/40 flex items-center justify-center shadow-lg shadow-emerald-500/20">
                 <img
-                  src={logoUrl}
+                  src="/src/assets/images/treeforge_logo_1792138921289.jpg"
                   alt="TreeForge Logo"
                   className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300"
                   referrerPolicy="no-referrer"

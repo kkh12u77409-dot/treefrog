@@ -1,31 +1,19 @@
-import { parseTreeText } from './utils/treeParser';
-import logoUrl from './assets/images/treeforge-logo.webp';
-import React, { useState, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header';
-const BuilderTab = lazy(() => import('./components/BuilderTab').then(m => ({ default: m.BuilderTab })));
-const ContentTab = lazy(() => import('./components/ContentTab').then(m => ({ default: m.ContentTab })));
-const AiArchitectTab = lazy(() => import('./components/AiArchitectTab').then(m => ({ default: m.AiArchitectTab })));
-const DesktopSuiteTab = lazy(() => import('./components/DesktopSuiteTab').then(m => ({ default: m.DesktopSuiteTab })));
-const TechDocsTab = lazy(() => import('./components/TechDocsTab').then(m => ({ default: m.TechDocsTab })));
+import { BuilderTab } from './components/BuilderTab';
+import { ContentTab } from './components/ContentTab';
+import { AiArchitectTab } from './components/AiArchitectTab';
+import { DesktopSuiteTab } from './components/DesktopSuiteTab';
+import { TechDocsTab } from './components/TechDocsTab';
 import { Language, Theme, WebTreeNode } from './types';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<string>('builder');
-  const [visited, setVisited] = useState(() => new Set(['builder']));
-  useEffect(() => { setVisited(prev => prev.has(activeTab) ? prev : new Set([...prev, activeTab])); }, [activeTab]);
-  // Warn before refreshing/closing: project code is deliberately not persisted unencrypted.
-  useEffect(() => {
-    const warn = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ''; };
-    window.addEventListener('beforeunload', warn);
-    return () => window.removeEventListener('beforeunload', warn);
-  }, []);
   const [language, setLanguage] = useState<Language>('ar');
   const [theme, setTheme] = useState<Theme>('dark');
 
   // Shared state between Builder and Content tabs
-  const [virtualFiles, setVirtualFiles] = useState<Record<string, string>>({});
-  const [candidateFiles, setCandidateFiles] = useState<string[]>(['MyProject/main.py', 'MyProject/requirements.txt', 'MyProject/README.md', 'MyProject/app/server.py', 'MyProject/app/models.py', 'MyProject/tests/test_server.py']);
-  const [projectVersion, setProjectVersion] = useState(0);
+  const [candidateFiles, setCandidateFiles] = useState<string[]>([]);
   const [activeBatchCode, setActiveBatchCode] = useState<string>('');
   const [externalTreeText, setExternalTreeText] = useState<string>('');
 
@@ -46,25 +34,10 @@ export default function App() {
 
   const handleSendToContent = (treeRoot: WebTreeNode, paths: string[]) => {
     setCandidateFiles(paths);
-    const initial: Record<string, string> = {};
-    const collect = (node: WebTreeNode) => {
-      if (node.content !== undefined) initial[node.path] = node.content;
-      node.children.forEach(collect);
-    };
-    collect(treeRoot);
-    setVirtualFiles(prev => ({ ...initial, ...Object.fromEntries(Object.entries(prev).filter(([path]) => path.startsWith(treeRoot.path + '/'))) }));
     setActiveTab('content');
   };
 
   const handleApplyAiProject = (treeText: string, batchCode: string) => {
-    const parsed = parseTreeText(treeText);
-    if (!parsed.root || parsed.errors.length) return;
-    const paths: string[] = [];
-    const collect = (node: WebTreeNode) => { if (!node.isDir) paths.push(node.path); node.children.forEach(collect); };
-    collect(parsed.root);
-    setCandidateFiles(paths);
-    setProjectVersion(version => version + 1);
-    setVirtualFiles({});
     setActiveBatchCode(batchCode);
     setExternalTreeText(treeText);
     setActiveTab('builder');
@@ -86,60 +59,42 @@ export default function App() {
 
       {/* Main Content Viewport */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <Suspense fallback={<p role="status">{language === 'ar' ? 'جارٍ التحميل…' : 'Loading…'}</p>}>
-        {visited.has('builder') && (
-          <section hidden={activeTab !== 'builder'}>
+        {activeTab === 'builder' && (
           <BuilderTab
             language={language}
-            fileContents={virtualFiles}
-            active={activeTab === 'builder'}
             onSendToContent={handleSendToContent}
             externalTreeText={externalTreeText}
-            projectVersion={projectVersion}
           />
-          </section>
         )}
 
-        {visited.has('content') && (
-          <section hidden={activeTab !== 'content'}>
+        {activeTab === 'content' && (
           <ContentTab
             language={language}
             candidateFiles={candidateFiles}
-            virtualFiles={virtualFiles}
-            setVirtualFiles={setVirtualFiles}
             initialBatchCode={activeBatchCode}
-            projectVersion={projectVersion}
           />
-          </section>
         )}
 
-        {visited.has('ai-architect') && (
-          <section hidden={activeTab !== 'ai-architect'}>
+        {activeTab === 'ai-architect' && (
           <AiArchitectTab language={language} onApplyProject={handleApplyAiProject} />
-          </section>
         )}
 
-        {visited.has('desktop-suite') && (
-          <section hidden={activeTab !== 'desktop-suite'}>
+        {activeTab === 'desktop-suite' && (
           <DesktopSuiteTab language={language} />
-          </section>
         )}
 
-        {visited.has('tech-docs') && (
-          <section hidden={activeTab !== 'tech-docs'}>
+        {activeTab === 'tech-docs' && (
           <TechDocsTab language={language} />
-          </section>
         )}
-        </Suspense>
       </main>
 
       {/* Footer */}
       <footer className="border-t border-slate-800 py-6 mt-12 bg-slate-950/80 text-xs text-slate-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center space-x-2.5 rtl:space-x-reverse">
-            <img
-              src={logoUrl}
-              alt="TreeForge"
+            <img 
+              src="/src/assets/images/treeforge_logo_1792138921289.jpg" 
+              alt="TreeForge" 
               className="w-5 h-5 rounded-md object-cover border border-emerald-500/30"
               referrerPolicy="no-referrer"
             />

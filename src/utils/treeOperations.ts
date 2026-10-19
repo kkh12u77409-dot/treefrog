@@ -1,4 +1,3 @@
-import { validateName } from './pathSafety';
 import { WebTreeNode } from '../types';
 
 /**
@@ -69,7 +68,6 @@ export function addNodeToTree(
   isDir: boolean
 ): { success: boolean; root: WebTreeNode; message?: string } {
   const cleanName = name.trim().replace(/\/+$/, '');
-  try { validateName(cleanName); } catch (error) { return { success: false, root, message: String(error) }; }
   if (!cleanName) return { success: false, root, message: 'Name cannot be empty' };
 
   const cloned = cloneTree(root);
@@ -89,12 +87,13 @@ export function addNodeToTree(
   }
 
   if (!targetParent) {
-    return { success: false, root, message: 'Parent directory not found' };
+    // Fallback to root
+    targetParent = cloned;
   }
 
   // Check duplicate
   const exists = targetParent.children.some(
-    (c) => c.name.toLowerCase() === cleanName.toLowerCase()
+    (c) => c.name.toLowerCase() === cleanName.toLowerCase() && c.isDir === isDir
   );
   if (exists) {
     return { success: false, root, message: `An item named "${cleanName}" already exists in this folder.` };
@@ -123,7 +122,6 @@ export function renameNodeInTree(
   newName: string
 ): { success: boolean; root: WebTreeNode; message?: string } {
   const cleanName = newName.trim().replace(/\/+$/, '');
-  try { validateName(cleanName); } catch (error) { return { success: false, root, message: String(error) }; }
   if (!cleanName) return { success: false, root, message: 'New name cannot be empty' };
 
   const cloned = cloneTree(root);
@@ -258,7 +256,8 @@ export function moveNodeInTree(
   }
 
   if (!targetFolder) {
-    return { success: false, root, message: 'Target directory not found' };
+    // If target not found or not dir, fallback to root
+    targetFolder = cloned;
   }
 
   // 3. Check for conflict in target folder
@@ -272,10 +271,7 @@ export function moveNodeInTree(
       ? '.' + (extractedNode as WebTreeNode).name.split('.').pop()
       : '';
     const stem = ext ? (extractedNode as WebTreeNode).name.slice(0, -ext.length) : (extractedNode as WebTreeNode).name;
-    let candidate = `${stem}_copy${ext}`;
-    let index = 2;
-    while (targetFolder.children.some(c => c.name.toLowerCase() === candidate.toLowerCase())) candidate = `${stem}_copy${index++}${ext}`;
-    (extractedNode as WebTreeNode).name = candidate;
+    (extractedNode as WebTreeNode).name = `${stem}_copy${ext}`;
   }
 
   // 4. Update path and append
@@ -318,9 +314,7 @@ export function duplicateNodeInTree(
 
   const ext = originalNode.name.includes('.') ? '.' + originalNode.name.split('.').pop() : '';
   const stem = ext ? originalNode.name.slice(0, -ext.length) : originalNode.name;
-  let newName = `${stem}_copy${ext}`;
-  let index = 2;
-  while ((targetParent as WebTreeNode).children.some(c => c.name.toLowerCase() === newName.toLowerCase())) newName = `${stem}_copy${index++}${ext}`;
+  const newName = `${stem}_copy${ext}`;
   duplicated.name = newName;
 
   recalculateNodePaths(duplicated, (targetParent as WebTreeNode).path);

@@ -10,8 +10,7 @@ import tempfile
 import codecs
 from pathlib import Path
 from typing import List, Tuple, Optional, Dict
-from .models import ItemPolicy, NewlineMode
-from .path_safety import safe_target
+from .models import ItemPolicy, NewlineMode, BuildStats
 
 
 def get_unique_filename(target_path: Path) -> Path:
@@ -39,86 +38,88 @@ class FileWriter:
         policy: ItemPolicy = ItemPolicy.OVERWRITE,
         create_backups: bool = True,
         use_bom: bool = False,
-        newline_mode: NewlineMode = NewlineMode.KEEP,
-        destination_dir: Optional[Path] = None
+        newline_mode: NewlineMode = NewlineMode.KEEP
     ):
         self.policy = policy
         self.create_backups = create_backups
         self.use_bom = use_bom
         self.newline_mode = newline_mode
-        self.destination_dir = Path(destination_dir).resolve() if destination_dir else None
-        self._last_backups: Dict[Path, Optional[Path]] = {}
-        self._created_dirs: set[Path] = set()
+        self._last_backups: List[Tuple[Path, Path]] = []  # (original_path, backup_path)
 
     def write_file(
-        self, target_path: Path, content: str, policy: Optional[ItemPolicy] = None
+        self,
+        target_path: Path,
+        content: str,
+        policy: Optional[ItemPolicy] = None
     ) -> Tuple[bool, str, Optional[Path]]:
-        """Write atomically; preserve the first pre-batch state and file permissions."""
-        backup_path = None
-        temp_path = None
+        """Write content to target_path with atomic replacement.
+        
+        Returns (success, message, final_path_used).
+        """
         try:
-            target_path = Path(target_path)
-            if self.destination_dir:
-                relative = target_path.absolute().relative_to(self.destination_dir)
-                target_path = safe_target(self.destination_dir, relative.as_posix())
-            else:
-                target_path = target_path.resolve()
-            value = policy if policy is not None else self.policy
-            effective_policy = ItemPolicy(value.lower() if isinstance(value, str) else value)
+            target_path = target_path.resolve()
+            parent = target_path.parent
+            parent.mkdir(parents=True, exist_ok=True)
+
+            effective_policy = policy if policy is not None else self.policy
+            if isinstance(effective_policy, str):
+                try:
+                    effective_policy = ItemPolicy(effective_policy.lower())
+                except ValueError:
+                    effective_policy = ItemPolicy.OVERWRITE
+
             final_target = target_path
+
             if target_path.exists():
                 if effective_policy == ItemPolicy.SKIP:
                     return False, "File exists (skipped by policy)", target_path
-                if effective_policy == ItemPolicy.AUTO_RENAME:
+                elif effective_policy == ItemPolicy.AUTO_RENAME:
                     final_target = get_unique_filename(target_path)
-            was_new = not final_target.exists()
+                elif effective_policy == ItemPolicy.OVERWRITE:
+                    if self.create_backups:
+                        bak_path = target_path.with_suffix(target_path.suffix + ".bak")
+                        try:
+                            shutil.copy2(target_path, bak_path)
+                            self._last_backups.append((target_path, bak_path))
+                        except Exception as e:
+                            return False, f"Failed creating backup: {e}", target_path
+
+            # Format newlines
             if self.newline_mode == NewlineMode.LF:
                 content = content.replace("\r\n", "\n").replace("\r", "\n")
             elif self.newline_mode == NewlineMode.CRLF:
                 content = content.replace("\r\n", "\n").replace("\r", "\n").replace("\n", "\r\n")
-            encoded = content.encode("utf-8")
+
+            # Prepare bytes with or without BOM
+            encoded_bytes = content.encode("utf-8")
             if self.use_bom:
-                encoded = codecs.BOM_UTF8 + encoded
-            parent = final_target.parent
-            missing = []
-            directory = parent
-            while not directory.exists():
-                missing.append(directory)
-                directory = directory.parent
-            parent.mkdir(parents=True, exist_ok=True)
-            self._created_dirs.update(missing)
-            new_entry = final_target not in self._last_backups
-            if new_entry and self.create_backups and not was_new:
-                fd, name = tempfile.mkstemp(dir=str(parent), prefix=".tmp_forge_backup_")
-                os.close(fd)
-                backup_path = Path(name)
-                shutil.copy2(final_target, backup_path)
-            fd, name = tempfile.mkstemp(dir=str(parent), prefix=".tmp_forge_")
-            temp_path = Path(name)
-            with os.fdopen(fd, "wb") as stream:
-                stream.write(encoded)
-                stream.flush()
-                os.fsync(stream.fileno())
-            if not was_new:
-                shutil.copymode(final_target, temp_path)
-            if self.destination_dir:
-                safe_target(self.destination_dir, final_target.relative_to(self.destination_dir).as_posix())
-            if effective_policy == ItemPolicy.OVERWRITE:
+                encoded_bytes = codecs.BOM_UTF8 + encoded_bytes
+
+            # Atomic write: write to temp file in same directory, then rename
+            temp_file = tempfile.NamedTemporaryFile(
+                mode="wb",
+                dir=str(parent),
+                delete=False,
+                prefix=".tmp_forge_"
+            )
+            temp_path = Path(temp_file.name)
+            try:
+                temp_file.write(encoded_bytes)
+                temp_file.flush()
+                os.fsync(temp_file.fileno())
+                temp_file.close()
+
+                # Atomically replace target
                 os.replace(temp_path, final_target)
-            else:
-                # Link is exclusive: SKIP/AUTO_RENAME must never clobber a racing writer.
-                os.link(temp_path, final_target)
-            if new_entry and (self.create_backups or was_new):
-                self._last_backups[final_target] = backup_path
-                backup_path = None  # Ownership transferred to the undo journal.
+            except Exception as e:
+                if temp_path.exists():
+                    temp_path.unlink(missing_ok=True)
+                raise e
+
             return True, "Successfully written", final_target
-        except Exception as error:
-            return False, str(error), target_path
-        finally:
-            if temp_path:
-                temp_path.unlink(missing_ok=True)
-            if backup_path:
-                backup_path.unlink(missing_ok=True)
+
+        except Exception as ex:
+            return False, str(ex), target_path
 
     def undo_last_batch(self) -> Tuple[int, List[str]]:
         """Restore previous state from backups created during the last batch write.
@@ -127,45 +128,58 @@ class FileWriter:
         """
         restored = 0
         errors = []
-        for orig, bak in reversed(list(self._last_backups.items())):
+        for orig, bak in reversed(self._last_backups):
             try:
-                if self.destination_dir:
-                    safe_target(self.destination_dir, orig.relative_to(self.destination_dir).as_posix())
-                if bak is None:
-                    orig.unlink(missing_ok=True)
-                else:
-                    os.replace(bak, orig)
-                restored += 1
-                del self._last_backups[orig]
+                if bak.exists():
+                    shutil.copy2(bak, orig)
+                    bak.unlink()
+                    restored += 1
             except Exception as e:
                 errors.append(f"Failed restoring {orig.name}: {e}")
-        for directory in sorted(self._created_dirs, key=lambda p: len(p.parts), reverse=True):
-            try:
-                directory.rmdir()  # Only remove empty directories created by this batch.
-            except OSError:
-                pass
-        self._created_dirs.clear()
+
+        self._last_backups.clear()
         return restored, errors
 
     def clear_backup_history(self) -> None:
-        for bak in self._last_backups.values():
-            if bak:
-                bak.unlink(missing_ok=True)
         self._last_backups.clear()
-        self._created_dirs.clear()
 
 
 def generate_standalone_installer(files_data: Dict[str, str], project_name: str = "TreeForgeProject") -> str:
-    """Generate an inert-data, contained, non-destructive Python installer."""
-    import base64
+    """Generate self-extracting single Python installer script with embedded file data."""
     import json
-    from .path_safety import validate_relative_path
-    from .installer_runtime import RUNTIME
-    validate_relative_path(project_name)
-    if "/" in project_name or "\\" in project_name:
-        raise ValueError("Project name must be one component")
-    for path in files_data:
-        validate_relative_path(path)
-    data = {"projectName": project_name, "files": files_data, "policy": "skip"}
-    payload = base64.b64encode(json.dumps(data, ensure_ascii=False).encode("utf-8")).decode("ascii")
-    return "#!/usr/bin/env python3\nPAYLOAD = " + repr(payload) + "\n" + RUNTIME
+    data_json = json.dumps(files_data, indent=2, ensure_ascii=False)
+    return f'''#!/usr/bin/env python3
+"""Standalone Self-Extracting Installer for {project_name}.
+Generated automatically by TreeForge Desktop Suite.
+
+Run directly:
+    python create_project.py
+"""
+
+import sys
+from pathlib import Path
+
+PROJECT_NAME = "{project_name}"
+FILES_DATA = {data_json}
+
+
+def main():
+    print(f"📦 Extracting & Scaffolding: {{PROJECT_NAME}}")
+    print("=" * 50)
+    target = Path.cwd() / PROJECT_NAME
+    target.mkdir(parents=True, exist_ok=True)
+
+    for rel_path, content in FILES_DATA.items():
+        fp = target / rel_path
+        fp.parent.mkdir(parents=True, exist_ok=True)
+        with open(fp, "w", encoding="utf-8") as f:
+            f.write(content)
+        print(f"  ✓ Created: {{rel_path}}")
+
+    print("=" * 50)
+    print(f"✨ Successfully generated {{len(FILES_DATA)}} files in '{{target.resolve()}}'!")
+
+
+if __name__ == "__main__":
+    main()
+'''

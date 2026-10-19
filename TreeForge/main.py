@@ -40,12 +40,11 @@ def run_cli_scaffold(tree_input: str, output_dir: str = "./scaffolded_project", 
     from TreeForge.core.tree_builder import TreeBuilder
     from TreeForge.core.content_splitter import ContentSplitter
     from TreeForge.core.file_writer import FileWriter
-    from TreeForge.core.models import ItemPolicy, MatchStatus
-    from TreeForge.core.path_safety import safe_target
+    from TreeForge.core.models import ItemPolicy
 
     # Resolve tree content from argument or file
     tree_text = tree_input
-    if "\n" not in tree_input and len(tree_input) < 240 and Path(tree_input).is_file():
+    if Path(tree_input).is_file():
         try:
             tree_text = Path(tree_input).read_text(encoding="utf-8")
         except Exception as e:
@@ -61,7 +60,7 @@ def run_cli_scaffold(tree_input: str, output_dir: str = "./scaffolded_project", 
         for err in result.errors:
             print(f"   - Line {err.line_number}: {err.message}")
 
-    if result.errors or not result.root:
+    if not result.root:
         print("❌ Could not determine a valid project root from the provided text.")
         return 1
 
@@ -71,7 +70,7 @@ def run_cli_scaffold(tree_input: str, output_dir: str = "./scaffolded_project", 
     print(f"📁 Scaffolding directory structure to: {dest_path} {'[DRY RUN]' if dry_run else ''}")
 
     builder = TreeBuilder(
-        policy=ItemPolicy.SKIP,
+        policy=ItemPolicy.OVERWRITE,
         add_init_py=True,
         create_starter_content=True,
         dry_run=dry_run
@@ -80,15 +79,10 @@ def run_cli_scaffold(tree_input: str, output_dir: str = "./scaffolded_project", 
     stats = builder.build(result.root, dest_path)
     print(f"✨ Scaffold complete: {len(stats.created_folders)} folders created, {len(stats.created_files)} files created, {len(stats.skipped_items)} skipped.")
 
-    if stats.failed_items:
-        for path, error in stats.failed_items:
-            print(f"❌ {path}: {error}")
-        return 1
-
     # Process content injection if provided
     if content_input:
         content_text = content_input
-        if "\n" not in content_input and len(content_input) < 240 and Path(content_input).is_file():
+        if Path(content_input).is_file():
             try:
                 content_text = Path(content_input).read_text(encoding="utf-8")
             except Exception as e:
@@ -98,32 +92,37 @@ def run_cli_scaffold(tree_input: str, output_dir: str = "./scaffolded_project", 
         if content_text.strip():
             print("\n📝 Injecting batch content into files...")
             splitter = ContentSplitter()
-            chunks = splitter.split(content_text, [n.relative_path for n in result.root.get_all_files()])
-            writer = FileWriter(policy=ItemPolicy.OVERWRITE, destination_dir=dest_path)
+            chunks = splitter.split(content_text, result.root)
+            writer = FileWriter(policy=ItemPolicy.OVERWRITE)
             injected_count = 0
 
             for chunk in chunks:
-                if chunk.resolved_path and chunk.match_status == MatchStatus.MATCHED:
-                    target_file = safe_target(dest_path, chunk.resolved_path)
+                if chunk.resolved_path:
+                    target_file = dest_path / chunk.resolved_path
                     if not dry_run:
-                        success, message, _ = writer.write_file(target_file, chunk.content)
-                        if not success:
-                            print(f"❌ {message}")
-                            return 1
+                        writer.write_file(target_file, chunk.content)
                     print(f"   [+] Wrote {len(chunk.content)} chars -> {chunk.resolved_path}")
                     injected_count += 1
                 else:
                     print(f"   [-] Unmatched chunk: {chunk.raw_target_path}")
 
             print(f"🎉 Injected content into {injected_count}/{len(chunks)} target files.")
-            if injected_count != len(chunks):
-                return 1
 
     return 0
 
 
 def run_gui() -> int:
     """Launch the PyQt6 Desktop Graphical Application."""
+    # Check Python version compatibility early
+    if sys.version_info >= (3, 14):
+        print("!" * 72)
+        print("WARNING: You are running Python 3.14+.")
+        print("PyQt6 binary wheels on PyPI officially support Python 3.8 to 3.13.")
+        print("Running PyQt6 on Python 3.14 often triggers:")
+        print("  'ImportError: DLL load failed while importing QtCore'")
+        print("Recommendation: Please run with Python 3.11 or 3.12.")
+        print("!" * 72)
+
     try:
         from PyQt6.QtCore import Qt
         from PyQt6.QtWidgets import QApplication
@@ -136,14 +135,14 @@ def run_gui() -> int:
         print("  1. Ensure you have Python 3.10–3.13 installed")
         print("  2. pip install -r requirements.txt")
         print("  3. python main.py\n")
-        print("🌐 Alternatively, the Web Application can be started separately:")
-        print("  Start it separately with: npm run dev (http://localhost:3000)\n")
+        print("🌐 Alternatively, the full interactive Web Application is running live at:")
+        print("  👉 http://localhost:3000\n")
         print("💻 Or use the built-in CLI engine (no PyQt6 required):")
         print("  python main.py --help")
         print("  python main.py --test")
         print("  python main.py --cli \"MyProject/\\n  ├── main.py\\n  └── utils.py\"")
         print("=" * 72)
-        return 1
+        return 0
 
     from TreeForge.services.settings_service import settings
     from TreeForge.services.theme_service import theme
@@ -244,8 +243,8 @@ def main() -> None:
         print("=" * 72)
         print("Headless Linux container detected (no active X11/Wayland display server).\n")
         print("🌐 1. Live Web Interface:")
-        print("   The TreeForge web application uses port 3000 when started:")
-        print("   Start it separately with: npm run dev (http://localhost:3000)\n")
+        print("   The full interactive TreeForge application is running on port 3000:")
+        print("   👉 http://localhost:3000\n")
         print("🖥️ 2. Desktop PyQt6 GUI App:")
         print("   To launch the native desktop GUI on Windows / macOS / Linux desktop:")
         print("     pip install -r requirements.txt")

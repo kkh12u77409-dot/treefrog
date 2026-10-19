@@ -1,5 +1,3 @@
-import { parseTreeText } from '../utils/treeParser';
-import { aiResultSchema } from '../utils/aiSchema';
 import React, { useState } from 'react';
 import { 
   Sparkles, 
@@ -36,7 +34,6 @@ const QUICK_PROMPTS_EN = [
 
 export const AiArchitectTab: React.FC<AiArchitectTabProps> = ({ language, onApplyProject }) => {
   const isAr = language === 'ar';
-  const [accessToken, setAccessToken] = useState('');
   const [prompt, setPrompt] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [result, setResult] = useState<{
@@ -67,15 +64,14 @@ export const AiArchitectTab: React.FC<AiArchitectTabProps> = ({ language, onAppl
     try {
       const res = await fetch('/api/generate-ai-tree', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}) },
-        signal: AbortSignal.timeout(50_000),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt, language }),
       });
       const data = await res.json();
       if (!res.ok) {
         throw new Error(data.error || 'Failed to generate project structure');
       }
-      setResult(aiResultSchema.parse(data.data));
+      setResult(data.data);
       showToast(
         isAr ? 'تم تصميم وتوليد معمارية المشروع بنجاح!' : 'Project architecture synthesized successfully!',
         'success',
@@ -92,11 +88,6 @@ export const AiArchitectTab: React.FC<AiArchitectTabProps> = ({ language, onAppl
 
   const handleApply = () => {
     if (!result) return;
-    const parsed = parseTreeText(result.treeText);
-    if (!parsed.root || parsed.errors.length) {
-      showToast(isAr ? 'الشجرة المولّدة غير صالحة. أعد التوليد.' : 'Generated tree is invalid. Please generate again.', 'error');
-      return;
-    }
     onApplyProject(result.treeText, result.batchCode);
     showToast(
       isAr ? 'تم تحميل هيكل المشروع والأكواد في أداة البناء!' : 'Loaded project tree and starter code into Builder!',
@@ -150,13 +141,7 @@ export const AiArchitectTab: React.FC<AiArchitectTabProps> = ({ language, onAppl
             <span className="text-slate-500">{isAr ? 'يدعم العربية والإنجليزية' : 'Arabic & English supported'}</span>
           </div>
 
-          <label className="block text-xs text-slate-300">
-            {isAr ? 'رمز الوصول لخدمة الذكاء الاصطناعي (لا يُحفظ)' : 'AI access token (not persisted)'}
-            <input type="password" autoComplete="off" value={accessToken} onChange={e => setAccessToken(e.target.value)}
-              className="block w-full mt-2 p-2 bg-slate-950 border border-slate-700 rounded" />
-          </label>
           <textarea
-            maxLength={6000}
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             placeholder={
