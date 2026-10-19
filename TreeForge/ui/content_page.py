@@ -3,7 +3,7 @@
 from pathlib import Path
 from typing import Optional, List, Tuple
 from PyQt6.QtCore import Qt, pyqtSignal, QUrl
-from PyQt6.QtGui import QKeySequence, QShortcut, QDesktopServices
+from PyQt6.QtGui import QKeySequence, QShortcut, QDesktopServices, QIcon
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
     QSplitter, QTreeWidget, QTreeWidgetItem, QTableWidget,
@@ -128,7 +128,6 @@ class ContentPage(QWidget):
         self.btn_save_single = QPushButton()
         self.btn_save_single.setObjectName("btnSaveSingle")
         self.btn_save_single.setFixedHeight(36)
-        self.btn_save_single.setIcon(icon_service.icon("save", size=16, role="disabled"))
         set_variant(self.btn_save_single, "primary_blue")
         set_button_text(self.btn_save_single, i18n.t("save_file"))
         self.btn_save_single.setEnabled(False)
@@ -137,7 +136,6 @@ class ContentPage(QWidget):
 
         self.btn_add_queue = QPushButton()
         self.btn_add_queue.setFixedHeight(36)
-        self.btn_add_queue.setIcon(icon_service.icon("list-plus", size=16))
         set_variant(self.btn_add_queue, "secondary")
         set_button_text(self.btn_add_queue, i18n.t("add_to_queue"))
         self.btn_add_queue.setEnabled(False)
@@ -205,7 +203,6 @@ class ContentPage(QWidget):
         self.btn_parse_batch = QPushButton()
         self.btn_parse_batch.setObjectName("btnParseBatch")
         self.btn_parse_batch.setFixedHeight(36)
-        self.btn_parse_batch.setIcon(icon_service.icon("split", size=16, role="on_blue"))
         set_variant(self.btn_parse_batch, "primary_blue")
         set_button_text(self.btn_parse_batch, i18n.t("split_and_match"))
         self.btn_parse_batch.clicked.connect(self._parse_and_match_batch)
@@ -238,14 +235,12 @@ class ContentPage(QWidget):
         self.btn_save_batch = QPushButton()
         self.btn_save_batch.setObjectName("btnSaveBatch")
         self.btn_save_batch.setFixedHeight(36)
-        self.btn_save_batch.setIcon(icon_service.icon("save-all", size=16, role="on_blue"))
         set_variant(self.btn_save_batch, "primary_blue")
         set_button_text(self.btn_save_batch, i18n.t("save_selected"))
         self.btn_save_batch.clicked.connect(self._save_selected_batch)
 
         self.btn_undo = QPushButton()
         self.btn_undo.setFixedHeight(36)
-        self.btn_undo.setIcon(icon_service.icon("undo-2", size=16))
         set_button_text(self.btn_undo, i18n.t("undo_batch"))
         self.btn_undo.clicked.connect(self._undo_batch)
 
@@ -283,14 +278,12 @@ class ContentPage(QWidget):
         self.btn_save_queue = QPushButton()
         self.btn_save_queue.setObjectName("btnSaveQueue")
         self.btn_save_queue.setFixedHeight(36)
-        self.btn_save_queue.setIcon(icon_service.icon("save-all", size=16, role="on_blue"))
         set_variant(self.btn_save_queue, "primary_blue")
         set_button_text(self.btn_save_queue, i18n.t("save_queue"))
         self.btn_save_queue.clicked.connect(self._save_queue)
 
         self.btn_clear_queue = QPushButton()
         self.btn_clear_queue.setFixedHeight(36)
-        self.btn_clear_queue.setIcon(icon_service.icon("trash-2", size=16, role="danger"))
         set_variant(self.btn_clear_queue, "danger")
         set_button_text(self.btn_clear_queue, i18n.t("clear_queue"))
         self.btn_clear_queue.clicked.connect(self._clear_queue)
@@ -407,10 +400,9 @@ class ContentPage(QWidget):
                 show_toast(self, i18n.t("toast_read_error", error=str(e)), "error")
 
     def _set_save_single_enabled(self, enabled: bool) -> None:
-        """Update save button enabled state and icon role so icon color matches text in light and dark themes."""
+        """Update save button enabled state without icons."""
         self.btn_save_single.setEnabled(enabled)
-        role = "on_blue" if enabled else "disabled"
-        self.btn_save_single.setIcon(icon_service.icon("save", size=16, role=role))
+        self.btn_save_single.setIcon(QIcon())
         set_button_text(self.btn_save_single, self.btn_save_single.text())
 
     def _save_single_file(self) -> None:
@@ -627,15 +619,14 @@ class ContentPage(QWidget):
 
     def _on_theme_changed(self, theme_name: str = "") -> None:
         """Refresh icons, text spacing, and button styles on theme change."""
-        save_role = "on_blue" if self.btn_save_single.isEnabled() else "disabled"
         self.btn_refresh_tree.setIcon(icon_service.icon("refresh-cw", size=16))
-        self.btn_save_single.setIcon(icon_service.icon("save", size=16, role=save_role))
-        self.btn_add_queue.setIcon(icon_service.icon("list-plus", size=16))
-        self.btn_parse_batch.setIcon(icon_service.icon("split", size=16, role="on_blue"))
-        self.btn_save_batch.setIcon(icon_service.icon("save-all", size=16, role="on_blue"))
-        self.btn_undo.setIcon(icon_service.icon("undo-2", size=16))
-        self.btn_save_queue.setIcon(icon_service.icon("save-all", size=16, role="on_blue"))
-        self.btn_clear_queue.setIcon(icon_service.icon("trash-2", size=16, role="danger"))
+        self.btn_save_single.setIcon(QIcon())
+        self.btn_add_queue.setIcon(QIcon())
+        self.btn_parse_batch.setIcon(QIcon())
+        self.btn_save_batch.setIcon(QIcon())
+        self.btn_undo.setIcon(QIcon())
+        self.btn_save_queue.setIcon(QIcon())
+        self.btn_clear_queue.setIcon(QIcon())
 
         set_variant(self.btn_save_single, "primary_blue")
         set_variant(self.btn_parse_batch, "primary_blue")
@@ -674,11 +665,10 @@ class ContentPage(QWidget):
         self.btn_refresh_tree.setToolTip(i18n.t("refresh"))
 
         set_button_text(self.btn_save_single, i18n.t("save_file"))
-        save_role = "on_blue" if self.btn_save_single.isEnabled() else "disabled"
-        self.btn_save_single.setIcon(icon_service.icon("save", size=16, role=save_role))
+        self.btn_save_single.setIcon(QIcon())
 
         set_button_text(self.btn_add_queue, i18n.t("add_to_queue"))
-        self.btn_add_queue.setIcon(icon_service.icon("list-plus", size=16))
+        self.btn_add_queue.setIcon(QIcon())
 
         self.chk_strip_fences.setText(i18n.t("opt_strip_fences"))
         self.chk_backups.setText(i18n.t("opt_backup"))
@@ -686,7 +676,7 @@ class ContentPage(QWidget):
         self.combo_newline.retranslate()
 
         set_button_text(self.btn_parse_batch, i18n.t("split_and_match"))
-        self.btn_parse_batch.setIcon(icon_service.icon("split", size=16, role="on_blue"))
+        self.btn_parse_batch.setIcon(QIcon())
 
         self.table.setHorizontalHeaderLabels([
             i18n.t("col_include"), i18n.t("col_target"), i18n.t("col_status"),
@@ -694,20 +684,20 @@ class ContentPage(QWidget):
         ])
 
         set_button_text(self.btn_save_batch, i18n.t("save_selected"))
-        self.btn_save_batch.setIcon(icon_service.icon("save-all", size=16, role="on_blue"))
+        self.btn_save_batch.setIcon(QIcon())
 
         set_button_text(self.btn_undo, i18n.t("undo_batch"))
-        self.btn_undo.setIcon(icon_service.icon("undo-2", size=16))
+        self.btn_undo.setIcon(QIcon())
 
         self.queue_table.setHorizontalHeaderLabels([
             i18n.t("col_target"), i18n.t("col_lines"), i18n.t("col_size")
         ])
 
         set_button_text(self.btn_save_queue, i18n.t("save_queue"))
-        self.btn_save_queue.setIcon(icon_service.icon("save-all", size=16, role="on_blue"))
+        self.btn_save_queue.setIcon(QIcon())
 
         set_button_text(self.btn_clear_queue, i18n.t("clear_queue"))
-        self.btn_clear_queue.setIcon(icon_service.icon("trash-2", size=16, role="danger"))
+        self.btn_clear_queue.setIcon(QIcon())
 
         self.batch_input.setPlaceholderText(i18n.t("batch_input_placeholder"))
         if self.lbl_current_file.text() in ("No file selected", "لم يتم اختيار أي ملف"):

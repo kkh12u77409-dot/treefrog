@@ -3,7 +3,7 @@
 from pathlib import Path
 from typing import Optional
 from PyQt6.QtCore import Qt, pyqtSignal, QUrl
-from PyQt6.QtGui import QDesktopServices
+from PyQt6.QtGui import QDesktopServices, QIcon
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTextEdit,
     QPushButton, QFileDialog, QCheckBox, QSplitter,
@@ -90,7 +90,6 @@ class BuilderPage(QWidget):
 
         self.btn_load_example = QPushButton()
         self.btn_load_example.setFixedHeight(28)
-        self.btn_load_example.setIcon(icon_service.icon("wand-sparkles", size=16))
         set_variant(self.btn_load_example, "secondary")
         set_button_text(self.btn_load_example, i18n.t("load_example"))
         self.btn_load_example.setToolTip(i18n.t("load_example"))
@@ -99,7 +98,6 @@ class BuilderPage(QWidget):
 
         self.btn_clear = QPushButton()
         self.btn_clear.setFixedHeight(28)
-        self.btn_clear.setIcon(icon_service.icon("eraser", size=16))
         set_variant(self.btn_clear, "secondary")
         set_button_text(self.btn_clear, i18n.t("clear_input"))
         self.btn_clear.setToolTip(i18n.t("clear_input"))
@@ -132,8 +130,8 @@ class BuilderPage(QWidget):
         dest_row.addWidget(self.dest_combo, 1)
 
         self.btn_browse = QPushButton()
-        self.btn_browse.setIcon(icon_service.icon("folder-open", size=16))
         self.btn_browse.setFixedHeight(36)
+        set_button_text(self.btn_browse, i18n.t("browse"))
         self.btn_browse.clicked.connect(self._browse_destination)
         dest_row.addWidget(self.btn_browse)
         card_layout.addLayout(dest_row)
@@ -186,7 +184,6 @@ class BuilderPage(QWidget):
         sel_row = QHBoxLayout()
         self.btn_select_all = QPushButton()
         self.btn_select_all.setFixedHeight(28)
-        self.btn_select_all.setIcon(icon_service.icon("list-checks", size=16))
         set_variant(self.btn_select_all, "secondary")
         set_button_text(self.btn_select_all, i18n.t("select_all"))
         self.btn_select_all.setToolTip(i18n.t("select_all"))
@@ -194,7 +191,6 @@ class BuilderPage(QWidget):
 
         self.btn_deselect_all = QPushButton()
         self.btn_deselect_all.setFixedHeight(28)
-        self.btn_deselect_all.setIcon(icon_service.icon("square-dashed", size=16))
         set_variant(self.btn_deselect_all, "secondary")
         set_button_text(self.btn_deselect_all, i18n.t("deselect_all"))
         self.btn_deselect_all.setToolTip(i18n.t("deselect_all"))
@@ -267,7 +263,6 @@ class BuilderPage(QWidget):
         self.btn_build = QPushButton()
         self.btn_build.setObjectName("btnBuild")
         self.btn_build.setFixedHeight(44)
-        self.btn_build.setIcon(icon_service.icon("hammer", size=18, role="on_accent"))
         set_variant(self.btn_build, "primary_green")
         set_button_text(self.btn_build, i18n.t("build_button"))
         self.btn_build.setEnabled(False)
@@ -509,12 +504,12 @@ class BuilderPage(QWidget):
 
     def _on_theme_changed(self, theme_name: str = "") -> None:
         """Refresh icons, text spacing, and button styles on theme change."""
-        self.btn_load_example.setIcon(icon_service.icon("wand-sparkles", size=16))
-        self.btn_clear.setIcon(icon_service.icon("eraser", size=16))
-        self.btn_browse.setIcon(icon_service.icon("folder-open", size=16))
-        self.btn_select_all.setIcon(icon_service.icon("list-checks", size=16))
-        self.btn_deselect_all.setIcon(icon_service.icon("square-dashed", size=16))
-        self.btn_build.setIcon(icon_service.icon("hammer", size=18, role="on_accent"))
+        self.btn_load_example.setIcon(QIcon())
+        self.btn_clear.setIcon(QIcon())
+        self.btn_browse.setIcon(QIcon())
+        self.btn_select_all.setIcon(QIcon())
+        self.btn_deselect_all.setIcon(QIcon())
+        self.btn_build.setIcon(QIcon())
         self.btn_cancel.setIcon(icon_service.icon("x", size=16, role="danger"))
         self.btn_open_folder.setIcon(icon_service.icon("folder-open", size=16))
         set_variant(self.btn_build, "primary_green")
@@ -563,7 +558,7 @@ class BuilderPage(QWidget):
         self.chk_starter.setText(i18n.t("opt_starter_content"))
         self.chk_dry_run.setText(i18n.t("opt_dry_run"))
         set_button_text(self.btn_build, i18n.t("build_button"))
-        self.btn_build.setIcon(icon_service.icon("hammer", size=18, role="on_accent"))
+        self.btn_build.setIcon(QIcon())
         set_button_text(self.btn_cancel, i18n.t("cancel"))
         set_button_text(self.btn_open_folder, i18n.t("open_folder"))
         self.tree_input.setPlaceholderText(i18n.t("tree_input_placeholder"))
