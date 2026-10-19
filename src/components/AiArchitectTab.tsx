@@ -119,14 +119,14 @@ export const AiArchitectTab: React.FC<AiArchitectTabProps> = ({ language, onAppl
         />
       )}
       {/* Intro Hero Banner */}
-      <div className="bg-gradient-to-r from-emerald-950/40 via-sky-950/40 to-slate-900 border border-emerald-500/30 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+      <div className="bg-gradient-to-r from-emerald-950/50 via-blue-950/40 to-slate-900 border border-emerald-500/30 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
-          <BrainCircuit className="w-48 h-48 text-sky-400" />
+          <BrainCircuit className="w-48 h-48 text-blue-400" />
         </div>
 
         <div className="relative z-10 max-w-3xl space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30 text-xs font-semibold">
-            <Sparkles className="w-4 h-4 text-sky-400" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30 text-xs font-semibold">
+            <Sparkles className="w-4 h-4 text-blue-400 shrink-0" />
             <span>{isAr ? 'الذكاء الاصطناعي بنمط التفكير العميق (Thinking Mode)' : 'Deep Thinking AI Architecture'}</span>
           </div>
 
@@ -184,7 +184,7 @@ export const AiArchitectTab: React.FC<AiArchitectTabProps> = ({ language, onAppl
               <button
                 key={idx}
                 onClick={() => setPrompt(q)}
-                className="text-left rtl:text-right text-[11px] px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/80 transition"
+                className="text-left rtl:text-right text-[11px] px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/80 hover:border-blue-400/50 dark:hover:border-blue-500/50 transition"
               >
                 {q}
               </button>
@@ -197,16 +197,16 @@ export const AiArchitectTab: React.FC<AiArchitectTabProps> = ({ language, onAppl
           <button
             onClick={handleGenerate}
             disabled={loading || !prompt.trim()}
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-sky-600 hover:from-emerald-500 hover:to-sky-500 text-white font-bold text-xs shadow-lg shadow-emerald-600/20 transition disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-500 hover:to-blue-500 text-white font-bold text-xs shadow-lg shadow-emerald-600/20 transition disabled:opacity-50"
           >
             {loading ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+                <Loader2 className="w-4 h-4 animate-spin shrink-0 text-current" />
                 <span>{isAr ? 'جارٍ التفكير والتصميم...' : 'Thinking & Synthesizing...'}</span>
               </>
             ) : (
               <>
-                <Sparkles className="w-4 h-4 shrink-0" />
+                <Sparkles className="w-4 h-4 shrink-0 text-current" />
                 <span>{isAr ? 'توليد الهيكل والأكواد بالذكاء الاصطناعي' : 'Generate Project with Thinking AI'}</span>
               </>
             )}
@@ -242,7 +242,7 @@ export const AiArchitectTab: React.FC<AiArchitectTabProps> = ({ language, onAppl
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-slate-950 font-extrabold text-xs shadow-md shadow-emerald-600/20 transition shrink-0"
             >
               <span>{isAr ? 'تحميل الشجرة والكود في التطبيق' : 'Apply to Builder & Injector'}</span>
-              <ArrowRight className="w-4 h-4 rtl:rotate-180 shrink-0" />
+              <ArrowRight className="w-4 h-4 rtl:rotate-180 shrink-0 text-current" />
             </button>
           </div>
 
@@ -264,7 +264,7 @@ export const AiArchitectTab: React.FC<AiArchitectTabProps> = ({ language, onAppl
                   className="p-1 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                   title="Copy tree"
                 >
-                  {copiedTree ? <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" /> : <Copy className="w-3.5 h-3.5 shrink-0" />}
+                  {copiedTree ? <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" /> : <Copy className="w-4 h-4 shrink-0" />}
                 </button>
               </div>
               <pre className="flex-1 overflow-auto text-xs font-mono text-emerald-800 dark:text-emerald-400 leading-relaxed" dir="ltr">
@@ -276,7 +276,7 @@ export const AiArchitectTab: React.FC<AiArchitectTabProps> = ({ language, onAppl
             <div className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-4 flex flex-col h-80">
               <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800/80 mb-2">
                 <div className="flex items-center gap-2 text-xs font-bold text-slate-800 dark:text-slate-300">
-                  <FileCode className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0" />
+                  <FileCode className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
                   <span>{isAr ? 'أكواد الملفات الأولية' : 'Starter Code Chunks'}</span>
                 </div>
                 <button

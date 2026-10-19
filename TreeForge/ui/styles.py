@@ -63,11 +63,48 @@ def create_badge(text: str, badge_type: str = "success") -> QLabel:
 
 
 def set_button_text(btn, text: str) -> None:
-    """Sets button text cleanly."""
+    """Sets button text with fixed, uniform spacing between icon and text respecting RTL/LTR direction."""
     if not text:
         btn.setText("")
         return
-    btn.setText(text.strip())
+    clean = text.strip()
+    has_icon = False
+    try:
+        has_icon = hasattr(btn, "icon") and bool(btn.icon() and not btn.icon().isNull())
+    except Exception:
+        has_icon = False
+
+    if has_icon:
+        try:
+            from ..services.i18n_service import i18n
+            is_rtl = i18n.is_rtl()
+        except Exception:
+            is_rtl = False
+
+        # In RTL (Arabic), the icon is positioned on the right of text in Qt QPushButton.
+        # Adding fixed non-breaking spaces (\u00A0\u00A0) to the right creates a consistent margin before the icon.
+        # In LTR (English), the icon is positioned on the left of text.
+        # Adding fixed non-breaking spaces to the left creates that exact same margin after the icon.
+        if is_rtl:
+            btn.setText(f"{clean}\u00A0\u00A0")
+        else:
+            btn.setText(f"\u00A0\u00A0{clean}")
+    else:
+        btn.setText(clean)
+
+
+def set_button_icon(btn, icon_name: str, role: str = "default", size: int = 16, mirror_in_rtl: bool = False) -> None:
+    """Sets button icon, binds it for automatic theme recoloring, and synchronizes icon-text spacing."""
+    from ..services.icon_service import icon_service
+    from PyQt6.QtCore import QSize
+    icon_service.bind_icon(btn, icon_name, role=role, size=size, mirror_in_rtl=mirror_in_rtl)
+    try:
+        btn.setIconSize(QSize(size, size))
+    except Exception:
+        pass
+    if hasattr(btn, "text") and btn.text():
+        raw_text = btn.text().replace("\u00A0", "").strip()
+        set_button_text(btn, raw_text)
 
 
 

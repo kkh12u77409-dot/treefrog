@@ -138,7 +138,11 @@ class NavTabButton(QPushButton):
 
         tokens = theme.palette
         if is_checked:
-            text_color = QColor(tokens.get("accent_text", tokens.get("text_primary")))
+            accent_prop = self.property("nav_accent")
+            if accent_prop == "blue":
+                text_color = QColor(tokens.get("blue_text", tokens.get("text_primary")))
+            else:
+                text_color = QColor(tokens.get("accent_text", tokens.get("text_primary")))
             font_weight = QFont.Weight.DemiBold
         elif is_hovered:
             text_color = QColor(tokens.get("text_primary"))

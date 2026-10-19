@@ -72,7 +72,7 @@ export const Header: React.FC<HeaderProps> = ({
             title="TreeForge Scaffolder"
           >
             <div className="relative">
-              <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-tr from-emerald-500/40 to-sky-400/40 blur-[2px] opacity-75 group-hover:opacity-100 transition duration-300"></div>
+              <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-tr from-emerald-500/50 to-blue-500/50 blur-[2px] opacity-75 group-hover:opacity-100 transition duration-300"></div>
               <div className="relative w-10 h-10 rounded-xl overflow-hidden bg-white dark:bg-slate-900 border border-emerald-500/40 flex items-center justify-center shadow-xs">
                 <img
                   src={logoUrl}
@@ -87,7 +87,7 @@ export const Header: React.FC<HeaderProps> = ({
                 <span className="font-extrabold text-xl tracking-tight text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
                   TreeForge
                 </span>
-                <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30">
+                <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30">
                   PyQt6 6.x
                 </span>
               </div>
@@ -112,13 +112,13 @@ export const Header: React.FC<HeaderProps> = ({
                       : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80'
                   }`}
                 >
-                  <Icon className="w-4 h-4 shrink-0" />
+                  <Icon className="w-4 h-4 shrink-0 text-current" />
                   <span>{tab.label}</span>
                   {tab.badge && (
                     <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${
                       isActive 
                         ? 'bg-white/20 dark:bg-slate-950/20 text-white dark:text-slate-950' 
-                        : 'bg-sky-50 dark:bg-sky-500/20 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-500/30'
+                        : 'bg-blue-50 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-500/30'
                     }`}>
                       {tab.badge}
                     </span>
@@ -134,17 +134,17 @@ export const Header: React.FC<HeaderProps> = ({
             <a
               href="/api/download-zip"
               download="TreeForge_PyQt6_App.zip"
-              className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30 hover:bg-emerald-600 dark:hover:bg-emerald-500 hover:text-white dark:hover:text-slate-950 transition-all shadow-xs"
+              className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-xl bg-emerald-50 hover:bg-emerald-600 dark:bg-emerald-500/10 dark:hover:bg-emerald-500 text-emerald-700 hover:text-white dark:text-emerald-400 dark:hover:text-slate-950 border border-emerald-200 dark:border-emerald-500/30 transition-all shadow-xs"
               title="Download standalone Python PyQt6 application"
             >
-              <Download className="w-4 h-4 shrink-0" />
+              <Download className="w-4 h-4 shrink-0 text-current" />
               <span>{isAr ? 'تحميل تطبيق PyQt6' : 'Desktop ZIP'}</span>
             </a>
 
             {/* Language Switch */}
             <button
               onClick={() => setLanguage(language === 'en' ? 'ar' : 'en')}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/80 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition shadow-xs"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/80 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-emerald-600 dark:hover:text-emerald-400 transition shadow-xs"
               title="Toggle English / Arabic"
             >
               <Languages className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
@@ -154,10 +154,14 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Theme Switch */}
             <button
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="inline-flex items-center justify-center p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition shadow-xs"
+              className="inline-flex items-center justify-center p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-blue-600 dark:hover:text-blue-400 transition shadow-xs"
               title="Toggle Dark / Light Theme"
             >
-              {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-500 dark:text-amber-400 shrink-0" /> : <Moon className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0" />}
+              {theme === 'dark' ? (
+                <Sun className="w-4 h-4 text-amber-400 shrink-0" />
+              ) : (
+                <Moon className="w-4 h-4 text-blue-600 shrink-0" />
+              )}
             </button>
           </div>
         </div>
@@ -177,7 +181,7 @@ export const Header: React.FC<HeaderProps> = ({
                     : 'text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800/60 hover:bg-slate-200 dark:hover:bg-slate-800'
                 }`}
               >
-                <Icon className="w-4 h-4 shrink-0" />
+                <Icon className="w-4 h-4 shrink-0 text-current" />
                 <span>{tab.label}</span>
               </button>
             );

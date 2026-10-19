@@ -133,24 +133,33 @@ class IconService(QObject):
 
         tokens = get_theme_tokens(current_theme)
 
-        # Resolve colors per role
+        # Resolve colors per role with Green & Blue primary palette support
         role_colors = {
             "default": tokens["text_secondary"],
             "hover": tokens["text_primary"],
             "active": tokens["accent_text"],
             "disabled": tokens["disabled_text"],
             "on_accent": tokens["on_accent"],
+            "on_blue": tokens.get("on_blue", tokens["on_accent"]),
             "white": tokens["on_accent"],
             "danger": tokens["error"],
             "success": tokens["success"],
             "warning": tokens["warning"],
             "info": tokens["info"],
             "accent": tokens["accent_text"],
+            "green": tokens.get("accent_text", tokens["success"]),
+            "blue": tokens.get("blue_text", tokens["info"]),
+            "primary": tokens["accent_text"],
+            "primary_blue": tokens.get("blue_text", tokens["info"]),
         }
         base_color = role_colors.get(role, tokens["text_secondary"])
 
         def _build_svg_string(raw: str, c: str) -> str:
+            # Replace {color} with concrete token color
             replaced = raw.replace("{color}", c)
+            # Normalize stroke-width to uniform 2px thickness matching modern Lucide spec
+            import re
+            replaced = re.sub(r'stroke-width="[^"]*"', 'stroke-width="2"', replaced)
             if "<svg" in replaced:
                 idx = replaced.find(">")
                 if idx != -1:
@@ -158,7 +167,7 @@ class IconService(QObject):
                     body = replaced[idx + 1:]
                     if body.endswith("</svg>"):
                         body = body[:-6]
-                    return f'{open_tag}<g stroke="{c}" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">{body}</g></svg>'
+                    return f'{open_tag}<g stroke="{c}" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">{body}</g></svg>'
             return replaced
 
         svg_text = LUCIDE_SVGS.get(name, LUCIDE_SVGS.get("file", ""))

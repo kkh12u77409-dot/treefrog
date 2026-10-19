@@ -301,8 +301,31 @@ class ThemeService(QObject):
             text-align: left;
         }}
 
+        QPushButton[nav="true"][nav_accent="blue"]:checked {{
+            background-color: {tokens["blue_soft"]};
+            color: {tokens["blue_text"]};
+            font-weight: 600;
+            border: 2px solid {tokens["blue_solid"]};
+            border-radius: 9px;
+            text-align: {nav_align};
+        }}
+
+        QPushButton[nav="true"][nav_accent="blue"][rtl="true"]:checked {{
+            text-align: right;
+        }}
+
+        QPushButton[nav="true"][nav_accent="blue"][rtl="false"]:checked {{
+            text-align: left;
+        }}
+
         QPushButton[nav="true"]:focus {{
             border: 2px solid {tokens["accent_solid"]};
+            outline: none;
+            text-align: {nav_align};
+        }}
+
+        QPushButton[nav="true"][nav_accent="blue"]:focus {{
+            border: 2px solid {tokens["blue_solid"]};
             outline: none;
             text-align: {nav_align};
         }}
@@ -353,6 +376,7 @@ class ThemeService(QObject):
             font-weight: 500;
             font-size: 13px;
             min-height: 20px;
+            qproperty-iconSize: 16px 16px;
         }}
 
         QPushButton:hover {{
@@ -375,12 +399,10 @@ class ThemeService(QObject):
             border: 2px solid {tokens["border_focus"]};
         }}
 
+        /* --- 5A. PRIMARY GREEN (BUILD & CREATE) --- */
         QPushButton[variant="primary"],
-        QPushButton#btnSaveSingle,
-        QPushButton#btnBuild,
-        QPushButton#btnParseBatch,
-        QPushButton#btnSaveBatch,
-        QPushButton#btnSaveQueue {{
+        QPushButton[variant="primary_green"],
+        QPushButton#btnBuild {{
             background-color: {tokens["accent_solid"]};
             color: {tokens["on_accent"]};
             border: 1px solid {tokens["accent_hover"] if self._resolved_theme == "dark" else tokens["accent_solid"]};
@@ -392,30 +414,71 @@ class ThemeService(QObject):
         }}
 
         QPushButton[variant="primary"]:hover,
-        QPushButton#btnSaveSingle:hover,
-        QPushButton#btnBuild:hover,
-        QPushButton#btnParseBatch:hover,
-        QPushButton#btnSaveBatch:hover,
-        QPushButton#btnSaveQueue:hover {{
+        QPushButton[variant="primary_green"]:hover,
+        QPushButton#btnBuild:hover {{
             background-color: {tokens["accent_hover"]};
             border-color: {tokens["accent_text"] if self._resolved_theme == "dark" else tokens["accent_hover"]};
             color: {tokens["on_accent"]};
         }}
 
         QPushButton[variant="primary"]:pressed,
-        QPushButton#btnSaveSingle:pressed,
-        QPushButton#btnBuild:pressed,
-        QPushButton#btnParseBatch:pressed,
-        QPushButton#btnSaveBatch:pressed,
-        QPushButton#btnSaveQueue:pressed {{
+        QPushButton[variant="primary_green"]:pressed,
+        QPushButton#btnBuild:pressed {{
             background-color: {tokens["accent_pressed"]};
             border-color: {tokens["accent_pressed"]};
             color: {tokens["on_accent"]};
         }}
 
         QPushButton[variant="primary"]:disabled,
+        QPushButton[variant="primary_green"]:disabled,
+        QPushButton#btnBuild:disabled {{
+            background-color: {tokens["disabled_bg"]};
+            border-color: {tokens["disabled_border"]};
+            color: {tokens["disabled_text"]};
+        }}
+
+        /* --- 5B. PRIMARY BLUE (BATCH, DATA, INJECT & SAVE) --- */
+        QPushButton[variant="primary_blue"],
+        QPushButton[variant="blue"],
+        QPushButton#btnSaveSingle,
+        QPushButton#btnParseBatch,
+        QPushButton#btnSaveBatch,
+        QPushButton#btnSaveQueue {{
+            background-color: {tokens["blue_solid"]};
+            color: {tokens["on_blue"]};
+            border: 1px solid {tokens["blue_hover"] if self._resolved_theme == "dark" else tokens["blue_solid"]};
+            border-radius: {m["radius_control"]}px;
+            padding: 8px 20px;
+            font-weight: 600;
+            font-size: 13px;
+            min-height: 22px;
+        }}
+
+        QPushButton[variant="primary_blue"]:hover,
+        QPushButton[variant="blue"]:hover,
+        QPushButton#btnSaveSingle:hover,
+        QPushButton#btnParseBatch:hover,
+        QPushButton#btnSaveBatch:hover,
+        QPushButton#btnSaveQueue:hover {{
+            background-color: {tokens["blue_hover"]};
+            border-color: {tokens["blue_text"] if self._resolved_theme == "dark" else tokens["blue_hover"]};
+            color: {tokens["on_blue"]};
+        }}
+
+        QPushButton[variant="primary_blue"]:pressed,
+        QPushButton[variant="blue"]:pressed,
+        QPushButton#btnSaveSingle:pressed,
+        QPushButton#btnParseBatch:pressed,
+        QPushButton#btnSaveBatch:pressed,
+        QPushButton#btnSaveQueue:pressed {{
+            background-color: {tokens["blue_pressed"]};
+            border-color: {tokens["blue_pressed"]};
+            color: {tokens["on_blue"]};
+        }}
+
+        QPushButton[variant="primary_blue"]:disabled,
+        QPushButton[variant="blue"]:disabled,
         QPushButton#btnSaveSingle:disabled,
-        QPushButton#btnBuild:disabled,
         QPushButton#btnParseBatch:disabled,
         QPushButton#btnSaveBatch:disabled,
         QPushButton#btnSaveQueue:disabled {{
@@ -750,6 +813,34 @@ class ThemeService(QObject):
         QProgressBar::chunk {{
             background-color: {tokens["accent_solid"]};
             border-radius: 3px;
+        }}
+
+        QProgressBar#batchProgress::chunk {{
+            background-color: {tokens["blue_solid"]};
+            border-radius: 3px;
+        }}
+
+        /* === 13B. STATUS BADGES (GREEN & BLUE PRIMARY) === */
+        QLabel[badge="success"],
+        QLabel[badge="green"] {{
+            color: {tokens["accent_text"]};
+            background-color: {tokens["accent_soft"]};
+            border: 1px solid {tokens["accent_solid"]};
+            border-radius: 8px;
+            padding: 1px 6px;
+            font-size: 11px;
+            font-weight: 600;
+        }}
+
+        QLabel[badge="info"],
+        QLabel[badge="blue"] {{
+            color: {tokens["blue_text"]};
+            background-color: {tokens["blue_soft"]};
+            border: 1px solid {tokens["blue_solid"]};
+            border-radius: 8px;
+            padding: 1px 6px;
+            font-size: 11px;
+            font-weight: 600;
         }}
 
         /* === 14. STATUS BAR === */

@@ -506,8 +506,16 @@ class BuilderPage(QWidget):
 
     def _on_theme_changed(self, theme_name: str = "") -> None:
         """Refresh icons and button styles on theme change."""
+        self.btn_load_example.setIcon(icon_service.icon("wand-sparkles", size=14))
+        self.btn_clear.setIcon(icon_service.icon("eraser", size=14))
+        self.btn_browse.setIcon(icon_service.icon("folder-open", size=16))
+        self.btn_select_all.setIcon(icon_service.icon("list-checks", size=14))
+        self.btn_deselect_all.setIcon(icon_service.icon("square-dashed", size=14))
         self.btn_build.setIcon(icon_service.icon("hammer", size=18, role="on_accent"))
+        self.btn_open_folder.setIcon(icon_service.icon("folder-open", size=16))
         set_variant(self.btn_build, "primary")
+        if hasattr(self, "preview_empty_state") and hasattr(self.preview_empty_state, "icon_lbl"):
+            self.preview_empty_state.icon_lbl.setPixmap(icon_service.icon("folder-tree", size=36, role="disabled").pixmap(36, 36))
 
     def retranslate_ui(self) -> None:
         """Live translation updates for all labels and controls."""

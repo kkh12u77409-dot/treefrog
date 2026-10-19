@@ -840,10 +840,10 @@ export const VisualPreviewModal: React.FC<VisualPreviewModalProps> = ({
             {onExportJson && (
               <button
                 onClick={onExportJson}
-                className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-slate-700 hover:border-amber-500/40 text-xs font-semibold transition shadow-xs"
+                className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-500/40 text-xs font-semibold transition shadow-xs"
                 title={isAr ? 'تصدير هيكل شجرة الملفات والإعدادات كملف JSON' : 'Export File System Tree as JSON'}
               >
-                <FileJson className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                <FileJson className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
                 <span>{isAr ? 'تصدير JSON' : 'Export JSON'}</span>
               </button>
             )}

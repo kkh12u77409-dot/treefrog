@@ -446,14 +446,14 @@ export const VisualTreeDiagram: React.FC<VisualTreeDiagramProps> = ({
       {/* Top Diagram Toolbar */}
       <div className="flex flex-wrap items-center justify-between px-3 py-2 bg-slate-900/95 border-b border-slate-800 text-xs gap-2">
         {/* Left: View orientation, type filters & search */}
-        <div className="flex items-center space-x-1.5 rtl:space-x-reverse flex-wrap gap-y-1">
+        <div className="flex items-center gap-1.5 flex-wrap gap-y-1">
           {/* Orientation Switcher */}
           <button
             onClick={() => setOrientation(orientation === 'horizontal' ? 'vertical' : 'horizontal')}
-            className="flex items-center space-x-1.5 rtl:space-x-reverse px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 transition"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 transition"
             title={isAr ? 'تبديل اتجاه الرسم (أفقي / رأسي)' : 'Switch orientation (Horizontal / Vertical)'}
           >
-            <ArrowRightLeft className="w-3.5 h-3.5 text-emerald-400" />
+            <ArrowRightLeft className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
             <span>{orientation === 'horizontal' ? (isAr ? 'أفقي' : 'Horizontal') : (isAr ? 'رأسي' : 'Vertical')}</span>
           </button>
 
@@ -502,7 +502,7 @@ export const VisualTreeDiagram: React.FC<VisualTreeDiagramProps> = ({
 
           {/* Search inside diagram */}
           <div className="relative">
-            <Search className="w-3 h-3 text-slate-500 absolute left-2 rtl:right-2 top-2" />
+            <Search className="w-3 h-3 text-slate-500 absolute left-2 rtl:right-2 top-2 shrink-0 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
@@ -514,7 +514,7 @@ export const VisualTreeDiagram: React.FC<VisualTreeDiagramProps> = ({
         </div>
 
         {/* Right: Theme, Auto-Fit, Zoom, SVG Export, Fullscreen */}
-        <div className="flex items-center space-x-1.5 rtl:space-x-reverse">
+        <div className="flex items-center gap-1.5">
           {/* Theme Palette dropdown / toggle */}
           <button
             onClick={() => {
@@ -522,20 +522,20 @@ export const VisualTreeDiagram: React.FC<VisualTreeDiagramProps> = ({
               const nextIndex = (themes.indexOf(themePreset) + 1) % themes.length;
               setThemePreset(themes[nextIndex]);
             }}
-            className="flex items-center space-x-1 px-2 py-1 rounded-md text-slate-300 hover:text-emerald-400 hover:bg-slate-800 transition border border-slate-800"
+            className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-slate-300 hover:text-emerald-400 hover:bg-slate-800 transition border border-slate-800"
             title={isAr ? 'تبديل المظهر اللوني للرسم' : 'Switch Diagram Visual Theme'}
           >
-            <Palette className="w-3 h-3 text-emerald-400" />
+            <Palette className="w-3 h-3 text-emerald-400 shrink-0" />
             <span className="capitalize text-[11px]">{themePreset}</span>
           </button>
 
           {/* Auto-Fit View button */}
           <button
             onClick={handleAutoFit}
-            className="flex items-center space-x-1 px-2 py-1 rounded-md text-slate-300 hover:text-emerald-400 hover:bg-slate-800 transition border border-slate-800 text-[11px]"
+            className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-slate-300 hover:text-emerald-400 hover:bg-slate-800 transition border border-slate-800 text-[11px]"
             title={isAr ? 'ملاءمة وتوسيط كامل الشجرة في الشاشة' : 'Auto-Fit Tree in Viewport'}
           >
-            <Maximize className="w-3 h-3 text-sky-400" />
+            <Maximize className="w-3 h-3 text-sky-400 shrink-0" />
             <span className="hidden md:inline">{isAr ? 'ملاءمة' : 'Fit'}</span>
           </button>
 
@@ -712,7 +712,7 @@ export const VisualTreeDiagram: React.FC<VisualTreeDiagramProps> = ({
                 onClick={() => setSelectedNode(pNode)}
               >
                 {/* Checkbox and Icon */}
-                <div className="flex items-center space-x-2 rtl:space-x-reverse min-w-0">
+                <div className="flex items-center gap-2 min-w-0">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -721,9 +721,9 @@ export const VisualTreeDiagram: React.FC<VisualTreeDiagramProps> = ({
                     className="shrink-0 text-slate-400 hover:text-emerald-400 transition"
                   >
                     {node.enabled ? (
-                      <CheckSquare className="w-3.5 h-3.5 text-emerald-400" />
+                      <CheckSquare className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                     ) : (
-                      <Square className="w-3.5 h-3.5 text-slate-500" />
+                      <Square className="w-3.5 h-3.5 text-slate-500 shrink-0" />
                     )}
                   </button>
 
@@ -753,7 +753,7 @@ export const VisualTreeDiagram: React.FC<VisualTreeDiagramProps> = ({
                 </div>
 
                 {/* Right side actions: Expand/Collapse toggle or child count or delete */}
-                <div className="flex items-center space-x-1 rtl:space-x-reverse ml-1.5 shrink-0">
+                <div className="flex items-center gap-1 shrink-0">
                   {/* Folder Quick Add Button */}
                   {isDir && onAddChildNode && (
                     <button
@@ -771,14 +771,14 @@ export const VisualTreeDiagram: React.FC<VisualTreeDiagramProps> = ({
                   {isDir && hasChildren && (
                     <button
                       onClick={(e) => toggleCollapse(node.path, e)}
-                      className="p-1 rounded-md bg-slate-800/90 hover:bg-slate-700 text-slate-300 text-[10px] flex items-center space-x-0.5 rtl:space-x-reverse transition"
+                      className="p-1 rounded-md bg-slate-800/90 hover:bg-slate-700 text-slate-300 text-[10px] inline-flex items-center gap-1 transition"
                       title={isCollapsed ? (isAr ? 'توسيع' : 'Expand') : (isAr ? 'طي' : 'Collapse')}
                     >
                       <span>{node.children.length}</span>
                       {isCollapsed ? (
-                        <ChevronRight className="w-3 h-3 text-slate-400" />
+                        <ChevronRight className="w-3 h-3 text-slate-400 shrink-0" />
                       ) : (
-                        <ChevronDown className="w-3 h-3 text-emerald-400" />
+                        <ChevronDown className="w-3 h-3 text-emerald-400 shrink-0" />
                       )}
                     </button>
                   )}
@@ -864,8 +864,8 @@ export const VisualTreeDiagram: React.FC<VisualTreeDiagramProps> = ({
           <div className="absolute inset-0 z-30 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
             <div className="bg-slate-900 border border-emerald-500/40 rounded-2xl p-5 shadow-2xl max-w-sm w-full space-y-4">
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                  <FolderPlus className="w-5 h-5 text-emerald-400" />
+                <div className="flex items-center gap-2">
+                  <FolderPlus className="w-5 h-5 text-emerald-400 shrink-0" />
                   <span className="font-bold text-white text-sm">
                     {isAr ? 'إضافة عنصر داخل المجلد' : 'Add Item Inside Folder'}
                   </span>
@@ -874,7 +874,7 @@ export const VisualTreeDiagram: React.FC<VisualTreeDiagramProps> = ({
                   onClick={() => setQuickAddParent(null)}
                   className="p-1 rounded-lg text-slate-400 hover:text-white"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-4 h-4 shrink-0" />
                 </button>
               </div>
 
@@ -883,8 +883,8 @@ export const VisualTreeDiagram: React.FC<VisualTreeDiagramProps> = ({
               </div>
 
               <form onSubmit={handleAddChildConfirm} className="space-y-3">
-                <div className="flex items-center space-x-3 rtl:space-x-reverse text-xs">
-                  <label className="flex items-center space-x-1.5 rtl:space-x-reverse cursor-pointer">
+                <div className="flex items-center gap-3 text-xs">
+                  <label className="flex items-center gap-1.5 cursor-pointer">
                     <input
                       type="radio"
                       name="childType"
@@ -894,7 +894,7 @@ export const VisualTreeDiagram: React.FC<VisualTreeDiagramProps> = ({
                     />
                     <span className="text-slate-200">{isAr ? 'ملف جديد' : 'New File'}</span>
                   </label>
-                  <label className="flex items-center space-x-1.5 rtl:space-x-reverse cursor-pointer">
+                  <label className="flex items-center gap-1.5 cursor-pointer">
                     <input
                       type="radio"
                       name="childType"
@@ -915,7 +915,7 @@ export const VisualTreeDiagram: React.FC<VisualTreeDiagramProps> = ({
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500"
                 />
 
-                <div className="flex items-center justify-end space-x-2 rtl:space-x-reverse pt-2">
+                <div className="flex items-center justify-end gap-2 pt-2">
                   <button
                     type="button"
                     onClick={() => setQuickAddParent(null)}
@@ -940,8 +940,8 @@ export const VisualTreeDiagram: React.FC<VisualTreeDiagramProps> = ({
         {selectedNode && (
           <div className="absolute top-3 left-3 z-20 bg-slate-900/95 border border-emerald-500/30 rounded-xl p-3.5 shadow-2xl backdrop-blur-md max-w-xs w-full text-xs space-y-2.5">
             <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-              <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                <Info className="w-4 h-4 text-emerald-400" />
+              <div className="flex items-center gap-2">
+                <Info className="w-4 h-4 text-emerald-400 shrink-0" />
                 <span className="font-bold text-white truncate max-w-[170px]">
                   {selectedNode.node.name}
                 </span>
@@ -950,7 +950,7 @@ export const VisualTreeDiagram: React.FC<VisualTreeDiagramProps> = ({
                 onClick={() => setSelectedNode(null)}
                 className="text-slate-400 hover:text-white p-0.5 rounded"
               >
-                <X className="w-3.5 h-3.5" />
+                <X className="w-3.5 h-3.5 shrink-0" />
               </button>
             </div>
 
@@ -986,9 +986,9 @@ export const VisualTreeDiagram: React.FC<VisualTreeDiagramProps> = ({
                   setCopiedPath(true);
                   setTimeout(() => setCopiedPath(false), 1500);
                 }}
-                className="flex items-center space-x-1 text-[11px] text-slate-300 hover:text-emerald-400 transition"
+                className="inline-flex items-center gap-1 text-[11px] text-slate-300 hover:text-emerald-400 transition"
               >
-                {copiedPath ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                {copiedPath ? <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> : <Copy className="w-3.5 h-3.5 shrink-0" />}
                 <span>{copiedPath ? (isAr ? 'تم النسخ' : 'Copied!') : (isAr ? 'نسخ المسار' : 'Copy Path')}</span>
               </button>
 
@@ -1011,26 +1011,26 @@ export const VisualTreeDiagram: React.FC<VisualTreeDiagramProps> = ({
 
       {/* Bottom Diagram Legend & Stats */}
       <div className="px-3 py-1.5 bg-slate-900/95 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
-        <div className="flex items-center space-x-3 rtl:space-x-reverse">
-          <span className="flex items-center space-x-1 rtl:space-x-reverse">
-            <span className="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+        <div className="flex items-center gap-3">
+          <span className="inline-flex items-center gap-1">
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shrink-0"></span>
             <span>{isAr ? 'مجلدات' : 'Folders'}</span>
           </span>
-          <span className="flex items-center space-x-1 rtl:space-x-reverse">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+          <span className="inline-flex items-center gap-1">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0"></span>
             <span>{isAr ? 'بايثون (.py)' : 'Python'}</span>
           </span>
-          <span className="flex items-center space-x-1 rtl:space-x-reverse">
-            <span className="w-2.5 h-2.5 rounded-full bg-sky-400"></span>
+          <span className="inline-flex items-center gap-1">
+            <span className="w-2.5 h-2.5 rounded-full bg-blue-400 shrink-0"></span>
             <span>{isAr ? 'توثيق وملفات' : 'Docs & Files'}</span>
           </span>
-          <span className="flex items-center space-x-1 rtl:space-x-reverse">
-            <span className="w-2.5 h-1 border-t border-dashed border-slate-500"></span>
+          <span className="inline-flex items-center gap-1">
+            <span className="w-2.5 h-1 border-t border-dashed border-slate-500 shrink-0"></span>
             <span>{isAr ? 'مستبعد' : 'Excluded'}</span>
           </span>
         </div>
 
-        <div className="flex items-center space-x-3 rtl:space-x-reverse text-[10px] text-slate-500 font-mono">
+        <div className="flex items-center gap-3 text-[10px] text-slate-500 font-mono">
           {!showMiniMap && (
             <button
               onClick={() => setShowMiniMap(true)}

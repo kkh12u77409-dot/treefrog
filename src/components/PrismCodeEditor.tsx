@@ -120,20 +120,20 @@ export const PrismCodeEditor: React.FC<PrismCodeEditorProps> = ({
     <div className="flex flex-col border border-slate-800 rounded-xl overflow-hidden bg-[#1e1e1e] shadow-xl text-left rtl:text-left" dir="ltr">
       {/* Editor Header Status Bar */}
       <div className="flex items-center justify-between px-3.5 py-2 bg-slate-900 border-b border-slate-800 text-xs">
-        <div className="flex items-center space-x-2">
-          <FileCode className="w-3.5 h-3.5 text-emerald-400" />
+        <div className="flex items-center gap-2">
+          <FileCode className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
           <span className="font-mono text-slate-300 font-bold truncate max-w-xs">
             {filePath}
           </span>
-          <span className="px-2 py-0.5 rounded-full bg-slate-800 text-[10px] text-emerald-400 font-mono uppercase font-semibold border border-slate-700">
+          <span className="px-2 py-0.5 rounded-full bg-slate-800 text-[10px] text-emerald-400 font-mono uppercase font-semibold border border-slate-700 shrink-0">
             {lang}
           </span>
         </div>
 
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center gap-3">
           {/* Font Size Selector */}
-          <div className="flex items-center space-x-1 text-slate-400 text-[11px]">
-            <Type className="w-3 h-3 text-slate-500" />
+          <div className="flex items-center gap-1.5 text-slate-400 text-[11px]">
+            <Type className="w-3.5 h-3.5 text-slate-500 shrink-0" />
             <select
               value={fontSize}
               onChange={(e) => setFontSize(Number(e.target.value))}
@@ -158,17 +158,17 @@ export const PrismCodeEditor: React.FC<PrismCodeEditorProps> = ({
           {/* Copy Button */}
           <button
             onClick={handleCopy}
-            className="flex items-center space-x-1 px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition text-xs"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition text-xs"
             title="Copy code"
           >
             {copied ? (
               <>
-                <Check className="w-3 h-3 text-emerald-400" />
+                <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                 <span className="text-emerald-400 text-[11px]">Copied</span>
               </>
             ) : (
               <>
-                <Copy className="w-3 h-3 text-slate-400" />
+                <Copy className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                 <span className="text-[11px]">Copy</span>
               </>
             )}

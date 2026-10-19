@@ -25,7 +25,23 @@ code, pre, .font-mono {
   }
 }
 
-/* Custom modern scrollbar */
+/* Unified Icon Token rules for consistent stroke, sizing, and contrast */
+svg.lucide {
+  stroke-width: 2px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Button with icon spacing token: ensures consistent gap and proper RTL alignment */
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem; /* 8px fixed spacing */
+  flex-shrink: 0;
+}
+
+
+/* Custom modern scrollbar with light/dark contrast and emerald accent */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -34,8 +50,11 @@ code, pre, .font-mono {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #cbd5e1;
   border-radius: 9999px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #10b981;

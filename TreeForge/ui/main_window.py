@@ -88,11 +88,12 @@ class MainWindow(QMainWindow):
         sidebar_layout.addWidget(self.brand_sub)
         sidebar_layout.addSpacing(12)
 
-        # Nav buttons (Tagged with nav="true" for QSS styling and escaping '&')
+        # Nav buttons (Tagged with nav="true" and nav_accent for green & blue identity)
         self.btn_nav_builder = NavTabButton()
         self.btn_nav_builder.setProperty("nav", "true")
-        self.btn_nav_builder.setIcon(icon_service.icon("folder-tree", size=18))
-        self.btn_nav_builder.setIconSize(QSize(18, 18))
+        self.btn_nav_builder.setProperty("nav_accent", "green")
+        self.btn_nav_builder.setIcon(icon_service.icon("folder-tree", size=20))
+        self.btn_nav_builder.setIconSize(QSize(20, 20))
         self.btn_nav_builder.setCheckable(True)
         self.btn_nav_builder.setChecked(True)
         self.btn_nav_builder.clicked.connect(lambda: self._switch_page(0))
@@ -100,8 +101,9 @@ class MainWindow(QMainWindow):
 
         self.btn_nav_content = NavTabButton()
         self.btn_nav_content.setProperty("nav", "true")
-        self.btn_nav_content.setIcon(icon_service.icon("file-pen-line", size=18))
-        self.btn_nav_content.setIconSize(QSize(18, 18))
+        self.btn_nav_content.setProperty("nav_accent", "blue")
+        self.btn_nav_content.setIcon(icon_service.icon("file-pen-line", size=20))
+        self.btn_nav_content.setIconSize(QSize(20, 20))
         self.btn_nav_content.setCheckable(True)
         self.btn_nav_content.clicked.connect(lambda: self._switch_page(1))
         sidebar_layout.addWidget(self.btn_nav_content)
@@ -149,9 +151,9 @@ class MainWindow(QMainWindow):
     def _update_nav_icons(self) -> None:
         """Update nav button icons and roles to ensure active icon matches active accent color in light and dark themes."""
         curr = self.stack.currentIndex()
-        self.btn_nav_builder.setIcon(icon_service.icon("folder-tree", size=20, role="accent" if curr == 0 else "default"))
+        self.btn_nav_builder.setIcon(icon_service.icon("folder-tree", size=20, role="green" if curr == 0 else "default"))
         self.btn_nav_builder.setIconSize(QSize(20, 20))
-        self.btn_nav_content.setIcon(icon_service.icon("file-pen-line", size=20, role="accent" if curr == 1 else "default"))
+        self.btn_nav_content.setIcon(icon_service.icon("file-pen-line", size=20, role="blue" if curr == 1 else "default"))
         self.btn_nav_content.setIconSize(QSize(20, 20))
         self.btn_nav_settings.setIcon(icon_service.icon("sliders-horizontal", size=20, role="accent" if curr == 2 else "default"))
         self.btn_nav_settings.setIconSize(QSize(20, 20))
@@ -211,6 +213,8 @@ class MainWindow(QMainWindow):
             self.builder_page._on_theme_changed(theme_name)
         if hasattr(self, "content_page") and hasattr(self.content_page, "_on_theme_changed"):
             self.content_page._on_theme_changed(theme_name)
+        if hasattr(self, "settings_page") and hasattr(self.settings_page, "_on_theme_changed"):
+            self.settings_page._on_theme_changed(theme_name)
 
     def retranslate_ui(self) -> None:
         """Live updates for localized texts, brand subtitle, and RTL nav layout."""

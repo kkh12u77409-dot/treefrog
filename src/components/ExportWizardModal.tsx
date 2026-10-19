@@ -193,19 +193,19 @@ export const ExportWizardModal: React.FC<ExportWizardModalProps> = ({
   };
 
   return (
-    <div role="dialog" aria-modal="true" aria-label={isAr ? 'معالج التصدير' : 'Export wizard'} className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 backdrop-blur-md p-4 animate-fadeIn">
-      <div className="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-4xl w-full h-[680px] flex flex-col shadow-2xl overflow-hidden">
+    <div role="dialog" aria-modal="true" aria-label={isAr ? 'معالج التصدير' : 'Export wizard'} className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4 animate-fadeIn">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 rounded-2xl max-w-4xl w-full h-[680px] flex flex-col shadow-2xl overflow-hidden">
         {/* Wizard Header */}
-        <div className="flex items-center justify-between px-6 py-4 bg-slate-950/70 border-b border-slate-800">
-          <div className="flex items-center space-x-3 rtl:space-x-reverse">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-slate-950 font-bold shadow-md shadow-emerald-500/20">
-              <Wand2 className="w-5 h-5" />
+        <div className="flex items-center justify-between px-6 py-4 bg-slate-50 dark:bg-slate-950/70 border-b border-slate-200 dark:border-slate-800">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-blue-600 dark:from-emerald-500 dark:to-blue-500 flex items-center justify-center text-white dark:text-slate-950 font-bold shadow-md shadow-emerald-500/20 shrink-0">
+              <Wand2 className="w-5 h-5 shrink-0 text-current" />
             </div>
             <div>
-              <h3 className="font-extrabold text-base text-white">
+              <h3 className="font-extrabold text-base text-slate-900 dark:text-white">
                 {isAr ? 'معالج التصدير الذكي (Export Wizard)' : 'Smart Export Wizard'}
               </h3>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 {isAr
                   ? 'اختر الملفات وصدّرها كحزمة مضغوطة أو سكربت بايثون/باش لتجهيز البيئة محلياً فورياً'
                   : 'Select specific files and export directly as .zip, .py, or .sh bootstrap script'}
@@ -215,55 +215,55 @@ export const ExportWizardModal: React.FC<ExportWizardModalProps> = ({
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5 shrink-0" />
           </button>
         </div>
 
         {/* Steps Progress Indicator */}
-        <div className="flex items-center justify-between px-6 py-2.5 bg-slate-950/40 border-b border-slate-800 text-xs">
-          <div className="flex items-center space-x-6 rtl:space-x-reverse">
+        <div className="flex items-center justify-between px-6 py-2.5 bg-slate-100/60 dark:bg-slate-950/40 border-b border-slate-200 dark:border-slate-800 text-xs">
+          <div className="flex items-center gap-6">
             <button
               onClick={() => setCurrentStep(1)}
-              className={`flex items-center space-x-2 rtl:space-x-reverse font-bold transition ${
-                currentStep === 1 ? 'text-emerald-400' : 'text-slate-400 hover:text-slate-200'
+              className={`flex items-center gap-2 font-bold transition ${
+                currentStep === 1 ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
-              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${
-                currentStep === 1 ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-400'
+              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                currentStep === 1 ? 'bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950' : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
               }`}>
                 1
               </span>
               <span>{isAr ? 'تحديد الملفات' : '1. Select Files'}</span>
             </button>
 
-            <span className="text-slate-700">→</span>
+            <span className="text-slate-300 dark:text-slate-700 rtl:rotate-180">→</span>
 
             <button
               onClick={() => setCurrentStep(2)}
-              className={`flex items-center space-x-2 rtl:space-x-reverse font-bold transition ${
-                currentStep === 2 ? 'text-emerald-400' : 'text-slate-400 hover:text-slate-200'
+              className={`flex items-center gap-2 font-bold transition ${
+                currentStep === 2 ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
-              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${
-                currentStep === 2 ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-400'
+              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                currentStep === 2 ? 'bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950' : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
               }`}>
                 2
               </span>
               <span>{isAr ? 'خيارات البيئة' : '2. Environment'}</span>
             </button>
 
-            <span className="text-slate-700">→</span>
+            <span className="text-slate-300 dark:text-slate-700 rtl:rotate-180">→</span>
 
             <button
               onClick={() => setCurrentStep(3)}
-              className={`flex items-center space-x-2 rtl:space-x-reverse font-bold transition ${
-                currentStep === 3 ? 'text-emerald-400' : 'text-slate-400 hover:text-slate-200'
+              className={`flex items-center gap-2 font-bold transition ${
+                currentStep === 3 ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
-              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${
-                currentStep === 3 ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-400'
+              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                currentStep === 3 ? 'bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950' : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
               }`}>
                 3
               </span>
@@ -271,7 +271,7 @@ export const ExportWizardModal: React.FC<ExportWizardModalProps> = ({
             </button>
           </div>
 
-          <div className="text-[11px] font-mono text-emerald-400 font-semibold">
+          <div className="text-[11px] font-mono text-emerald-700 dark:text-emerald-400 font-semibold">
             {selectedPaths.size} / {allNodesList.length} {isAr ? 'عنصر محدد' : 'items selected'}
           </div>
         </div>
@@ -282,27 +282,27 @@ export const ExportWizardModal: React.FC<ExportWizardModalProps> = ({
           {currentStep === 1 && (
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="flex items-center space-x-2 rtl:space-x-reverse flex-1 max-w-sm">
+                <div className="flex items-center gap-2 flex-1 max-w-sm">
                   <div className="relative w-full">
-                    <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 rtl:right-3 top-2.5" />
+                    <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 rtl:right-3 top-2.5 shrink-0" />
                     <input
                       type="text"
                       value={searchFilter}
                       onChange={(e) => setSearchFilter(e.target.value)}
                       placeholder={isAr ? 'تصفية وبحث في الملفات...' : 'Filter files...'}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 rtl:pr-9 pr-3 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500"
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-9 rtl:pr-9 pr-3 py-1.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-emerald-500 shadow-inner"
                     />
                   </div>
                 </div>
 
                 {/* Filter buttons */}
-                <div className="flex items-center space-x-1.5 rtl:space-x-reverse text-xs">
+                <div className="flex items-center gap-1.5 text-xs flex-wrap">
                   <button
                     onClick={() => setExtensionFilter('all')}
                     className={`px-2.5 py-1 rounded-lg transition ${
                       extensionFilter === 'all'
-                        ? 'bg-emerald-500 text-slate-950 font-bold'
-                        : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                        ? 'bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 font-bold'
+                        : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'
                     }`}
                   >
                     {isAr ? 'الكل' : 'All'}
@@ -311,8 +311,8 @@ export const ExportWizardModal: React.FC<ExportWizardModalProps> = ({
                     onClick={() => setExtensionFilter('py')}
                     className={`px-2.5 py-1 rounded-lg transition ${
                       extensionFilter === 'py'
-                        ? 'bg-emerald-500 text-slate-950 font-bold'
-                        : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                        ? 'bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 font-bold'
+                        : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'
                     }`}
                   >
                     Python (.py)
@@ -321,8 +321,8 @@ export const ExportWizardModal: React.FC<ExportWizardModalProps> = ({
                     onClick={() => setExtensionFilter('docs')}
                     className={`px-2.5 py-1 rounded-lg transition ${
                       extensionFilter === 'docs'
-                        ? 'bg-emerald-500 text-slate-950 font-bold'
-                        : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                        ? 'bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 font-bold'
+                        : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'
                     }`}
                   >
                     {isAr ? 'توثيق' : 'Docs'}
@@ -331,24 +331,24 @@ export const ExportWizardModal: React.FC<ExportWizardModalProps> = ({
                     onClick={() => setExtensionFilter('configs')}
                     className={`px-2.5 py-1 rounded-lg transition ${
                       extensionFilter === 'configs'
-                        ? 'bg-emerald-500 text-slate-950 font-bold'
-                        : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                        ? 'bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 font-bold'
+                        : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'
                     }`}
                   >
                     {isAr ? 'إعدادات' : 'Configs'}
                   </button>
 
-                  <span className="text-slate-700">|</span>
+                  <span className="text-slate-300 dark:text-slate-700">|</span>
 
                   <button
                     onClick={() => selectAll(true)}
-                    className="text-emerald-400 hover:underline px-1 text-xs"
+                    className="text-emerald-600 dark:text-emerald-400 hover:underline px-1 text-xs font-semibold"
                   >
                     {isAr ? 'تحديد الكل' : 'Select All'}
                   </button>
                   <button
                     onClick={() => selectAll(false)}
-                    className="text-red-400 hover:underline px-1 text-xs"
+                    className="text-rose-600 dark:text-rose-400 hover:underline px-1 text-xs font-semibold"
                   >
                     {isAr ? 'إلغاء' : 'Clear'}
                   </button>
@@ -356,9 +356,9 @@ export const ExportWizardModal: React.FC<ExportWizardModalProps> = ({
               </div>
 
               {/* Items Table Checklist */}
-              <div className="border border-slate-800 rounded-xl overflow-hidden max-h-96 overflow-y-auto">
+              <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden max-h-96 overflow-y-auto">
                 <table className="w-full text-xs text-left rtl:text-right">
-                  <thead className="bg-slate-950/80 text-slate-400 font-semibold border-b border-slate-800">
+                  <thead className="bg-slate-50 dark:bg-slate-950/80 text-slate-600 dark:text-slate-400 font-semibold border-b border-slate-200 dark:border-slate-800">
                     <tr>
                       <th className="p-3 w-12 text-center">✓</th>
                       <th className="p-3">{isAr ? 'المسار النسبي' : 'Relative Path'}</th>
@@ -366,7 +366,7 @@ export const ExportWizardModal: React.FC<ExportWizardModalProps> = ({
                       <th className="p-3">{isAr ? 'الحجم التقديري' : 'Est. Content'}</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-800/80">
+                  <tbody className="divide-y divide-slate-200 dark:divide-slate-800/80">
                     {filteredNodes.map((n) => {
                       const isSelected = selectedPaths.has(n.path);
                       const isPy = n.name.endsWith('.py');
@@ -374,36 +374,36 @@ export const ExportWizardModal: React.FC<ExportWizardModalProps> = ({
                         <tr
                           key={n.id}
                           onClick={() => togglePathSelection(n.path)}
-                          className={`hover:bg-slate-800/40 cursor-pointer transition ${
-                            isSelected ? 'bg-slate-800/20' : 'opacity-40'
+                          className={`hover:bg-slate-50 dark:hover:bg-slate-800/40 cursor-pointer transition ${
+                            isSelected ? 'bg-emerald-50/50 dark:bg-slate-800/25' : 'opacity-50'
                           }`}
                         >
                           <td className="p-3 text-center">
                             {isSelected ? (
-                              <CheckSquare className="w-4 h-4 text-emerald-400 inline" />
+                              <CheckSquare className="w-4 h-4 text-emerald-600 dark:text-emerald-400 inline shrink-0" />
                             ) : (
-                              <Square className="w-4 h-4 text-slate-600 inline" />
+                              <Square className="w-4 h-4 text-slate-400 dark:text-slate-600 inline shrink-0" />
                             )}
                           </td>
                           <td className="p-3 font-mono">
-                            <div className="flex items-center space-x-2 rtl:space-x-reverse">
+                            <div className="flex items-center gap-2">
                               {n.isDir ? (
-                                <Folder className="w-4 h-4 text-amber-400 shrink-0" />
+                                <Folder className="w-4 h-4 text-amber-500 dark:text-amber-400 shrink-0" />
                               ) : isPy ? (
-                                <FileCode className="w-4 h-4 text-emerald-400 shrink-0" />
+                                <FileCode className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                               ) : (
-                                <FileText className="w-4 h-4 text-sky-400 shrink-0" />
+                                <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
                               )}
-                              <span className={n.isDir ? 'font-bold text-slate-200' : 'text-slate-300'}>
+                              <span className={n.isDir ? 'font-bold text-slate-900 dark:text-slate-200' : 'text-slate-700 dark:text-slate-300'}>
                                 {n.path}
                                 {n.isDir && '/'}
                               </span>
                             </div>
                           </td>
-                          <td className="p-3 text-slate-400">
+                          <td className="p-3 text-slate-500 dark:text-slate-400">
                             {n.isDir ? (isAr ? 'مجلد' : 'Folder') : (isAr ? 'ملف' : 'File')}
                           </td>
-                          <td className="p-3 text-slate-500 font-mono text-[11px]">
+                          <td className="p-3 text-slate-500 dark:text-slate-400 font-mono text-[11px]">
                             {n.isDir ? '—' : `${getFileContent(n).split('\n').length} lines`}
                           </td>
                         </tr>
@@ -419,10 +419,10 @@ export const ExportWizardModal: React.FC<ExportWizardModalProps> = ({
           {currentStep === 2 && (
             <div className="max-w-2xl mx-auto space-y-5">
               <div className="text-center space-y-1">
-                <h4 className="text-sm font-bold text-white">
+                <h4 className="text-sm font-bold text-slate-900 dark:text-white">
                   {isAr ? 'خيارات تهيئة البيئة المحلية في السكربت' : 'Local Environment Automation Options'}
                 </h4>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   {isAr
                     ? 'حدد الأوامر الآلية التي سينفذها السكربت عند تشغيله على جهازك أو جهاز العميل'
                     : 'Choose which setup tasks the bootstrap script will automatically perform'}
@@ -430,18 +430,18 @@ export const ExportWizardModal: React.FC<ExportWizardModalProps> = ({
               </div>
 
               <div className="space-y-3">
-                <label className="flex items-start space-x-3 rtl:space-x-reverse p-4 rounded-xl border border-slate-800 bg-slate-950/60 hover:bg-slate-800/40 cursor-pointer transition">
+                <label className="flex items-start gap-3 p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/60 hover:bg-slate-100/70 dark:hover:bg-slate-800/40 cursor-pointer transition">
                   <input
                     type="checkbox"
                     checked={createVenv}
                     onChange={(e) => setCreateVenv(e.target.checked)}
-                    className="mt-0.5 rounded border-slate-700 bg-slate-800 text-emerald-500"
+                    className="mt-0.5 rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-emerald-600 focus:ring-0"
                   />
                   <div>
-                    <span className="font-bold text-xs text-slate-200">
+                    <span className="font-bold text-xs text-slate-800 dark:text-slate-200">
                       {isAr ? 'إنشاء وتفعيل بيئة بايثون افتراضية (.venv)' : 'Create & activate virtual environment (.venv)'}
                     </span>
-                    <p className="text-[11px] text-slate-400 mt-0.5">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                       {isAr
                         ? 'يقوم بتنفيذ python -m venv .venv وعزل الحزم عن نظام التشغيل الرئيسي'
                         : 'Runs python -m venv .venv and isolates your application dependencies'}
@@ -449,18 +449,18 @@ export const ExportWizardModal: React.FC<ExportWizardModalProps> = ({
                   </div>
                 </label>
 
-                <label className="flex items-start space-x-3 rtl:space-x-reverse p-4 rounded-xl border border-slate-800 bg-slate-950/60 hover:bg-slate-800/40 cursor-pointer transition">
+                <label className="flex items-start gap-3 p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/60 hover:bg-slate-100/70 dark:hover:bg-slate-800/40 cursor-pointer transition">
                   <input
                     type="checkbox"
                     checked={installDeps}
                     onChange={(e) => setInstallDeps(e.target.checked)}
-                    className="mt-0.5 rounded border-slate-700 bg-slate-800 text-emerald-500"
+                    className="mt-0.5 rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-emerald-600 focus:ring-0"
                   />
                   <div>
-                    <span className="font-bold text-xs text-slate-200">
+                    <span className="font-bold text-xs text-slate-800 dark:text-slate-200">
                       {isAr ? 'تثبيت التبعيات تلقائياً (pip install -r requirements.txt)' : 'Install dependencies automatically'}
                     </span>
-                    <p className="text-[11px] text-slate-400 mt-0.5">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                       {isAr
                         ? 'تثبيت مكتبة PyQt6 و pytest تلقائياً داخل البيئة الافتراضية'
                         : 'Automatically runs pip install for PyQt6 and testing packages'}
@@ -468,18 +468,18 @@ export const ExportWizardModal: React.FC<ExportWizardModalProps> = ({
                   </div>
                 </label>
 
-                <label className="flex items-start space-x-3 rtl:space-x-reverse p-4 rounded-xl border border-slate-800 bg-slate-950/60 hover:bg-slate-800/40 cursor-pointer transition">
+                <label className="flex items-start gap-3 p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/60 hover:bg-slate-100/70 dark:hover:bg-slate-800/40 cursor-pointer transition">
                   <input
                     type="checkbox"
                     checked={initGit}
                     onChange={(e) => setInitGit(e.target.checked)}
-                    className="mt-0.5 rounded border-slate-700 bg-slate-800 text-emerald-500"
+                    className="mt-0.5 rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-emerald-600 focus:ring-0"
                   />
                   <div>
-                    <span className="font-bold text-xs text-slate-200">
+                    <span className="font-bold text-xs text-slate-800 dark:text-slate-200">
                       {isAr ? 'تهيئة مستودع Git والالتزام الأولي' : 'Initialize Git repository (git init)'}
                     </span>
-                    <p className="text-[11px] text-slate-400 mt-0.5">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                       {isAr
                         ? 'إنشاء مستودع محلي جديد وعمل أول Git commit للملفات المصدرة'
                         : 'Creates a fresh Git repo and commits the forged starter files'}
@@ -487,18 +487,18 @@ export const ExportWizardModal: React.FC<ExportWizardModalProps> = ({
                   </div>
                 </label>
 
-                <label className="flex items-start space-x-3 rtl:space-x-reverse p-4 rounded-xl border border-slate-800 bg-slate-950/60 hover:bg-slate-800/40 cursor-pointer transition">
+                <label className="flex items-start gap-3 p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/60 hover:bg-slate-100/70 dark:hover:bg-slate-800/40 cursor-pointer transition">
                   <input
                     type="checkbox"
                     checked={launchApp}
                     onChange={(e) => setLaunchApp(e.target.checked)}
-                    className="mt-0.5 rounded border-slate-700 bg-slate-800 text-emerald-500"
+                    className="mt-0.5 rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-emerald-600 focus:ring-0"
                   />
                   <div>
-                    <span className="font-bold text-xs text-slate-200">
+                    <span className="font-bold text-xs text-slate-800 dark:text-slate-200">
                       {isAr ? 'تشغيل التطبيق فور انتهاء التجهيز (python main.py)' : 'Launch app on completion (python main.py)'}
                     </span>
-                    <p className="text-[11px] text-slate-400 mt-0.5">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                       {isAr
                         ? 'فتح نافذة التطبيق فورياً بعد نجاح إنشاء البيئة وتثبيت الحزم'
                         : 'Immediately fires up the PyQt6 main window after setup finishes'}
@@ -518,14 +518,14 @@ export const ExportWizardModal: React.FC<ExportWizardModalProps> = ({
                   onClick={() => setSelectedFormat('bash_script')}
                   className={`p-3.5 rounded-xl border text-left rtl:text-right transition flex flex-col justify-between ${
                     selectedFormat === 'bash_script'
-                      ? 'bg-emerald-500/15 border-emerald-500 text-emerald-300'
-                      : 'bg-slate-950/60 border-slate-800 text-slate-300 hover:bg-slate-800'
+                      ? 'bg-emerald-50 dark:bg-emerald-500/15 border-emerald-500 text-emerald-800 dark:text-emerald-300 shadow-xs'
+                      : 'bg-slate-50 dark:bg-slate-950/60 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                   }`}
                 >
-                  <Terminal className="w-5 h-5 text-emerald-400 mb-2" />
+                  <Terminal className="w-5 h-5 text-emerald-600 dark:text-emerald-400 mb-2 shrink-0" />
                   <div>
                     <p className="font-bold text-xs">Bash Script (.sh)</p>
-                    <p className="text-[10px] text-slate-400">Linux / macOS / WSL</p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400">Linux / macOS / WSL</p>
                   </div>
                 </button>
 
@@ -533,14 +533,14 @@ export const ExportWizardModal: React.FC<ExportWizardModalProps> = ({
                   onClick={() => setSelectedFormat('python_script')}
                   className={`p-3.5 rounded-xl border text-left rtl:text-right transition flex flex-col justify-between ${
                     selectedFormat === 'python_script'
-                      ? 'bg-emerald-500/15 border-emerald-500 text-emerald-300'
-                      : 'bg-slate-950/60 border-slate-800 text-slate-300 hover:bg-slate-800'
+                      ? 'bg-blue-50 dark:bg-blue-500/15 border-blue-500 text-blue-800 dark:text-blue-300 shadow-xs'
+                      : 'bg-slate-50 dark:bg-slate-950/60 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                   }`}
                 >
-                  <FileCode className="w-5 h-5 text-sky-400 mb-2" />
+                  <FileCode className="w-5 h-5 text-blue-600 dark:text-blue-400 mb-2 shrink-0" />
                   <div>
                     <p className="font-bold text-xs">Python (.py)</p>
-                    <p className="text-[10px] text-slate-400">Cross-Platform setup</p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400">Cross-Platform setup</p>
                   </div>
                 </button>
 
@@ -548,14 +548,14 @@ export const ExportWizardModal: React.FC<ExportWizardModalProps> = ({
                   onClick={() => setSelectedFormat('zip')}
                   className={`p-3.5 rounded-xl border text-left rtl:text-right transition flex flex-col justify-between ${
                     selectedFormat === 'zip'
-                      ? 'bg-emerald-500/15 border-emerald-500 text-emerald-300'
-                      : 'bg-slate-950/60 border-slate-800 text-slate-300 hover:bg-slate-800'
+                      ? 'bg-emerald-50 dark:bg-emerald-500/15 border-emerald-500 text-emerald-800 dark:text-emerald-300 shadow-xs'
+                      : 'bg-slate-50 dark:bg-slate-950/60 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                   }`}
                 >
-                  <Package className="w-5 h-5 text-amber-400 mb-2" />
+                  <Package className="w-5 h-5 text-emerald-600 dark:text-emerald-400 mb-2 shrink-0" />
                   <div>
                     <p className="font-bold text-xs">ZIP Archive (.zip)</p>
-                    <p className="text-[10px] text-slate-400">Direct extractable files</p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400">Direct extractable files</p>
                   </div>
                 </button>
 
@@ -563,14 +563,14 @@ export const ExportWizardModal: React.FC<ExportWizardModalProps> = ({
                   onClick={() => setSelectedFormat('powershell_script')}
                   className={`p-3.5 rounded-xl border text-left rtl:text-right transition flex flex-col justify-between ${
                     selectedFormat === 'powershell_script'
-                      ? 'bg-emerald-500/15 border-emerald-500 text-emerald-300'
-                      : 'bg-slate-950/60 border-slate-800 text-slate-300 hover:bg-slate-800'
+                      ? 'bg-blue-50 dark:bg-blue-500/15 border-blue-500 text-blue-800 dark:text-blue-300 shadow-xs'
+                      : 'bg-slate-50 dark:bg-slate-950/60 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                   }`}
                 >
-                  <Cpu className="w-5 h-5 text-purple-400 mb-2" />
+                  <Cpu className="w-5 h-5 text-blue-600 dark:text-blue-400 mb-2 shrink-0" />
                   <div>
                     <p className="font-bold text-xs">PowerShell (.ps1)</p>
-                    <p className="text-[10px] text-slate-400">Native Windows setup</p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400">Native Windows setup</p>
                   </div>
                 </button>
               </div>
@@ -589,33 +589,33 @@ export const ExportWizardModal: React.FC<ExportWizardModalProps> = ({
 
                     <button
                       onClick={handleCopyCode}
-                      className="flex items-center space-x-1.5 rtl:space-x-reverse px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs transition"
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs transition border border-slate-700/80"
                     >
                       {copiedCode ? (
                         <>
-                          <Check className="w-3.5 h-3.5 text-emerald-400" />
+                          <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                           <span>{isAr ? 'تم النسخ!' : 'Copied!'}</span>
                         </>
                       ) : (
                         <>
-                          <Copy className="w-3.5 h-3.5 text-slate-400" />
+                          <Copy className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                           <span>{isAr ? 'نسخ السكربت' : 'Copy Script'}</span>
                         </>
                       )}
                     </button>
                   </div>
 
-                  <pre className="h-64 overflow-auto text-xs font-mono text-emerald-400/90 leading-relaxed" dir="ltr">
+                  <pre className="h-64 overflow-auto text-xs font-mono text-emerald-400/90 leading-relaxed custom-scrollbar" dir="ltr">
                     {activeScriptContent}
                   </pre>
                 </div>
               ) : (
-                <div className="bg-slate-950 border border-slate-800 rounded-xl p-8 text-center space-y-3">
-                  <Package className="w-12 h-12 text-amber-400 mx-auto" />
-                  <h4 className="text-sm font-bold text-white">
+                <div className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-8 text-center space-y-3">
+                  <Package className="w-12 h-12 text-emerald-600 dark:text-emerald-400 mx-auto shrink-0" />
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-white">
                     {isAr ? 'ملف مضغوط جاهز للتحميل المباشر' : 'Clean ZIP Archive Ready for Export'}
                   </h4>
-                  <p className="text-xs text-slate-400 max-w-md mx-auto">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto">
                     {isAr
                       ? `سيتم تحزيم ${selectedPaths.size} ملف ومجلد محدد مع كافة القوالب الأولية و __init__.py.`
                       : `Will package ${selectedPaths.size} selected items with starter templates directly.`}
@@ -627,35 +627,35 @@ export const ExportWizardModal: React.FC<ExportWizardModalProps> = ({
         </div>
 
         {/* Wizard Footer Controls */}
-        <div className="flex items-center justify-between px-6 py-4 bg-slate-950/70 border-t border-slate-800">
+        <div className="flex items-center justify-between px-6 py-4 bg-slate-50 dark:bg-slate-950/70 border-t border-slate-200 dark:border-slate-800">
           <div>
             {currentStep > 1 && (
               <button
                 onClick={() => setCurrentStep((s) => s - 1)}
-                className="flex items-center space-x-1.5 rtl:space-x-reverse px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-xs font-semibold transition shadow-xs"
               >
-                <ChevronLeft className="w-4 h-4 rtl:rotate-180" />
+                <ChevronLeft className="w-4 h-4 rtl:rotate-180 shrink-0" />
                 <span>{isAr ? 'السابق' : 'Back'}</span>
               </button>
             )}
           </div>
 
-          <div className="flex items-center space-x-2 rtl:space-x-reverse">
+          <div className="flex items-center gap-2">
             {currentStep < 3 ? (
               <button
                 onClick={() => setCurrentStep((s) => s + 1)}
-                className="flex items-center space-x-1.5 rtl:space-x-reverse px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-md shadow-emerald-500/20 transition"
+                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-slate-950 font-bold text-xs shadow-md shadow-emerald-600/20 transition"
               >
                 <span>{isAr ? 'التالي' : 'Next'}</span>
-                <ChevronRight className="w-4 h-4 rtl:rotate-180" />
+                <ChevronRight className="w-4 h-4 rtl:rotate-180 shrink-0" />
               </button>
             ) : (
               <button
                 onClick={handleExecuteExport}
                 disabled={isExporting || selectedPaths.size === 0}
-                className="flex items-center space-x-2 rtl:space-x-reverse px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-extrabold text-xs shadow-lg shadow-emerald-500/20 transition disabled:opacity-50"
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-500 hover:to-blue-500 text-white font-extrabold text-xs shadow-lg shadow-emerald-600/20 transition disabled:opacity-50"
               >
-                <Download className="w-4 h-4" />
+                <Download className="w-4 h-4 shrink-0 text-current" />
                 <span>
                   {isExporting
                     ? isAr

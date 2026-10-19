@@ -26,13 +26,21 @@ DARK_TOKENS: Dict[str, str] = {
     "text_secondary": "#a3b1c6",
     "text_muted": "#8494ab",
     
-    # Accents
+    # Accents (Green Primary)
     "accent_solid": "#047857",
     "on_accent": "#ffffff",
     "accent_hover": "#059669",
     "accent_pressed": "#064e3b",
     "accent_text": "#34d399",
     "accent_soft": "rgba(4,120,87,0.20)",
+    
+    # Accents (Blue Primary)
+    "blue_solid": "#1d4ed8",
+    "on_blue": "#ffffff",
+    "blue_hover": "#2563eb",
+    "blue_pressed": "#1e40af",
+    "blue_text": "#60a5fa",
+    "blue_soft": "rgba(29,78,216,0.20)",
     
     # Status
     "success": "#34d399",
@@ -89,13 +97,21 @@ LIGHT_TOKENS: Dict[str, str] = {
     "text_secondary": "#475569",
     "text_muted": "#556479",
     
-    # Accents
+    # Accents (Green Primary)
     "accent_solid": "#047857",
     "on_accent": "#ffffff",
     "accent_hover": "#065f46",
     "accent_pressed": "#064e3b",
     "accent_text": "#047857",
     "accent_soft": "rgba(4,120,87,0.10)",
+    
+    # Accents (Blue Primary)
+    "blue_solid": "#1d4ed8",
+    "on_blue": "#ffffff",
+    "blue_hover": "#1e40af",
+    "blue_pressed": "#172554",
+    "blue_text": "#1d4ed8",
+    "blue_soft": "rgba(29,78,216,0.10)",
     
     # Status
     "success": "#047857",
