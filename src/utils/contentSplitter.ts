@@ -1,3 +1,4 @@
+import { validateRelativePath } from './pathSafety';
 import { WebFileChunk, MatchStatus, NewlineMode } from '../types';
 
 export function stripCodeFences(content: string): string {
@@ -15,7 +16,7 @@ export function sanitizePath(raw: string): string {
   let clean = raw.trim().replace(/^[`'"*: ]+|[`'"*: ]+$/g, '');
   clean = clean.replace(/^(?:FILE|File|file):\s*/, '');
   clean = clean.replace(/\\/g, '/');
-  clean = clean.replace(/^(?:\.\/|\/)+/, '');
+  clean = clean.replace(/^(?:\.\/)+/, '');
   return clean;
 }
 
@@ -49,9 +50,20 @@ export function splitContent(text: string, candidatePaths: string[] = [], stripF
 
   const matches: Array<{ start: number; end: number; path: string; type: string }> = [];
 
+  // Ignore marker-like lines inside code blocks; a fence-info opening is a marker.
+  const codeOffsets = new Set<number>();
+  let offset = 0;
+  let inside = false;
+  for (const line of text.split('\n')) {
+    const fence = line.trimStart().startsWith('```');
+    if (inside) codeOffsets.add(offset);
+    if (fence) inside = !inside;
+    offset += line.length + 1;
+  }
   for (const { regex, type } of markers) {
     let m: RegExpExecArray | null;
     while ((m = regex.exec(text)) !== null) {
+      if (codeOffsets.has(m.index)) continue;
       const rawPath = m[1];
       const clean = sanitizePath(rawPath);
       if (!clean || clean.startsWith('http') || clean.includes('\n')) continue;
@@ -72,6 +84,7 @@ export function splitContent(text: string, candidatePaths: string[] = [], stripF
   const filtered: Array<{ start: number; end: number; path: string; type: string }> = [];
   let lastEnd = -1;
   for (const m of matches) {
+    if (m.type === 'fence_info' && filtered.length && !text.slice(lastEnd, m.start).trim()) continue;
     if (m.start >= lastEnd) {
       filtered.push(m);
       lastEnd = m.end;
@@ -98,13 +111,14 @@ export function splitContent(text: string, candidatePaths: string[] = [], stripF
   for (let i = 0; i < filtered.length; i++) {
     const cur = filtered[i];
     const nextStart = i + 1 < filtered.length ? filtered[i + 1].start : text.length;
-    let body = text.slice(cur.end, nextStart).trim();
+    let body = text.slice(cur.end, nextStart).replace(/^[\r\n]+|[\r\n]+$/g, '');
+    if (stripFences && cur.type === 'fence_info') body = body.replace(/\r?\n```\s*$/, '');
     if (stripFences) body = stripCodeFences(body);
 
     const chunk: WebFileChunk = {
       id: `chunk_${i + 1}`,
       rawTargetPath: cur.path,
-      resolvedPath: cur.path,
+      resolvedPath: '',
       content: body,
       matchStatus: 'not_found',
       candidatePaths: [],
@@ -126,39 +140,27 @@ function resolveChunkMatch(chunk: WebFileChunk, candidates: string[]): void {
   const raw = chunk.rawTargetPath.trim().toLowerCase();
   if (!raw || candidates.length === 0) return;
 
-  // 1. Exact match
-  const exact = candidates.find(c => c.toLowerCase() === raw || c.toLowerCase().endsWith('/' + raw));
+  try { validateRelativePath(chunk.rawTargetPath); } catch { return; }
+  const exact = candidates.find(c => c.toLowerCase() === raw);
   if (exact) {
     chunk.matchStatus = 'matched';
     chunk.resolvedPath = exact;
     return;
   }
-
-  // 2. Unique filename match
-  const fname = raw.split('/').pop() || '';
-  const matchingFnames = candidates.filter(c => (c.split('/').pop() || '').toLowerCase() === fname);
-  if (matchingFnames.length === 1) {
+  const suffix = candidates.filter(c => c.toLowerCase().endsWith('/' + raw));
+  const filename = raw.split('/').pop() || '';
+  const byName = candidates.filter(c => c.split('/').pop()?.toLowerCase() === filename);
+  const matches = suffix.length ? suffix : byName;
+  if (matches.length === 1) {
     chunk.matchStatus = 'matched';
-    chunk.resolvedPath = matchingFnames[0];
-    return;
-  } else if (matchingFnames.length > 1) {
+    chunk.resolvedPath = matches[0];
+  } else if (matches.length > 1) {
     chunk.matchStatus = 'ambiguous';
-    chunk.candidatePaths = matchingFnames;
-    chunk.resolvedPath = matchingFnames[0];
-    return;
-  }
-
-  // 3. Fallback fuzzy
-  const partial = candidates.filter(c => c.toLowerCase().includes(fname));
-  if (partial.length === 1) {
-    chunk.matchStatus = 'matched';
-    chunk.resolvedPath = partial[0];
-  } else if (partial.length > 1) {
-    chunk.matchStatus = 'ambiguous';
-    chunk.candidatePaths = partial;
-    chunk.resolvedPath = partial[0];
+    chunk.candidatePaths = matches;
   } else {
-    chunk.matchStatus = 'not_found';
-    chunk.candidatePaths = candidates.slice(0, 5);
+    // Fuzzy suggestions require an explicit choice, never silent injection.
+    const partial = candidates.filter(c => c.toLowerCase().includes(filename));
+    chunk.matchStatus = partial.length ? 'ambiguous' : 'not_found';
+    chunk.candidatePaths = partial.length ? partial : candidates.slice(0, 5);
   }
 }

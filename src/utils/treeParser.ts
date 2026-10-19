@@ -1,3 +1,4 @@
+import { validateName, validateRelativePath } from './pathSafety';
 import { WebTreeNode, WebParseError, WebParseResult } from '../types';
 
 const WINDOWS_RESERVED = new Set([
@@ -40,6 +41,7 @@ export function parseInlineGroup(text: string): { parent: string; children: stri
 }
 
 export function validateSegment(seg: string, lineNum: number, fullPath: string): string | null {
+  try { validateName(seg); } catch (error) { return `Line ${lineNum}: ${String(error)}`; }
   if (!seg) return `Line ${lineNum}: Path segment cannot be empty in '${fullPath}'`;
   if (seg.endsWith('.') || seg.endsWith(' ')) return `Line ${lineNum}: Segment '${seg}' cannot end with dot or space`;
   if (seg === '.' || seg === '..') return `Line ${lineNum}: Path traversal '${seg}' is prohibited`;
@@ -59,18 +61,19 @@ export function parseTreeText(text: string, defaultRootName: string = 'MyProject
     totalFiles: 0,
   };
 
+  try { validateName(defaultRootName); } catch { defaultRootName = 'MyProject'; }
   const rawLines = text.split('\n');
   const cleanEntries: Array<{ lineNum: number; depth: number; content: string }> = [];
-  let inCodeFence = false;
+  const indents = rawLines.filter(line => !/[│├└|]/.test(line)).map(line => line.match(/^[ \t]+/)?.[0].replace(/\t/g, '    ').length || 0).filter(Boolean);
+  const indentUnit = indents.length ? Math.min(...indents) : 4;
 
   for (let idx = 0; idx < rawLines.length; idx++) {
     const line = rawLines[idx];
     const stripped = line.trim();
     if (stripped.startsWith('```')) {
-      inCodeFence = !inCodeFence;
       continue;
     }
-    if (inCodeFence || !stripped) continue;
+    if (!stripped) continue;
 
     const cleaned = cleanLineComment(line);
     const boxMatch = cleaned.match(/^(?:[\s│|]*)(?:├──|└──|\|\-\-|\`\-\-|\+\-\-|\-\-|\-|\*|\>)?\s*/);
@@ -78,9 +81,11 @@ export function parseTreeText(text: string, defaultRootName: string = 'MyProject
     let content = cleaned.slice(indentPart.length).trim();
     content = content.replace(/^[*\-]\s+/, '').trim();
 
-    const branches = (indentPart.match(/(?:│|\||├──|└──|\+\-\-)/g) || []).length;
-    const spaceDepth = Math.floor(indentPart.replace(/\t/g, '    ').length / 4);
-    const depth = Math.max(branches, spaceDepth);
+    const expanded = cleaned.replace(/\t/g, '    ');
+    const branch = /(?:├──|└──|\|--|`--|\+--|--)/.exec(expanded);
+    const leading = expanded.match(/^ */)?.[0].length || 0;
+    const depth = branch ? Math.floor(branch.index / 4) + 1 : Math.floor(leading / indentUnit) + (/^[-*>]\s/.test(expanded.trimStart()) ? 1 : 0);
+
 
     if (content) {
       cleanEntries.push({ lineNum: idx + 1, depth, content });
@@ -127,7 +132,7 @@ export function parseTreeText(text: string, defaultRootName: string = 'MyProject
     const { lineNum, depth, content } = cleanEntries[i];
     const { parent: parentText, children: inlineChildren } = parseInlineGroup(content);
 
-    if (parentText.includes('..') || parentText.startsWith('/') || /^[a-zA-Z]:/.test(parentText)) {
+    if (parentText.split(/[\\/]/).includes('..') || /^[\\/]/.test(parentText) || /^[a-zA-Z]:/.test(parentText)) {
       result.errors.push({ lineNumber: lineNum, rawText: content, message: `Path traversal/absolute path forbidden: ${parentText}` });
       continue;
     }
@@ -202,6 +207,10 @@ export function parseTreeText(text: string, defaultRootName: string = 'MyProject
     for (const childStr of inlineChildren) {
       const childIsDir = childStr.endsWith('/');
       const cleanChild = childStr.replace(/\/+$/, '');
+      try { validateRelativePath(cleanChild); } catch (error) {
+        result.errors.push({ lineNumber: lineNum, rawText: content, message: String(error) });
+        continue;
+      }
       const childSegs = cleanChild.split(/[\\/]/).map(s => s.trim()).filter(Boolean);
       if (childSegs.length === 0) continue;
 

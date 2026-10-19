@@ -338,7 +338,12 @@ class ContentPage(QWidget):
 
     def load_tree_from_disk(self, root_dir_str: str, root_node: Optional[TreeNode] = None) -> None:
         """Populate project file tree and candidates from active workspace."""
+        if self.worker and self.worker.isRunning():
+            return
+        if self.current_root_dir != Path(root_dir_str).resolve():
+            self.file_writer.clear_backup_history()
         self.current_root_dir = Path(root_dir_str).resolve()
+        self.file_writer.destination_dir = self.current_root_dir
         self.tree_files.clear()
         self.single_tree.clear()
 
@@ -349,6 +354,8 @@ class ContentPage(QWidget):
 
         def populate(parent_item, dir_path: Path) -> None:
             for p in sorted(dir_path.iterdir(), key=lambda x: (not x.is_dir(), x.name.lower())):
+                if p.is_symlink() or p.name.startswith(".tmp_forge_"):
+                    continue
                 item = QTreeWidgetItem(parent_item)
                 item.setText(0, p.name)
                 item.setData(0, Qt.ItemDataRole.UserRole, str(p))
@@ -460,6 +467,8 @@ class ContentPage(QWidget):
         if hasattr(self, "combo_newline") and self.combo_newline.currentData():
             self.file_writer.newline_mode = self.combo_newline.currentData()
 
+        self.file_writer.clear_backup_history()
+        self.file_writer.destination_dir = self.current_root_dir
         saved_count = 0
         errors = []
         for path, content in self.queue:
@@ -514,8 +523,11 @@ class ContentPage(QWidget):
                     is_best = (cand == chunk.candidate_paths[0])
                     badge = i18n.t("best_match") if is_best else None
                     combo.add_themed_item(cand, cand, "file", badge_text=badge)
-                combo.setCurrentText(chunk.resolved_path)
-                combo.activated.connect(lambda idx, c=chunk, cb_w=combo: setattr(c, "resolved_path", cb_w.currentData()))
+                combo.setCurrentIndex(-1)
+                def choose_target(idx, c=chunk, cb_w=combo):
+                    c.resolved_path = cb_w.currentData()
+                    c.match_status = MatchStatus.MATCHED
+                combo.activated.connect(choose_target)
                 self.table.setCellWidget(r, 1, combo)
             else:
                 self.table.setItem(r, 1, QTableWidgetItem(chunk.resolved_path or chunk.raw_target_path))
@@ -547,7 +559,7 @@ class ContentPage(QWidget):
             show_toast(self, i18n.t("toast_no_project"), "warning")
             return
 
-        selected_chunks = [c for c in self.chunks if c.included and c.resolved_path]
+        selected_chunks = [c for c in self.chunks if c.included and c.resolved_path and c.match_status == MatchStatus.MATCHED]
         if not selected_chunks:
             show_toast(self, i18n.t("toast_no_valid_files"), "warning")
             return
@@ -563,13 +575,16 @@ class ContentPage(QWidget):
             if reply != QMessageBox.StandardButton.Yes:
                 return
 
+        self.file_writer.clear_backup_history()
         self.file_writer = FileWriter(
+            destination_dir=self.current_root_dir,
             policy=ItemPolicy.OVERWRITE,
             create_backups=self.chk_backups.isChecked(),
             use_bom=self.chk_bom.isChecked(),
             newline_mode=self.combo_newline.currentData() or NewlineMode.KEEP
         )
 
+        self.setEnabled(False)
         self.btn_save_batch.setEnabled(False)
         self.batch_progress.setVisible(True)
         self.batch_progress.setValue(0)
@@ -581,13 +596,18 @@ class ContentPage(QWidget):
         self.worker.start()
 
     def _on_batch_finished(self, stats: BuildStats) -> None:
+        self.setEnabled(True)
         self.btn_save_batch.setEnabled(True)
         self.batch_progress.setVisible(False)
-        show_toast(self, i18n.t("toast_saved_files", count=len(stats.created_files)), "success")
+        if stats.failed_items:
+            show_toast(self, i18n.t("toast_batch_error", error="; ".join(message for _, message in stats.failed_items)), "error")
+        else:
+            show_toast(self, i18n.t("toast_saved_files", count=len(stats.created_files)), "success")
         if self.current_root_dir:
             self.load_tree_from_disk(str(self.current_root_dir))
 
     def _on_batch_error(self, err_msg: str) -> None:
+        self.setEnabled(True)
         self.btn_save_batch.setEnabled(True)
         self.batch_progress.setVisible(False)
         show_toast(self, i18n.t("toast_batch_error", error=err_msg), "error")

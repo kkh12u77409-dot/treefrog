@@ -10,6 +10,7 @@ from PyQt6.QtCore import QThread, pyqtSignal, QObject
 from .models import TreeNode, BuildStats, FileChunk
 from .tree_builder import TreeBuilder
 from .file_writer import FileWriter
+from .path_safety import safe_target
 
 
 class BuilderWorker(QThread):
@@ -74,14 +75,16 @@ class BatchWriterWorker(QThread):
     def run(self) -> None:
         stats = BuildStats()
         try:
-            included_chunks = [c for c in self.chunks if c.included]
+            included_chunks = [c for c in self.chunks if c.included and c.match_status.value == "matched" and c.resolved_path]
+            self.writer.destination_dir = self.destination_dir.resolve()
+            self.writer.clear_backup_history()
             total = len(included_chunks)
 
             for idx, chunk in enumerate(included_chunks, start=1):
                 if self._is_cancelled:
                     break
 
-                target_path = self.destination_dir / chunk.resolved_path
+                target_path = safe_target(self.destination_dir, chunk.resolved_path)
                 self.progress.emit(idx, total, chunk.resolved_path)
 
                 success, msg, final_path = self.writer.write_file(target_path, chunk.content)

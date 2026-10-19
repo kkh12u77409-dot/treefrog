@@ -15,14 +15,8 @@ if exist "%~dp0venv\Scripts\activate.bat" (
     call "%~dp0venv\Scripts\activate.bat"
 )
 
-python -m pip install --upgrade pip --quiet
-pip install pyinstaller PyQt6
-
-if exist "%~dp0requirements.txt" (
-    pip install -r "%~dp0requirements.txt"
-) else if exist "%~dp0..\requirements.txt" (
-    pip install -r "%~dp0..\requirements.txt"
-)
+python -m pip install -r "%~dp0requirements-dev.txt"
+if errorlevel 1 goto :build_failed
 
 set "ICON_ARG="
 if exist "%~dp0assets\app.ico" (

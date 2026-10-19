@@ -46,16 +46,16 @@ def main():
     print("=" * 70)
     print(f"[*] Python: {sys.version.split()[0]} ({sys.executable})")
 
-    # Check PyQt6
-    try:
-        import PyQt6
-        print("[✓] PyQt6 is installed.")
-    except ImportError:
-        print("[!] Installing PyQt6 & dependencies via pip...")
-        cmd = [sys.executable, "-m", "pip", "install", "PyQt6"]
-        if req_file and req_file.exists():
-            cmd += ["-r", str(req_file)]
-        subprocess.run(cmd)
+    if "--cli" not in sys.argv and "--test" not in sys.argv:
+        try:
+            from PyQt6 import QtWidgets
+        except ImportError:
+            if not req_file:
+                print("[ERROR] Missing requirements.txt")
+                sys.exit(1)
+            result = subprocess.run([sys.executable, "-m", "pip", "install", "-r", str(req_file)])
+            if result.returncode:
+                sys.exit(result.returncode)
 
     if not main_script or not main_script.is_file():
         print("[ERROR] Could not find main.py!")

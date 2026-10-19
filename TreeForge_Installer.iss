@@ -63,9 +63,9 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopShortcut}"; GroupDescription
 Source: "dist\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 
 ; Embedded Application Assets and Icons (if available in build tree)
-Source: "TreeForge\assets\*"; DestDir: "{app}\TreeForge\assets"; Flags: ignoreversion recursesubdirs createallsubdirs; Check: DirExists(ExpandConstant('{src}\TreeForge\assets'))
-Source: "README.md"; DestDir: "{app}"; Flags: ignoreversion; Check: FileExists(ExpandConstant('{src}\README.md'))
-Source: "TreeForge\CHANGELOG.md"; DestDir: "{app}"; Flags: ignoreversion; Check: FileExists(ExpandConstant('{src}\TreeForge\CHANGELOG.md'))
+Source: "TreeForge\assets\*"; DestDir: "{app}\TreeForge\assets"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist
+Source: "TreeForge\README.md"; DestDir: "{app}"; Flags: ignoreversion
+Source: "TreeForge\CHANGELOG.md"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
@@ -74,14 +74,3 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgramText}"; Flags: nowait postinstall skipifsilent
-
-[Code]
-function DirExists(Dir: String): Boolean;
-begin
-  Result := DirExists(Dir);
-end;
-
-function FileExists(File: String): Boolean;
-begin
-  Result := FileExists(File);
-end;

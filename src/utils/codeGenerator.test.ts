@@ -24,22 +24,20 @@ test('generateBoilerplateForFile generates unittest for test files', () => {
   assert.ok(code.includes('unittest.TestCase'));
 });
 
-test('generateStandalonePythonInstaller embeds file dictionary properly', () => {
-  const files = {
-    'main.py': 'print("hello world")',
-    'README.md': '# Hello',
-  };
+test('standalone installers encode untrusted data instead of interpolating executable source', () => {
+  const files = { 'main.py': 'print("hello world")' };
   const script = generateStandalonePythonInstaller(files, 'DemoProject');
-  assert.ok(script.includes('PROJECT_NAME = "DemoProject"'));
-  assert.ok(script.includes('FILES_DATA = {'));
-  assert.ok(script.includes('hello world'));
+  assert.ok(script.startsWith('#!/usr/bin/env python3'));
+  assert.ok(script.includes("PAYLOAD = '"));
+  assert.ok(!script.includes('hello world'));
+  const bash = generateStandaloneBashInstaller(files, 'DemoProject');
+  assert.ok(bash.startsWith('#!/usr/bin/env bash'));
+  assert.ok(bash.includes("python3 - <<'TREEFORGE_PYTHON'"));
 });
 
-test('generateStandaloneBashInstaller creates valid bash script', () => {
-  const files = {
-    'main.py': 'print("hello")',
-  };
-  const script = generateStandaloneBashInstaller(files, 'DemoProject');
-  assert.ok(script.startsWith('#!/usr/bin/env bash'));
-  assert.ok(script.includes('cat << \'EOF\' > "main.py"'));
+test('non-GUI stacks generate CLI entry points without Qt requirements', () => {
+  for (const stack of ['generic', 'cli_tool', 'data_pipeline'] as const) {
+    assert.ok(generateBoilerplateForFile('main.py', 'App', { stack }).includes('argparse'));
+    assert.ok(!generateBoilerplateForFile('requirements.txt', 'App', { stack }).includes('PyQt6'));
+  }
 });
