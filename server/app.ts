@@ -14,7 +14,7 @@ interface SourceFile { path: string; name: string; content: string; isDir: boole
 interface AppOptions {
   root: string;
   env?: NodeJS.ProcessEnv;
-  generate?: (prompt: string, language: string) => Promise<string>;
+  generate?: (prompt: string, language: string, model: string) => Promise<string>;
 }
 
 export function createApp({ root, env = process.env, generate }: AppOptions) {
@@ -95,14 +95,30 @@ export function createApp({ root, env = process.env, generate }: AppOptions) {
     active++; daily.count++;
     try {
       const { prompt, language } = parsed.data;
-      const text = generate ? await generate(prompt, language) : (await new GoogleGenAI({
+      const primaryModel = env.GEMINI_MODEL || 'gemini-2.5-flash';
+      // Keep the fallback configurable: model availability is account/region dependent.
+      const fallbackModel = env.GEMINI_FALLBACK_MODEL || 'gemini-2.5-flash-lite';
+      const models = [...new Set([primaryModel, fallbackModel])];
+      const ai = generate ? null : new GoogleGenAI({
         apiKey: env.GEMINI_API_KEY!, httpOptions: { timeout: 45_000 },
-      }).models.generateContent({ model: env.GEMINI_MODEL || 'gemini-2.5-flash',
-        contents: prompt,
-        config: { systemInstruction: `You are a software architect. Return a JSON object with projectName, summary, treeText and batchCode strings. treeText must be a relative project tree using box drawing characters and trailing slashes for folders. batchCode must contain starter code for 2-4 key files separated by ### relative_path markers. Do not include unsafe or absolute paths. Write explanations in ${language === 'ar' ? 'Arabic' : 'English'}.`,
-          responseMimeType: 'application/json', maxOutputTokens: 8192 },
-      })).text;
-      const data = aiResultSchema.parse(JSON.parse(text || ''));
+      });
+      let data: z.infer<typeof aiResultSchema> | undefined;
+      let lastError: unknown;
+      for (const model of models) {
+        try {
+          const text = generate ? await generate(prompt, language, model) : (await ai!.models.generateContent({
+            model,
+            contents: prompt,
+            config: { systemInstruction: `You are a software architect. Return a JSON object with projectName, summary, treeText and batchCode strings. treeText must be a relative project tree using box drawing characters and trailing slashes for folders. batchCode must contain starter code for 2-4 key files separated by ### relative_path markers. Do not include unsafe or absolute paths. Write explanations in ${language === 'ar' ? 'Arabic' : 'English'}.`,
+              responseMimeType: 'application/json', maxOutputTokens: 8192 },
+          })).text;
+          data = aiResultSchema.parse(JSON.parse(text || ''));
+          break;
+        } catch (error) {
+          lastError = error;
+        }
+      }
+      if (!data) throw lastError || new Error('AI generation failed');
       res.json({ success: true, data });
     } catch (error) {
       console.error('AI generation failed', error);

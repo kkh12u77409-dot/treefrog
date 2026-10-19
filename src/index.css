@@ -1,7 +1,77 @@
 @import "tailwindcss";
 
+/* Shared brand palette: green communicates creation/success; blue is its primary partner. */
+:root {
+  --tf-brand-green: #10b981;
+  --tf-brand-blue: #3b82f6;
+}
+
 body {
   font-family: 'Cairo', 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Keep icon-and-label controls aligned and consistently spaced in both RTL and LTR. */
+button:has(svg) {
+  column-gap: 0.5rem;
+}
+
+button:has(svg) > :not([hidden]) ~ :not([hidden]) {
+  margin-inline-start: 0;
+  margin-inline-end: 0;
+}
+
+button svg {
+  flex-shrink: 0;
+}
+
+/* Match the stroke weight used by TreeForge's desktop Lucide-style SVG set. */
+svg.lucide {
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Tailwind icon color utilities often use pale colors that lose contrast in light mode.
+   Normalize neutral icons, then keep semantic and brand colors readable. */
+html:not(.dark) svg {
+  color: #475569;
+}
+
+html:not(.dark) svg[class*="text-white"],
+html:not(.dark) svg[class*="text-slate-"] {
+  color: #475569;
+}
+
+html:not(.dark) svg[class*="text-emerald-"],
+html:not(.dark) svg[class*="text-green-"] {
+  color: #047857;
+}
+
+html:not(.dark) svg[class*="text-blue-"],
+html:not(.dark) svg[class*="text-sky-"] {
+  color: #1d4ed8;
+}
+
+html:not(.dark) svg[class*="text-purple-"],
+html:not(.dark) svg[class*="text-indigo-"],
+html:not(.dark) svg[class*="text-violet-"],
+html:not(.dark) svg[class*="text-fuchsia-"] {
+  color: #6d28d9;
+}
+
+html:not(.dark) svg[class*="text-red-"],
+html:not(.dark) svg[class*="text-rose-"] {
+  color: #b91c1c;
+}
+
+html:not(.dark) svg[class*="text-amber-"],
+html:not(.dark) svg[class*="text-yellow-"] {
+  color: #b45309;
+}
+
+html:not(.dark) svg[class*="text-teal-"],
+html:not(.dark) svg[class*="text-cyan-"] {
+  color: #0e7490;
 }
 
 code, pre, .font-mono {

@@ -192,7 +192,7 @@ export const AiArchitectTab: React.FC<AiArchitectTabProps> = ({ language, onAppl
           <button
             onClick={handleGenerate}
             disabled={loading || !prompt.trim()}
-            className="flex items-center space-x-2 rtl:space-x-reverse px-6 py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-400 hover:to-indigo-400 text-white font-bold text-xs shadow-lg shadow-purple-500/25 transition disabled:opacity-50"
+            className="flex items-center space-x-2 rtl:space-x-reverse px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-400 hover:to-blue-400 text-white font-bold text-xs shadow-lg shadow-emerald-500/25 transition disabled:opacity-50"
           >
             {loading ? (
               <>

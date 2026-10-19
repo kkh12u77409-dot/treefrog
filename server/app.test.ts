@@ -5,7 +5,7 @@ import type { Server } from 'node:http';
 import { createApp } from './app';
 
 const valid = { projectName: 'App', summary: 'Example', treeText: 'App/\n└── main.py', batchCode: '### main.py\nprint(1)' };
-async function withServer(env: NodeJS.ProcessEnv, generate: (() => Promise<string>) | undefined,
+async function withServer(env: NodeJS.ProcessEnv, generate: ((prompt: string, language: string, model: string) => Promise<string>) | undefined,
   run: (base: string) => Promise<void>) {
   const server: Server = createApp({ root: process.cwd(), env, generate }).listen(0, '127.0.0.1');
   await new Promise<void>(resolve => server.once('listening', resolve));
@@ -40,6 +40,19 @@ test('AI invalid output is not reported as success and does not leak provider er
     assert.equal(response.status, 502);
     assert.equal((await response.json()).success, undefined);
   });
+});
+test('AI retries invalid primary output with a distinct configured fallback model', async () => {
+  const models: string[] = [];
+  await withServer({ ALLOW_PUBLIC_AI: 'true', GEMINI_MODEL: 'primary-model', GEMINI_FALLBACK_MODEL: 'fallback-model' },
+    async (_prompt, _language, model) => {
+      models.push(model);
+      return model === 'primary-model' ? '{"invalid":true}' : JSON.stringify(valid);
+    }, async base => {
+      const response = await post(base, { prompt: 'App' });
+      assert.equal(response.status, 200);
+      assert.deepEqual((await response.json()).data, valid);
+      assert.deepEqual(models, ['primary-model', 'fallback-model']);
+    });
 });
 test('AI has a server-wide daily budget', async () => {
   await withServer({ ALLOW_PUBLIC_AI: 'true', AI_DAILY_LIMIT: '1' }, async () => JSON.stringify(valid), async base => {
