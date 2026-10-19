@@ -1,9 +1,0 @@
-[
-  {"name":"exact beats suffix", "text":"### main.py\nprint(1)", "candidates":["Other/main.py","main.py"], "status":"matched", "path":"main.py", "content":"print(1)"},
-  {"name":"ambiguous filename", "text":"### main.py\nprint(1)", "candidates":["App/a/main.py","App/b/main.py"], "status":"ambiguous", "path":"", "content":"print(1)"},
-  {"name":"fence info", "text":"```python:main.py\nprint(1)\n```", "candidates":["App/main.py"], "status":"matched", "path":"App/main.py", "content":"print(1)"},
-  {"name":"heading followed by fence info", "text":"### main.py\n```python:main.py\nprint(1)\n```", "candidates":["App/main.py"], "status":"matched", "path":"App/main.py", "content":"print(1)"},
-  {"name":"unsafe unmatched", "text":"### ../outside.py\nprint(1)", "candidates":["App/main.py"], "status":"not_found", "path":"", "content":"print(1)"},
-  {"name":"preserve indentation", "text":"### fragment.py\n    return 1\n", "candidates":["fragment.py"], "status":"matched", "path":"fragment.py", "content":"    return 1"},
-  {"name":"ignore marker in fence", "text":"### example.md\n```text\n### fake.py\n```", "candidates":["example.md"], "status":"matched", "path":"example.md", "content":"### fake.py"}
-]

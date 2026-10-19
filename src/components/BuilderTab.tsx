@@ -120,12 +120,9 @@ interface BuilderTabProps {
   language: Language;
   onSendToContent: (treeRoot: WebTreeNode, candidatePaths: string[]) => void;
   externalTreeText?: string;
-  active?: boolean;
-  projectVersion?: number;
-  fileContents?: Record<string, string>;
 }
 
-export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToContent, externalTreeText, active = true, fileContents, projectVersion = 0 }) => {
+export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToContent, externalTreeText }) => {
   const isAr = language === 'ar';
 
   // State Management Layer with Undo/Redo & History tracking
@@ -158,7 +155,6 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
     initialAddInitPy: true,
     initialStarterContent: true,
     maxHistory: 50,
-    active,
   });
 
   // Listen for AI Architect external project updates
@@ -170,7 +166,7 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
         'تطبيق هيكل المشروع من الذكاء الاصطناعي'
       );
     }
-  }, [externalTreeText, projectVersion, resetTree]);
+  }, [externalTreeText, resetTree]);
 
   const [dryRun, setDryRun] = useState<boolean>(false);
   const [copied, setCopied] = useState<boolean>(false);
@@ -202,13 +198,12 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
       const disabledSet = new Set(disabledNodePaths);
       function applyDisabled(n: WebTreeNode) {
         n.enabled = !disabledSet.has(n.path);
-        if (fileContents && Object.hasOwn(fileContents, n.path)) n.content = fileContents[n.path];
         n.children.forEach(applyDisabled);
       }
       applyDisabled(res.root);
     }
     return res;
-  }, [treeText, disabledNodePaths, fileContents]);
+  }, [treeText, disabledNodePaths]);
 
   // Filter visual tree structure by search query for fast navigation in large projects
   const { filteredRoot, matchCount } = useMemo(() => {
@@ -220,7 +215,6 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
     const list: string[] = [];
     if (!parseResult.root) return list;
     function collect(n: WebTreeNode) {
-      if (!n.enabled) return;
       if (!n.isDir) list.push(n.path);
       n.children.forEach(collect);
     }
@@ -298,7 +292,7 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
 
   // Download project ZIP
   const handleDownloadZip = async () => {
-    if (!parseResult.root || parseResult.errors.length) return;
+    if (!parseResult.root) return;
     if (dryRun) {
       showToast(
         isAr
@@ -514,7 +508,7 @@ export const BuilderTab: React.FC<BuilderTabProps> = ({ language, onSendToConten
 
             {/* Quick delete node button (pushes undoable state) */}
             <button
-              onClick={() => removeItemFromTree(node.path)}
+              onClick={() => removeItemFromTree(node.name)}
               className="opacity-0 group-hover:opacity-100 p-1 text-slate-500 hover:text-red-400 transition"
               title={isAr ? `حذف ${node.name}` : `Remove ${node.name}`}
             >

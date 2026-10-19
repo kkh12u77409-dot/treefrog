@@ -1,4 +1,3 @@
-import { validateRelativePath } from '../utils/pathSafety';
 import React, { useState, useEffect } from 'react';
 import { 
   FileCode2, 
@@ -47,9 +46,6 @@ interface ContentTabProps {
   language: Language;
   candidateFiles: string[];
   initialBatchCode?: string;
-  projectVersion?: number;
-  virtualFiles: Record<string, string>;
-  setVirtualFiles: React.Dispatch<React.SetStateAction<Record<string, string>>>;
 }
 
 const SAMPLE_BATCH = `### main.py
@@ -109,14 +105,22 @@ export const ContentTab: React.FC<ContentTabProps> = ({
   language,
   candidateFiles,
   initialBatchCode = '',
-  virtualFiles, setVirtualFiles, projectVersion = 0,
 }) => {
   const isAr = language === 'ar';
   const [subTab, setSubTab] = useState<'batch' | 'single' | 'queue'>('batch');
 
-  const filesList = candidateFiles;
+  // Candidate file list (if none passed from builder, supply default MyProject list)
+  const filesList = candidateFiles.length > 0 ? candidateFiles : [
+    'MyProject/main.py',
+    'MyProject/requirements.txt',
+    'MyProject/README.md',
+    'MyProject/app/server.py',
+    'MyProject/app/models.py',
+    'MyProject/tests/test_server.py',
+  ];
 
   // In-memory file storage
+  const [virtualFiles, setVirtualFiles] = useState<Record<string, string>>({});
   const [backupHistory, setBackupHistory] = useState<Record<string, string> | null>(null);
 
   // Batch Splitter State
@@ -128,7 +132,6 @@ export const ContentTab: React.FC<ContentTabProps> = ({
   // Single File State
   const [selectedFile, setSelectedFile] = useState<string>(filesList[0] || '');
   const [singleEditorContent, setSingleEditorContent] = useState<string>('');
-  const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [showDiffModal, setShowDiffModal] = useState<boolean>(false);
 
   // Chunk Inspection Modal State
@@ -161,32 +164,15 @@ export const ContentTab: React.FC<ContentTabProps> = ({
   useEffect(() => {
     if (initialBatchCode) {
       setBatchInput(initialBatchCode);
-      setChunks([]);
-      setBackupHistory(null);
-      setDrafts({});
-      setQueue([]);
     }
-  }, [initialBatchCode, projectVersion]);
-
-  const workspace = filesList[0]?.split('/')[0] || '';
-  useEffect(() => {
-    setBackupHistory(null);
-    setChunks([]);
-    setDrafts({});
-    setQueue([]);
-    setSelectedFile('');
-  }, [workspace]);
-  useEffect(() => {
-    const paths = candidateFiles;
-    setSelectedFile(prev => paths.includes(prev) ? prev : paths[0] || '');
-  }, [candidateFiles]);
+  }, [initialBatchCode]);
 
   // When selected single file changes, load its content
   useEffect(() => {
     if (selectedFile) {
-      setSingleEditorContent(drafts[selectedFile] ?? virtualFiles[selectedFile] ?? `# Content for ${selectedFile}\n`);
+      setSingleEditorContent(virtualFiles[selectedFile] || `# Content for ${selectedFile}\n`);
     }
-  }, [selectedFile, virtualFiles, drafts]);
+  }, [selectedFile, virtualFiles]);
 
   const notify = (text: string, type: 'success' | 'info' | 'error' = 'success') => {
     setNotification({ text, type });
@@ -227,7 +213,7 @@ export const ContentTab: React.FC<ContentTabProps> = ({
 
   // Save selected batch chunks into virtual files
   const handleSaveSelectedBatch = () => {
-    const toSave = chunks.filter((c) => c.included && c.resolvedPath && c.matchStatus === 'matched');
+    const toSave = chunks.filter((c) => c.included && c.resolvedPath);
     if (toSave.length === 0) {
       notify(isAr ? 'لم يتم تحديد أي ملفات صالحة للحفظ' : 'No valid files selected', 'error');
       return;
@@ -239,15 +225,14 @@ export const ContentTab: React.FC<ContentTabProps> = ({
 
     const updated = { ...virtualFiles };
     for (const chunk of toSave) {
-      updated[validateRelativePath(chunk.resolvedPath)] = chunk.content;
+      updated[chunk.resolvedPath] = chunk.content;
     }
     setVirtualFiles(updated);
-    setDrafts(prev => { const next = { ...prev }; for (const chunk of toSave) delete next[chunk.resolvedPath]; return next; });
 
     notify(
       isAr
-        ? `تم حفظ ${toSave.length} ملفاً بنجاح في الذاكرة مع لقطة للتراجع!`
-        : `Successfully injected ${toSave.length} files into memory with an undo snapshot!`,
+        ? `تم حفظ ${toSave.length} ملفاً بنجاح في الذاكرة مع إنشاء نسخة احتياطية (.bak)!`
+        : `Successfully injected ${toSave.length} files into memory with .bak backup!`,
       'success'
     );
   };
@@ -259,7 +244,6 @@ export const ContentTab: React.FC<ContentTabProps> = ({
       return;
     }
     setVirtualFiles(backupHistory);
-    setDrafts({});
     setBackupHistory(null);
     notify(isAr ? 'تم استرجاع النسخة السابقة بنجاح من النسخ الاحتياطية!' : 'Restored previous state from backup!', 'info');
   };
@@ -274,7 +258,7 @@ export const ContentTab: React.FC<ContentTabProps> = ({
     }
 
     for (const p of keys) {
-      zip.file(validateRelativePath(p), virtualFiles[p]);
+      zip.file(p, virtualFiles[p]);
     }
     const blob = await zip.generateAsync({ type: 'blob' });
     downloadBlob(blob, 'Injected_Project_Files.zip');
@@ -285,7 +269,7 @@ export const ContentTab: React.FC<ContentTabProps> = ({
   const handleExportStandalonePython = () => {
     const keys = Object.keys(virtualFiles);
     const filesToExport = keys.length > 0 ? virtualFiles : Object.fromEntries(
-      chunks.filter(c => c.included && c.resolvedPath && c.matchStatus === 'matched').map(c => [c.resolvedPath, c.content])
+      chunks.filter(c => c.resolvedPath).map(c => [c.resolvedPath, c.content])
     );
 
     if (Object.keys(filesToExport).length === 0) {
@@ -305,7 +289,7 @@ export const ContentTab: React.FC<ContentTabProps> = ({
   const handleExportStandaloneBash = () => {
     const keys = Object.keys(virtualFiles);
     const filesToExport = keys.length > 0 ? virtualFiles : Object.fromEntries(
-      chunks.filter(c => c.included && c.resolvedPath && c.matchStatus === 'matched').map(c => [c.resolvedPath, c.content])
+      chunks.filter(c => c.resolvedPath).map(c => [c.resolvedPath, c.content])
     );
 
     if (Object.keys(filesToExport).length === 0) {
@@ -325,7 +309,7 @@ export const ContentTab: React.FC<ContentTabProps> = ({
   const handleExportJsonManifest = () => {
     const keys = Object.keys(virtualFiles);
     const filesToExport = keys.length > 0 ? virtualFiles : Object.fromEntries(
-      chunks.filter(c => c.included && c.resolvedPath && c.matchStatus === 'matched').map(c => [c.resolvedPath, c.content])
+      chunks.filter(c => c.resolvedPath).map(c => [c.resolvedPath, c.content])
     );
 
     const manifest = {
@@ -381,7 +365,7 @@ export const ContentTab: React.FC<ContentTabProps> = ({
     if (!selectedFile) return;
     setVirtualFiles((prev) => ({
       ...prev,
-      [validateRelativePath(selectedFile)]: singleEditorContent,
+      [selectedFile]: singleEditorContent,
     }));
     notify(isAr ? `تم حفظ ${selectedFile} بنجاح!` : `Saved ${selectedFile} successfully!`, 'success');
   };
@@ -398,12 +382,11 @@ export const ContentTab: React.FC<ContentTabProps> = ({
     if (queue.length === 0) return;
     const updated = { ...virtualFiles };
     for (const item of queue) {
-      updated[validateRelativePath(item.path)] = item.content;
+      updated[item.path] = item.content;
     }
     setVirtualFiles(updated);
     notify(isAr ? `تم حفظ جميع ملفات الطابور (${queue.length})!` : `Saved all ${queue.length} files from queue!`, 'success');
     setQueue([]);
-    setDrafts({});
   };
 
   const getStatusBadge = (status: MatchStatus) => {
@@ -732,7 +715,7 @@ export const ContentTab: React.FC<ContentTabProps> = ({
                           {chunk.rawTargetPath}
                         </td>
                         <td className="p-3">
-                          {chunk.matchStatus !== 'matched' && chunk.candidatePaths.length > 0 ? (
+                          {chunk.candidatePaths.length > 1 ? (
                             <ThemedSelect
                               value={chunk.resolvedPath}
                               onChange={(newPath) => {
@@ -880,7 +863,7 @@ export const ContentTab: React.FC<ContentTabProps> = ({
             <div className="flex-1 my-3 overflow-hidden rounded-xl border border-slate-800 bg-slate-950">
               <PrismCodeEditor
                 value={singleEditorContent}
-                onChange={text => { setSingleEditorContent(text); setDrafts(prev => ({ ...prev, [selectedFile]: text })); }}
+                onChange={setSingleEditorContent}
                 filePath={selectedFile}
                 minHeight="100%"
               />

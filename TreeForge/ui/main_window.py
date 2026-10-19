@@ -42,18 +42,6 @@ class MainWindow(QMainWindow):
         theme.theme_changed.connect(self._on_theme_changed)
         i18n.language_changed.connect(self.retranslate_ui)
 
-    def closeEvent(self, event) -> None:
-        """Never destroy a QThread while filesystem work is in progress."""
-        workers = [page.worker for page in (self.builder_page, self.content_page)
-                   if page.worker and page.worker.isRunning()]
-        for worker in workers:
-            worker.cancel()
-        if any(not worker.wait(5000) for worker in workers):
-            event.ignore()
-            return
-        self.content_page.file_writer.clear_backup_history()
-        super().closeEvent(event)
-
     def _init_ui(self) -> None:
         central_widget = QWidget(self)
         central_widget.setObjectName("centralWidget")
